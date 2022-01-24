@@ -32,7 +32,7 @@ public final class AggregateFacePool implements FacePool {
     }
 
     @Override
-    public List<FaceCategory> getCategories() {
+    public Collection<FaceCategory> getCategories() {
         return categories;
     }
 }
