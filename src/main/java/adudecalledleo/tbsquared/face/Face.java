@@ -4,16 +4,21 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-public final class Face {
-    public static final Face BLANK = new Face("None",
+import adudecalledleo.tbsquared.definition.Definition;
+import adudecalledleo.tbsquared.definition.FromDefinition;
+
+public final class Face implements FromDefinition {
+    public static final Face BLANK = new Face(Definition.builtin(), "None",
             new BufferedImage(0, 0, BufferedImage.TYPE_INT_RGB), (name, image) -> new ImageIcon());
 
+    private final Definition sourceDefinition;
     private final String name;
     private final BufferedImage image;
     private final FaceIconProvider iconProvider;
     private ImageIcon icon;
 
-    public Face(String name, BufferedImage image, FaceIconProvider iconProvider) {
+    public Face(Definition sourceDefinition, String name, BufferedImage image, FaceIconProvider iconProvider) {
+        this.sourceDefinition = sourceDefinition;
         this.name = name;
         this.image = image;
         this.iconProvider = iconProvider;
@@ -21,6 +26,11 @@ public final class Face {
 
     public boolean isBlank() {
         return this == BLANK;
+    }
+
+    @Override
+    public Definition getSourceDefinition() {
+        return sourceDefinition;
     }
 
     public String getName() {

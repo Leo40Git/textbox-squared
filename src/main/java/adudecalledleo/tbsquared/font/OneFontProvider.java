@@ -8,7 +8,7 @@ public final class OneFontProvider implements FontProvider {
     }
 
     public static final String THE_ONLY_KEY = "the_one";
-    
+
     private final StyledFontCache styledFontCache;
     private final FontMetadata fontMetadata;
 
