@@ -7,6 +7,8 @@ import adudecalledleo.tbsquared.text.node.ModifierNode;
 import adudecalledleo.tbsquared.text.node.NodeList;
 import adudecalledleo.tbsquared.util.Span;
 
+import static adudecalledleo.tbsquared.text.modifier.ModifierParser.modLen;
+
 public final class StyleModifierNode extends ModifierNode {
     public static final char KEY = 's';
 
