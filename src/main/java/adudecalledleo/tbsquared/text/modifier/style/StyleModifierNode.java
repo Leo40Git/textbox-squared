@@ -1,8 +1,9 @@
-package adudecalledleo.tbsquared.text.modifier;
+package adudecalledleo.tbsquared.text.modifier.style;
 
 import java.util.Arrays;
 
 import adudecalledleo.tbsquared.text.TextParser;
+import adudecalledleo.tbsquared.text.modifier.ModifierParser;
 import adudecalledleo.tbsquared.text.node.ModifierNode;
 import adudecalledleo.tbsquared.text.node.NodeList;
 import adudecalledleo.tbsquared.util.Span;

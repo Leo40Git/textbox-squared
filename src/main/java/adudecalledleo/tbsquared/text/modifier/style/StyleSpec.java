@@ -1,6 +1,4 @@
-package adudecalledleo.tbsquared.text.modifier;
-
-import java.util.Objects;
+package adudecalledleo.tbsquared.text.modifier.style;
 
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.text.node.ErrorNode;
@@ -265,25 +263,6 @@ public final class StyleSpec {
 
     public int sizeAdjust() {
         return sizeAdjust;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (StyleSpec) obj;
-        return this.reset == that.reset &&
-                Objects.equals(this.bold, that.bold) &&
-                Objects.equals(this.italic, that.italic) &&
-                Objects.equals(this.underline, that.underline) &&
-                Objects.equals(this.strikethrough, that.strikethrough) &&
-                Objects.equals(this.superscript, that.superscript) &&
-                this.sizeAdjust == that.sizeAdjust;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(reset, bold, italic, underline, strikethrough, superscript, sizeAdjust);
     }
 
     @Override
