@@ -1,27 +1,37 @@
 package adudecalledleo.tbsquared.data;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-public final class DefaultDataTracker implements MutableDataTracker {
-    private final Map<DataKey<?>, Object> values;
-    private final Set<DataKey<?>> keyView;
-    private DataTracker view;
+@SuppressWarnings("ClassCanBeRecord")
+public final class DefaultDataTracker implements DataTracker {
+    public static final class Builder {
+        private final Map<DataKey<?>, Object> values;
 
-    private final class ViewDelegate implements DataTracker {
-        @Override
-        public <T> Optional<T> get(DataKey<T> key) {
-            return DefaultDataTracker.this.get(key);
+        private Builder() {
+            values = new HashMap<>();
         }
 
-        @Override
-        public Set<DataKey<?>> getKeys() {
-            return DefaultDataTracker.this.getKeys();
+        public <T> Builder set(DataKey<T> key, T value) {
+            values.put(key, value);
+            return this;
+        }
+
+        public DataTracker build() {
+            return new DefaultDataTracker(Map.copyOf(values));
         }
     }
 
-    public DefaultDataTracker() {
-        values = new HashMap<>();
-        keyView = Collections.unmodifiableSet(values.keySet());
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private final Map<DataKey<?>, Object> values;
+
+    private DefaultDataTracker(Map<DataKey<?>, Object> values) {
+        this.values = values;
     }
 
     @Override
@@ -35,31 +45,8 @@ public final class DefaultDataTracker implements MutableDataTracker {
 
     @Override
     public Set<DataKey<?>> getKeys() {
-        return keyView;
+        return values.keySet();
     }
 
-    @Override
-    public <T> DefaultDataTracker set(DataKey<T> key, T value) {
-        values.put(key, value);
-        return this;
-    }
 
-    @Override
-    public DefaultDataTracker remove(DataKey<?> key) {
-        values.remove(key);
-        return this;
-    }
-
-    @Override
-    public void clear() {
-        values.clear();
-    }
-
-    @Override
-    public DataTracker view() {
-        if (view == null) {
-            view = new ViewDelegate();
-        }
-        return view;
-    }
 }
