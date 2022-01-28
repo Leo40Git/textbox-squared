@@ -1,5 +1,5 @@
-/.gradle/
-/.idea/
-/build/
-/out/
-/*.png
+.gradle/
+.idea/
+build/
+out/
+output.png
