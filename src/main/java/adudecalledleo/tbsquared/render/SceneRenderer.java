@@ -8,7 +8,7 @@ import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.text.node.NodeList;
 
 public interface SceneRenderer {
-    Collection<FacePosition> getFacePositions();
+    Collection<? extends FacePosition> getFacePositions();
     FacePosition getDefaultFacePosition();
 
     BufferedImage renderScene(Map<FacePosition, Face> faces, NodeList nodes);
