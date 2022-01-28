@@ -7,14 +7,14 @@ import java.util.Collection;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.scene.FacePosition;
 import adudecalledleo.tbsquared.scene.Scene;
-import adudecalledleo.tbsquared.scene.render.SceneRenderer;
+import adudecalledleo.tbsquared.scene.SceneRenderer;
 
 public record CompositeSceneRenderer(Config config,
-                                     SceneImageFactory imageFactory,
+                                     adudecalledleo.tbsquared.scene.render.composite.SceneImageFactory imageFactory,
                                      FontProvider fonts,
-                                     TextboxRenderer textboxRenderer,
-                                     FaceRenderer faceRenderer,
-                                     TextRenderer textRenderer) implements SceneRenderer {
+                                     adudecalledleo.tbsquared.scene.render.composite.TextboxRenderer textboxRenderer,
+                                     adudecalledleo.tbsquared.scene.render.composite.FaceRenderer faceRenderer,
+                                     adudecalledleo.tbsquared.scene.render.composite.TextRenderer textRenderer) implements SceneRenderer {
     public record Config(int sceneWidth, int sceneHeight, Color sceneBackground,
                          int textboxX, int textboxY, int textboxWidth, int textboxHeight,
                          int textboxMarginX, int textboxMarginY) { }

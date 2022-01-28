@@ -21,7 +21,7 @@ import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.scene.Scene;
-import adudecalledleo.tbsquared.scene.render.SceneRenderer;
+import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.scene.render.composite.CompositeSceneRenderer;
 import adudecalledleo.tbsquared.scene.render.composite.impl.AbstractTextRenderer;
 import adudecalledleo.tbsquared.scene.render.composite.impl.DefaultSceneImageFactory;
