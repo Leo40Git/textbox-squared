@@ -1,8 +1,8 @@
-package adudecalledleo.tbsquared.scene.render.composite.impl;
+package adudecalledleo.tbsquared.scene.composite.impl;
 
 import java.awt.image.*;
 
-import adudecalledleo.tbsquared.scene.render.composite.SceneImageFactory;
+import adudecalledleo.tbsquared.scene.composite.SceneImageFactory;
 
 public final class DefaultSceneImageFactory implements SceneImageFactory {
     @Override

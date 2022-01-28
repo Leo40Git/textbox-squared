@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.scene.render.composite;
+package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -10,11 +10,11 @@ import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 
 public record CompositeSceneRenderer(Config config,
-                                     adudecalledleo.tbsquared.scene.render.composite.SceneImageFactory imageFactory,
+                                     SceneImageFactory imageFactory,
                                      FontProvider fonts,
-                                     adudecalledleo.tbsquared.scene.render.composite.TextboxRenderer textboxRenderer,
-                                     adudecalledleo.tbsquared.scene.render.composite.FaceRenderer faceRenderer,
-                                     adudecalledleo.tbsquared.scene.render.composite.TextRenderer textRenderer) implements SceneRenderer {
+                                     TextboxRenderer textboxRenderer,
+                                     FaceRenderer faceRenderer,
+                                     TextRenderer textRenderer) implements SceneRenderer {
     public record Config(int sceneWidth, int sceneHeight, Color sceneBackground,
                          int textboxX, int textboxY, int textboxWidth, int textboxHeight,
                          int textboxMarginX, int textboxMarginY) { }

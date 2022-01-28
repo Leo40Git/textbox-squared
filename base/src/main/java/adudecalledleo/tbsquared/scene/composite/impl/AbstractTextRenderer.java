@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.scene.render.composite.impl;
+package adudecalledleo.tbsquared.scene.composite.impl;
 
 import java.awt.*;
 
@@ -6,7 +6,7 @@ import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.font.FontStyle;
-import adudecalledleo.tbsquared.scene.render.composite.TextRenderer;
+import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.text.modifier.color.ColorModifierNode;
 import adudecalledleo.tbsquared.text.modifier.style.StyleModifierNode;
 import adudecalledleo.tbsquared.text.modifier.style.StyleSpec;

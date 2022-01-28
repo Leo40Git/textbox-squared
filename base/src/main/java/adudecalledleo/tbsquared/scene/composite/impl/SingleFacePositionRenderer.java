@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.scene.render.composite.impl;
+package adudecalledleo.tbsquared.scene.composite.impl;
 
 import java.awt.*;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.Set;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.FacePosition;
-import adudecalledleo.tbsquared.scene.render.composite.FaceRenderer;
+import adudecalledleo.tbsquared.scene.composite.FaceRenderer;
 
 public abstract class SingleFacePositionRenderer implements FaceRenderer {
     public static final String THE_ONLY_POSITION_NAME = "the_one";
