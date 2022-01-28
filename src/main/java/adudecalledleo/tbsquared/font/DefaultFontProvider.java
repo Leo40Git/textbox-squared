@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimpleFontProvider implements FontProvider {
+public class DefaultFontProvider implements FontProvider {
     public record FontRecord(StyledFontCache styledCache, FontMetadata metadata) { }
     
     public static final class Builder {
@@ -29,7 +29,7 @@ public class SimpleFontProvider implements FontProvider {
         }
 
         public FontProvider build() {
-            return new SimpleFontProvider(records, defaultFontKey);
+            return new DefaultFontProvider(records, defaultFontKey);
         }
     }
 
@@ -40,7 +40,7 @@ public class SimpleFontProvider implements FontProvider {
     protected final Map<String, FontRecord> records;
     protected final String defaultFontKey;
 
-    public SimpleFontProvider(Map<String, FontRecord> records, String defaultFontKey) {
+    public DefaultFontProvider(Map<String, FontRecord> records, String defaultFontKey) {
         this.records = Map.copyOf(records);
         this.defaultFontKey = defaultFontKey;
     }

@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SimpleFacePool implements FacePool {
+public class DefaultFacePool implements FacePool {
     protected final Map<String, FaceCategory> categories;
 
-    public SimpleFacePool(Collection<FaceCategory> categories) {
+    public DefaultFacePool(Collection<FaceCategory> categories) {
         Map<String, FaceCategory> catMap = new LinkedHashMap<>(categories.size());
         for (var cat : categories) {
             catMap.put(cat.getName(), cat);
@@ -15,7 +15,7 @@ public class SimpleFacePool implements FacePool {
         this.categories = Map.copyOf(catMap);
     }
 
-    public SimpleFacePool(FaceCategory... categories) {
+    public DefaultFacePool(FaceCategory... categories) {
         Map<String, FaceCategory> catMap = new LinkedHashMap<>(categories.length);
         for (var cat : categories) {
             catMap.put(cat.getName(), cat);
