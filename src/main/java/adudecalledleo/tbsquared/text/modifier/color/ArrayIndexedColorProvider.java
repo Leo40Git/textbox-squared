@@ -19,4 +19,9 @@ public final class ArrayIndexedColorProvider implements IndexedColorProvider {
     public Color getColorByIndex(int index) {
         return colors[index];
     }
+
+    @Override
+    public Color[] getAllColors() {
+        return colors.clone();
+    }
 }
