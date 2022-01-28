@@ -74,12 +74,12 @@ public final class CompositeScreenRendererTest {
 
     private static final class FaceRendererImpl extends SingleFacePositionRenderer {
         @Override
-        protected Point renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
+        protected Dimension renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
             if (face.isBlank()) {
-                return new Point(0, 0);
+                return new Dimension(0, 0);
             }
             g.drawImage(face.getImage(), x, y, null);
-            return new Point(144 + 12, 0);
+            return new Dimension(144 + 12, 0);
         }
     }
 
@@ -128,10 +128,10 @@ public final class CompositeScreenRendererTest {
 
         SceneRenderer sceneRenderer = new CompositeSceneRenderer(
                 new CompositeSceneRenderer.Config(
-                        sW, sH, Colors.darker(Color.RED, 0.1),
-                        0, sH - tbH,
-                        tbW, tbH,
-                        12, 12
+                        new Dimension(sW, sH),
+                        Colors.darker(Color.RED, 0.2),
+                        new Rectangle(0, sH - tbH, tbW, tbH),
+                        new Dimension(12, 12)
                 ),
                 new DefaultSceneImageFactory(),
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),

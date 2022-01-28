@@ -36,7 +36,7 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
     }
 
     @Override
-    public Point renderFaces(Graphics2D g, Map<FacePosition, Face> faces, DataTracker sceneMeta, int x, int y) {
+    public Dimension renderFaces(Graphics2D g, Map<FacePosition, Face> faces, DataTracker sceneMeta, int x, int y) {
         Face face = faces.get(THE_ONLY_POSITION);
         if (face == null) {
             throw new IllegalStateException("Missing required face in position \"%s\"".formatted(THE_ONLY_POSITION_NAME));
@@ -44,5 +44,5 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
         return renderFace(g, face, sceneMeta, x, y);
     }
 
-    protected abstract Point renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y);
+    protected abstract Dimension renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y);
 }
