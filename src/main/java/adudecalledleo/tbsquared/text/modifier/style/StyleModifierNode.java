@@ -29,11 +29,6 @@ public final class StyleModifierNode extends ModifierNode {
 
         @Override
         public void parse(TextParser.Context ctx, int start, int argsStart, String args, NodeList nodes) {
-            if (args == null) {
-                nodes.add(new StyleModifierNode(start, 2, StyleSpec.DEFAULT));
-                return;
-            }
-
             nodes.add(new StyleModifierNode(start, modLen(args),
                     StyleSpec.fromModArgs(ERROR_PREFIX, argsStart, args, nodes),
                     new Span(argsStart, args.length())));

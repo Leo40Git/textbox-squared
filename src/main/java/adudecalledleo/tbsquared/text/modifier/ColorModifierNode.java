@@ -32,13 +32,13 @@ public final class ColorModifierNode extends ModifierNode {
         public void parse(TextParser.Context ctx, int start, int argsStart, String args, NodeList nodes) {
             IndexedColorProvider indexedColors = ctx.get(IndexedColorProvider.class);
 
-            if (args == null) {
-                nodes.add(new ErrorNode(start, 2,
-                        ERROR_PREFIX + "1 argument required, either window color ID or hex color"));
-                return;
-            } else if (args.isBlank()) {
+            if (args == null || args.isBlank()) {
+                String desc = "hex color";
+                if (indexedColors != null) {
+                    desc = "either color index or " + desc;
+                }
                 nodes.add(new ErrorNode(start, modLen(args),
-                        ERROR_PREFIX + "1 argument required, either window color ID or hex color"));
+                        ERROR_PREFIX + "1 argument required, " + desc));
                 return;
             }
 

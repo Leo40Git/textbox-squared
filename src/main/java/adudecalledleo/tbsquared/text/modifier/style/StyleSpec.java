@@ -57,6 +57,13 @@ public final class StyleSpec {
     }
 
     public static StyleSpec fromModArgs(String errorPrefix, int argsStart, String args, NodeList nodes) {
+        if (args == null) {
+            return StyleSpec.DEFAULT;
+        } else if (args.isBlank()) {
+            return new StyleSpec(false, TriState.DEFAULT, TriState.DEFAULT, TriState.DEFAULT, TriState.DEFAULT,
+                    Superscript.DEFAULT, 0);
+        }
+
         boolean reset = false;
         boolean invert = false;
         TriState bold = TriState.DEFAULT;
@@ -69,7 +76,13 @@ public final class StyleSpec {
         char[] chars = args.toCharArray();
         for (int i = 0; i < chars.length; i++) {
             switch (chars[i]) {
-            case 'R', 'r' -> reset = true;
+            case 'R', 'r' -> {
+                if (invert) {
+                    nodes.add(new ErrorNode(argsStart + i - 1, 1,
+                            errorPrefix + "Invert not supported for reset flag 'r'"));
+                }
+                reset = true;
+            }
             case '!' -> {
                 if (reset) {
                     nodes.add(new ErrorNode(argsStart + i, 1,
