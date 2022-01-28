@@ -39,15 +39,23 @@ public final class DefaultDataTracker implements MutableDataTracker {
     }
 
     @Override
-    public <T> void set(DataKey<T> key, T value) {
+    public <T> DefaultDataTracker set(DataKey<T> key, T value) {
         values.put(key, value);
+        return this;
     }
 
-    /**
-     * Gets an immutable view of this metadata tracker.
-     *
-     * @return immutable view of this tracker
-     */
+    @Override
+    public DefaultDataTracker remove(DataKey<?> key) {
+        values.remove(key);
+        return this;
+    }
+
+    @Override
+    public void clear() {
+        values.clear();
+    }
+
+    @Override
     public DataTracker view() {
         if (view == null) {
             view = new ViewDelegate();
