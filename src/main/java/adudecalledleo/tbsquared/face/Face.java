@@ -9,7 +9,7 @@ import adudecalledleo.tbsquared.definition.FromDefinition;
 
 public final class Face implements FromDefinition {
     public static final Face BLANK = new Face(Definition.builtin(), "None",
-            new BufferedImage(0, 0, BufferedImage.TYPE_INT_RGB), (name, image) -> new ImageIcon());
+            new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), (name, image) -> new ImageIcon());
 
     private final Definition sourceDefinition;
     private final String name;

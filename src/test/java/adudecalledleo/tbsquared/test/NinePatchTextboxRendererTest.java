@@ -22,7 +22,7 @@ public final class NinePatchTextboxRendererTest {
         Path outputPath = Paths.get(".", "output.png").toAbsolutePath();
 
         BufferedImage sourceImage;
-        try (var in = Resources.openStream(NinePatchTextboxRenderer.class, sourcePath)) {
+        try (var in = Resources.openStream(NinePatchTextboxRendererTest.class, sourcePath)) {
             sourceImage = ImageIO.read(in);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read source image from \"%s\"".formatted(sourcePath),

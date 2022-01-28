@@ -11,6 +11,13 @@ public record GraphicsState(Composite composite, Paint paint, Stroke stroke,
                 g.getTransform(), g.getBackground(), g.getClip(), g.getFont());
     }
 
+    public Color color() {
+        if (paint instanceof Color color) {
+            return color;
+        }
+        return null;
+    }
+
     public void restore(Graphics2D g) {
         g.setComposite(composite);
         g.setPaint(paint);
