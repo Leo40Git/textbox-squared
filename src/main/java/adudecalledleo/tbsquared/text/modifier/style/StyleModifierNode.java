@@ -2,7 +2,7 @@ package adudecalledleo.tbsquared.text.modifier.style;
 
 import java.util.Arrays;
 
-import adudecalledleo.tbsquared.metadata.MetadataTracker;
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.text.modifier.ModifierParser;
 import adudecalledleo.tbsquared.text.node.ModifierNode;
 import adudecalledleo.tbsquared.text.node.NodeList;
@@ -28,7 +28,7 @@ public final class StyleModifierNode extends ModifierNode {
         public static final String ERROR_PREFIX = "Style modifier: ";
 
         @Override
-        public void parse(MetadataTracker ctx, int start, int argsStart, String args, NodeList nodes) {
+        public void parse(DataTracker ctx, int start, int argsStart, String args, NodeList nodes) {
             nodes.add(new StyleModifierNode(start, modLen(args),
                     StyleSpec.fromModArgs(ERROR_PREFIX, argsStart, args, nodes),
                     new Span(argsStart, args.length())));

@@ -1,6 +1,6 @@
 package adudecalledleo.tbsquared.text;
 
-import adudecalledleo.tbsquared.metadata.MetadataTracker;
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.text.modifier.ModifierRegistry;
 import adudecalledleo.tbsquared.text.node.ErrorNode;
 import adudecalledleo.tbsquared.text.node.LineBreakNode;
@@ -16,7 +16,7 @@ public final class TextParser {
         sb = new StringBuilder();
     }
 
-    public NodeList parse(MetadataTracker ctx, String text) {
+    public NodeList parse(DataTracker ctx, String text) {
         text = TextSanitizer.apply(text);
 
         char[] chars = text.toCharArray();

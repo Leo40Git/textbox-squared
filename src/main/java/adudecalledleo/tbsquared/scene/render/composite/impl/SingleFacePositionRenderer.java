@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
-import adudecalledleo.tbsquared.metadata.MetadataTracker;
 import adudecalledleo.tbsquared.scene.FacePosition;
 import adudecalledleo.tbsquared.scene.render.composite.FaceRenderer;
 
@@ -36,7 +36,7 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
     }
 
     @Override
-    public Point renderFaces(Graphics2D g, Map<FacePosition, Face> faces, MetadataTracker sceneMeta, int x, int y) {
+    public Point renderFaces(Graphics2D g, Map<FacePosition, Face> faces, DataTracker sceneMeta, int x, int y) {
         Face face = faces.get(THE_ONLY_POSITION);
         if (face == null) {
             throw new IllegalStateException("Missing required face in position \"%s\"".formatted(THE_ONLY_POSITION_NAME));
@@ -44,5 +44,5 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
         return renderFace(g, face, sceneMeta, x, y);
     }
 
-    protected abstract Point renderFace(Graphics2D g, Face face, MetadataTracker sceneMeta, int x, int y);
+    protected abstract Point renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y);
 }
