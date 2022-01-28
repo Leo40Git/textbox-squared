@@ -26,6 +26,7 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     private final BufferedImage windowImage;
     private final RPGWindowTint backTint;
 
+    private final int backMargin;
     private final int backTileSize;
     private final Piece backBase, backOverlay;
     private final ThreadLocal<BufferedImage> backImage;
@@ -51,6 +52,7 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
         /// BACKGROUND
         this.backTint = backTint;
+        backMargin = version.textboxMargin();
         backTileSize = version.scale(64);
         backBase = new Piece(0, 0, backTileSize, backTileSize);
         backOverlay = new Piece(0, backTileSize, backTileSize, backTileSize);
@@ -92,9 +94,9 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         int arrowFrame = sceneMeta.get(SceneMetadata.ARROW_FRAME).orElse(-1);
 
         /// BACKGROUND
-        g.drawImage(getBackImage(width, height),
-                x, y, x + width, y + height,
-                0, 0, width, height,
+        g.drawImage(getBackImage(width - backMargin, height - backMargin),
+                x + backMargin, y + backMargin, x + width - backMargin, y + height - backMargin,
+                0, 0, width - backMargin, height - backMargin,
                 null);
 
         /// BORDER

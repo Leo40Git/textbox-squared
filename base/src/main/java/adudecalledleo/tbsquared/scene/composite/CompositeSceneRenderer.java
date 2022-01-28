@@ -17,7 +17,7 @@ public record CompositeSceneRenderer(Config config,
                                      TextRenderer textRenderer) implements SceneRenderer {
     public record Config(int sceneWidth, int sceneHeight, Color sceneBackground,
                          int textboxX, int textboxY, int textboxWidth, int textboxHeight,
-                         int textboxMarginX, int textboxMarginY) { }
+                         int textboxPaddingX, int textboxPaddingY) { }
 
     @Override
     public Collection<? extends FacePosition> getFacePositions() {
@@ -36,8 +36,8 @@ public record CompositeSceneRenderer(Config config,
         g.setBackground(config.sceneBackground());
         g.clearRect(0, 0, config.sceneWidth(), config.sceneHeight());
         textboxRenderer.renderTextbox(g, scene.metadata(), config.textboxX(), config.textboxY(), config.textboxWidth(), config.textboxHeight());
-        int x = config.textboxX() + config.textboxMarginX();
-        int y = config.textboxY() + config.textboxMarginY();
+        int x = config.textboxX() + config.textboxPaddingX();
+        int y = config.textboxY() + config.textboxPaddingY();
         Point faceOffset = faceRenderer.renderFaces(g, scene.faces(), scene.metadata(), x, y);
         x += faceOffset.x;
         y += faceOffset.y;

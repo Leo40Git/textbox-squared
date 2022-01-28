@@ -9,33 +9,31 @@ import adudecalledleo.tbsquared.text.modifier.color.IndexedColorProvider;
 
 public final class RPGWindowSkin {
     public enum Version {
-        VX_OR_VXA(32) {
-            @Override
-            public int scale(int orig) {
-                return orig;
-            }
-        },
-        MV_OR_MZ(32) {
-            @Override
-            public int scale(int orig) {
-                return (int) (orig * 1.5);
-            }
-        };
-
-        private final int indexedColorCount;
-
-        Version(int indexedColorCount) {
-            this.indexedColorCount = indexedColorCount;
-        }
-
-        public int getIndexedColorCount() {
-            return indexedColorCount;
-        }
+        VX, MV, MZ;
 
         public int scale(int orig) {
-            throw new AbstractMethodError("scale(int) not implemented for " + this);
+            return switch (this) {
+                case VX -> orig;
+                case MV, MZ -> (int) (orig * 1.5);
+            };
+        }
+
+        public int textboxMargin() {
+            return switch (this) {
+                case VX -> 2;
+                case MV, MZ -> 4;
+            };
+        }
+
+        public int textboxPadding() {
+            return switch (this) {
+                case MV -> 18;
+                case VX, MZ -> 12;
+            };
         }
     }
+
+    private static final int COLOR_COUNT = 32;
 
     private final TextboxRenderer textboxRenderer;
     private final IndexedColorProvider indexedColors;
@@ -43,7 +41,7 @@ public final class RPGWindowSkin {
     public RPGWindowSkin(Version version, BufferedImage windowImage, RPGWindowTint backTint) {
         this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint);
 
-        Color[] colors = new Color[version.getIndexedColorCount()];
+        Color[] colors = new Color[COLOR_COUNT];
         final int colorSize = version.scale(8);
         final int colorStartX = version.scale(64), colorStartY = version.scale(96);
         for (int y = 0; y < 4; y++) {
