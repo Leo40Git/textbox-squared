@@ -28,6 +28,10 @@ public final class DefaultDataTracker implements DataTracker {
         return new Builder();
     }
 
+    public static <T> DataTracker of(DataKey<T> key, T value) {
+        return new DefaultDataTracker(Map.of(key, value));
+    }
+
     private final Map<DataKey<?>, Object> values;
 
     private DefaultDataTracker(Map<DataKey<?>, Object> values) {

@@ -27,7 +27,7 @@ public abstract class AbstractTextRenderer implements TextRenderer {
         g.setFont(fonts.getStyledFont(fontKey, fontStyle));
         onFontChanged(g, fontKey, fontMetadata, fontStyle);
 
-        final int ma = g.getFontMetrics().getMaxAscent();
+        final int defaultMaxAscent = g.getFontMetrics().getMaxAscent();
         final int startX = x;
         StyleSpec modStyleSpec = StyleSpec.DEFAULT;
 
@@ -37,10 +37,7 @@ public abstract class AbstractTextRenderer implements TextRenderer {
                     continue;
                 }
 
-                // make the text vertically centered
-                int yo = ma / 2 - g.getFontMetrics().getMaxAscent() / 2;
-
-                x += renderString(g, oldState, text.getContents(), sceneMeta, x, y + ma - yo);
+                x += renderString(g, oldState, text.getContents(), sceneMeta, defaultMaxAscent, x, y);
             } else if (node instanceof ColorModifierNode modColor) {
                 g.setColor(modColor.getColor());
             } else if (node instanceof StyleModifierNode modStyle) {
@@ -65,5 +62,5 @@ public abstract class AbstractTextRenderer implements TextRenderer {
     /**
      * @return string advance
      */
-    protected abstract int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int x, int y);
+    protected abstract int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y);
 }

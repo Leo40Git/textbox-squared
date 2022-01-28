@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.text.modifier.color;
 
 import java.awt.*;
+import java.util.Arrays;
 
 import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
@@ -102,5 +103,15 @@ public final class ColorModifierNode extends ModifierNode {
                         ERROR_PREFIX + "Color indexes are not supported! Use hex color instead"));
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "ColorModifierNode{" +
+                "color=" + "#%06X".formatted(color.getRGB() & 0xFFFFFF) +
+                ", start=" + start +
+                ", length=" + length +
+                ", argSpans=" + Arrays.toString(argSpans) +
+                '}';
     }
 }

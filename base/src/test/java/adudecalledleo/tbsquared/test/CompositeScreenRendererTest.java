@@ -60,8 +60,11 @@ public final class CompositeScreenRendererTest {
         protected void onFontChanged(Graphics2D g, String fontKey, FontMetadata fontMetadata, FontStyle fontStyle) { }
 
         @Override
-        protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int x, int y) {
-            tx.setToTranslation(x, y);
+        protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+            // make the text vertically centered
+            int yo = defaultMaxAscent / 2 - g.getFontMetrics().getMaxAscent() / 2;
+
+            tx.setToTranslation(x, y + defaultMaxAscent - yo);
 
             var layout = new TextLayout(string, g.getFont(), g.getFontRenderContext());
             var outline = layout.getOutline(tx);

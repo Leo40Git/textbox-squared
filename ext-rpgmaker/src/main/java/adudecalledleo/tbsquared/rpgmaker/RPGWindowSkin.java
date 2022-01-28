@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.rpgmaker;
 import java.awt.*;
 import java.awt.image.*;
 
+import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 import adudecalledleo.tbsquared.text.modifier.color.ArrayIndexedColorProvider;
 import adudecalledleo.tbsquared.text.modifier.color.IndexedColorProvider;
@@ -37,6 +38,7 @@ public final class RPGWindowSkin {
 
     private final TextboxRenderer textboxRenderer;
     private final IndexedColorProvider indexedColors;
+    private final TextRenderer textRenderer;
 
     public RPGWindowSkin(Version version, BufferedImage windowImage, RPGWindowTint backTint) {
         this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint);
@@ -52,6 +54,7 @@ public final class RPGWindowSkin {
             }
         }
         indexedColors = new ArrayIndexedColorProvider(colors);
+        textRenderer = new RPGTextRenderer(colors[0]);
     }
 
     public TextboxRenderer getTextboxRenderer() {
@@ -60,5 +63,9 @@ public final class RPGWindowSkin {
 
     public IndexedColorProvider getIndexedColors() {
         return indexedColors;
+    }
+
+    public TextRenderer getTextRenderer() {
+        return textRenderer;
     }
 }

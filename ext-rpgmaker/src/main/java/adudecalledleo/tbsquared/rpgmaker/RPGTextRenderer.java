@@ -10,7 +10,7 @@ import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.scene.composite.impl.AbstractTextRenderer;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
 
-public final class RPGTextRenderer extends AbstractTextRenderer {
+final class RPGTextRenderer extends AbstractTextRenderer {
     public static final Color OUTLINE_COLOR = new Color(0, 0, 0, 127);
     public static final int OUTLINE_WIDTH = 4;
     private static final Stroke OUTLINE_STROKE = new BasicStroke(OUTLINE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -21,15 +21,18 @@ public final class RPGTextRenderer extends AbstractTextRenderer {
     private static final Stroke OUTLINE2_STROKE = new BasicStroke(OUTLINE2_WIDTH, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND);
     public static final Composite OUTLINE2_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, OUTLINE2_OPAQUENESS);
 
+    private final Color defaultColor;
     private final AffineTransform tx, tx2;
 
-    public RPGTextRenderer() {
+    public RPGTextRenderer(Color defaultColor) {
+        this.defaultColor = defaultColor;
         tx = new AffineTransform();
         tx2 = new AffineTransform();
     }
 
     @Override
     protected void setupGraphicsState(Graphics2D g) {
+        g.setColor(defaultColor);
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
     }
@@ -47,10 +50,14 @@ public final class RPGTextRenderer extends AbstractTextRenderer {
     }
 
     @Override
-    protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int x, int y) {
+    protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+        // fudge Y a bit
+        y += 3;
+        // make the text vertically centered
+        final int yo = defaultMaxAscent / 2 - g.getFontMetrics().getMaxAscent() / 2;
+
         // generate an outline of the text
         var layout = new TextLayout(string, g.getFont(), g.getFontRenderContext());
-        tx.setToTranslation(x, y);
 
         boolean flipH = false, flipV = false; // TODO maybe reimpl gimmicks?
 
@@ -62,7 +69,7 @@ public final class RPGTextRenderer extends AbstractTextRenderer {
             if (flipH) {
                 moveX += bounds.getWidth();
             }
-            double moveY = y;
+            double moveY = y + defaultMaxAscent - yo;
             if (flipV) {
                 moveY -= bounds.getHeight();
             }
@@ -71,7 +78,7 @@ public final class RPGTextRenderer extends AbstractTextRenderer {
             outline = layout.getOutline(tx);
             outline = tx2.createTransformedShape(outline);
         } else {
-            tx.setToTranslation(x, y);
+            tx.setToTranslation(x, y + defaultMaxAscent - yo);
             outline = layout.getOutline(tx);
         }
 
