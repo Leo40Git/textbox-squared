@@ -1,10 +1,10 @@
-package adudecalledleo.tbsquared.text.modifier;
+package adudecalledleo.tbsquared.text.color;
 
 import java.awt.*;
 
-import adudecalledleo.tbsquared.color.IndexedColorProvider;
 import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.text.modifier.ModifierParser;
 import adudecalledleo.tbsquared.text.node.ErrorNode;
 import adudecalledleo.tbsquared.text.node.ModifierNode;
 import adudecalledleo.tbsquared.text.node.NodeList;
@@ -29,12 +29,12 @@ public final class ColorModifierNode extends ModifierNode {
     public static final class Parser implements ModifierParser {
         public static final String ERROR_PREFIX = "Color modifier: ";
 
-        public static final DataKey<IndexedColorProvider> INDEXED_COLOR_PROVIDER
-                = new DataKey<>(IndexedColorProvider.class, "indexed_color_provider");
+        public static final DataKey<IndexedColorProvider> INDEXED_COLORS
+                = new DataKey<>(IndexedColorProvider.class, "indexed_colors");
 
         @Override
         public void parse(DataTracker ctx, int start, int argsStart, String args, NodeList nodes) {
-            IndexedColorProvider indexedColors = ctx.get(INDEXED_COLOR_PROVIDER).orElse(null);
+            IndexedColorProvider indexedColors = ctx.get(INDEXED_COLORS).orElse(null);
 
             if (args == null || args.isBlank()) {
                 String desc = "hex color";

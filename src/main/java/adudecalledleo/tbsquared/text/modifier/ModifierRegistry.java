@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.text.modifier;
 import java.util.HashMap;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.text.color.ColorModifierNode;
 import adudecalledleo.tbsquared.text.modifier.style.StyleModifierNode;
 
 public final class ModifierRegistry {
