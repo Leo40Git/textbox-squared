@@ -1,8 +1,6 @@
 package adudecalledleo.tbsquared.text;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import adudecalledleo.tbsquared.metadata.MetadataTracker;
 import adudecalledleo.tbsquared.text.modifier.ModifierRegistry;
 import adudecalledleo.tbsquared.text.node.ErrorNode;
 import adudecalledleo.tbsquared.text.node.LineBreakNode;
@@ -10,23 +8,6 @@ import adudecalledleo.tbsquared.text.node.NodeList;
 import adudecalledleo.tbsquared.text.node.TextNode;
 
 public final class TextParser {
-    public static final class Context {
-        private final Map<Class<?>, Object> map;
-
-        public Context() {
-            map = new HashMap<>();
-        }
-
-        public <V> V get(Class<V> type) {
-            return type.cast(map.get(type));
-        }
-
-        public <V> Context put(Class<V> type, V value) {
-            map.put(type, value);
-            return this;
-        }
-    }
-
     private final StringBuilder sb;
     private int textStart, textLength;
     private NodeList nodes;
@@ -35,7 +16,7 @@ public final class TextParser {
         sb = new StringBuilder();
     }
 
-    public NodeList parse(Context ctx, String text) {
+    public NodeList parse(MetadataTracker ctx, String text) {
         text = TextSanitizer.apply(text);
 
         char[] chars = text.toCharArray();

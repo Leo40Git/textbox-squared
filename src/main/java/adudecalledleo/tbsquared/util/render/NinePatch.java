@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.render.util;
+package adudecalledleo.tbsquared.util.render;
 
 import java.awt.*;
 import java.awt.image.*;

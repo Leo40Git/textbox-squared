@@ -9,9 +9,10 @@ import java.nio.file.Paths;
 
 import javax.imageio.ImageIO;
 
-import adudecalledleo.tbsquared.render.composite.impl.NinePatchTextboxRenderer;
-import adudecalledleo.tbsquared.render.util.Colors;
+import adudecalledleo.tbsquared.metadata.MetadataTracker;
+import adudecalledleo.tbsquared.scene.render.composite.impl.NinePatchTextboxRenderer;
 import adudecalledleo.tbsquared.util.Resources;
+import adudecalledleo.tbsquared.util.render.Colors;
 
 public final class NinePatchTextboxRendererTest {
     private NinePatchTextboxRendererTest() { }
@@ -34,9 +35,9 @@ public final class NinePatchTextboxRendererTest {
         var g = scratchImage.createGraphics();
         g.setBackground(Colors.TRANSPARENT);
         g.clearRect(0, 0, scratchImage.getWidth(), scratchImage.getHeight());
-        renderer.renderTextbox(g, 0, 0, 128, 64);
-        renderer.renderTextbox(g, 200, 200, 300, 200);
-        renderer.renderTextbox(g, 100, 500, 400, 80);
+        renderer.renderTextbox(g, MetadataTracker.empty(), 0, 0, 128, 64);
+        renderer.renderTextbox(g, MetadataTracker.empty(), 200, 200, 300, 200);
+        renderer.renderTextbox(g, MetadataTracker.empty(), 100, 500, 400, 80);
         g.dispose();
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(scratchImage, "PNG", out);
