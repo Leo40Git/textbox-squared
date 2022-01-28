@@ -1,12 +1,13 @@
 package adudecalledleo.tbsquared.data;
 
 import java.util.Optional;
+import java.util.Set;
 
-@FunctionalInterface
 public interface DataTracker {
     static DataTracker empty() {
         return EmptyDataTracker.INSTANCE;
     }
 
     <T> Optional<T> get(DataKey<T> key);
+    Set<DataKey<?>> getKeys();
 }

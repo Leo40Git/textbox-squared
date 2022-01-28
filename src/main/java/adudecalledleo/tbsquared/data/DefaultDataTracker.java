@@ -1,11 +1,10 @@
 package adudecalledleo.tbsquared.data;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public final class DefaultDataTracker implements MutableDataTracker {
     private final Map<DataKey<?>, Object> values;
+    private final Set<DataKey<?>> keyView;
     private DataTracker view;
 
     private final class ViewDelegate implements DataTracker {
@@ -13,10 +12,16 @@ public final class DefaultDataTracker implements MutableDataTracker {
         public <T> Optional<T> get(DataKey<T> key) {
             return DefaultDataTracker.this.get(key);
         }
+
+        @Override
+        public Set<DataKey<?>> getKeys() {
+            return DefaultDataTracker.this.getKeys();
+        }
     }
 
     public DefaultDataTracker() {
         values = new HashMap<>();
+        keyView = Collections.unmodifiableSet(values.keySet());
     }
 
     @Override
@@ -26,6 +31,11 @@ public final class DefaultDataTracker implements MutableDataTracker {
             return Optional.empty();
         }
         return Optional.of(key.type().cast(rawValue));
+    }
+
+    @Override
+    public Set<DataKey<?>> getKeys() {
+        return keyView;
     }
 
     @Override
