@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 
 final class RPGTextboxRenderer implements TextboxRenderer {
@@ -88,7 +89,7 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
     @Override
     public void renderTextbox(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        int arrowFrame = sceneMeta.get(RPGMakerExtension.ARROW_FRAME).orElse(-1);
+        int arrowFrame = sceneMeta.get(SceneMetadata.ARROW_FRAME).orElse(-1);
 
         /// BACKGROUND
         g.drawImage(getBackImage(width, height),
