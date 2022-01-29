@@ -136,7 +136,7 @@ public final class CompositeScreenRendererTest {
                         new Rectangle(0, sH - tbH, tbW, tbH),
                         new Dimension(12, 12)
                 ),
-                new DefaultSceneImageFactory(),
+                DefaultSceneImageFactory.INSTANCE,
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),
                 new NinePatchTextboxRenderer(tbSourceImage),
                 new FaceRendererImpl(),

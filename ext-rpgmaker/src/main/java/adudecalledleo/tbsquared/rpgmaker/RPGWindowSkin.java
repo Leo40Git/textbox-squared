@@ -3,10 +3,16 @@ package adudecalledleo.tbsquared.rpgmaker;
 import java.awt.*;
 import java.awt.image.*;
 
+import adudecalledleo.tbsquared.font.FontProvider;
+import adudecalledleo.tbsquared.scene.SceneRenderer;
+import adudecalledleo.tbsquared.scene.composite.CompositeSceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
+import adudecalledleo.tbsquared.scene.composite.impl.DefaultSceneImageFactory;
 import adudecalledleo.tbsquared.text.modifier.color.ArrayIndexedColorProvider;
 import adudecalledleo.tbsquared.text.modifier.color.IndexedColorProvider;
+import adudecalledleo.tbsquared.util.render.HorizontalAlignment;
+import adudecalledleo.tbsquared.util.render.VerticalAlignment;
 
 public final class RPGWindowSkin {
     public enum Version {
@@ -36,11 +42,13 @@ public final class RPGWindowSkin {
 
     private static final int COLOR_COUNT = 32;
 
+    private final Version version;
     private final TextboxRenderer textboxRenderer;
     private final IndexedColorProvider indexedColors;
     private final TextRenderer textRenderer;
 
     public RPGWindowSkin(Version version, BufferedImage windowImage, RPGWindowTint backTint) {
+        this.version = version;
         this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint);
 
         Color[] colors = new Color[COLOR_COUNT];
@@ -67,5 +75,26 @@ public final class RPGWindowSkin {
 
     public TextRenderer getTextRenderer() {
         return textRenderer;
+    }
+
+    public CompositeSceneRenderer.Config createSceneRendererConfig(int sceneWidth, int sceneHeight, Color sceneBackground,
+                                                                   int textboxWidth, int textboxHeight) {
+        return CompositeSceneRenderer.config(sceneWidth, sceneHeight, sceneBackground,
+                HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM,
+                textboxWidth, textboxHeight,
+                version.textboxPadding(), version.textboxPadding());
+    }
+
+    public SceneRenderer createSceneRenderer(int sceneWidth, int sceneHeight, Color sceneBackground,
+                                             int textboxWidth, int textboxHeight,
+                                             FontProvider fonts) {
+        return new CompositeSceneRenderer(
+                createSceneRendererConfig(sceneWidth, sceneHeight, sceneBackground, textboxWidth, textboxHeight),
+                DefaultSceneImageFactory.INSTANCE,
+                fonts,
+                textboxRenderer,
+                RPGFaceRenderer.INSTANCE,
+                textRenderer
+        );
     }
 }

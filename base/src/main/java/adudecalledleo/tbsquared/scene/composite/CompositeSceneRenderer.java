@@ -8,6 +8,8 @@ import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.scene.FacePosition;
 import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
+import adudecalledleo.tbsquared.util.render.HorizontalAlignment;
+import adudecalledleo.tbsquared.util.render.VerticalAlignment;
 
 public record CompositeSceneRenderer(Config config,
                                      SceneImageFactory imageFactory,
@@ -18,6 +20,25 @@ public record CompositeSceneRenderer(Config config,
     public record Config(Dimension sceneSize, Color sceneBackground,
                          Rectangle textboxRect,
                          Dimension textboxPadding) { }
+
+    public static Config config(int sceneWidth, int sceneHeight, Color sceneBackground,
+                                int textboxX, int textboxY,
+                                int textboxWidth, int textboxHeight,
+                                int textboxPaddingX, int textboxPaddingY) {
+        return new Config(new Dimension(sceneWidth, sceneHeight), sceneBackground,
+                new Rectangle(textboxX, textboxY, textboxWidth, textboxHeight),
+                new Dimension(textboxPaddingX, textboxPaddingY));
+    }
+
+    public static Config config(int sceneWidth, int sceneHeight, Color sceneBackground,
+                                HorizontalAlignment textboxAlignX, VerticalAlignment textboxAlignY,
+                                int textboxWidth, int textboxHeight,
+                                int textboxPaddingX, int textboxPaddingY) {
+        return config(sceneWidth, sceneHeight, sceneBackground,
+                textboxAlignX.align(sceneWidth, textboxWidth), textboxAlignY.align(sceneHeight, textboxHeight),
+                textboxWidth, textboxHeight,
+                textboxPaddingX, textboxPaddingY);
+    }
 
     @Override
     public Collection<? extends FacePosition> getFacePositions() {
