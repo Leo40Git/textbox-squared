@@ -24,7 +24,7 @@ import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
-import adudecalledleo.tbsquared.text.TextParser;
+import adudecalledleo.tbsquared.text.parse.TextParser;
 import adudecalledleo.tbsquared.util.Resources;
 
 public final class RPGMakerExtensionTest {
@@ -59,8 +59,8 @@ public final class RPGMakerExtensionTest {
                 816, 180,
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()));
 
-        TextParser parser = new TextParser();
-        Text text = parser.parse(DataTracker.empty(), "Mercia:\n\\[foreground=25]Hold on.\n\\[style=i]What?\\[    ]\\[");
+        Text text = TextParser.parse(DataTracker.empty(), "Mercia:\nHold on.\n[i]What?[/i]\n" +
+                "[attrs=test][attrs one=yay two='hu\"h' three=\"oh god \\\" oh no\"][/attrs][/attrs]");
 
         Scene scene = new Scene(text, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
                 DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));

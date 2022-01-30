@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.text;
+package adudecalledleo.tbsquared.text.parse;
 
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;

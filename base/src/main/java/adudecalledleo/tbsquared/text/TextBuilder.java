@@ -2,6 +2,7 @@ package adudecalledleo.tbsquared.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public final class TextBuilder {
     private static final class Node {
@@ -48,13 +49,22 @@ public final class TextBuilder {
         return this;
     }
 
+    public TextBuilder style(UnaryOperator<TextStyle> styleModifier) {
+        return style(styleModifier.apply(deferredStyle));
+    }
+
     public TextBuilder append(String contents) {
         deferredContents.append(contents);
         return this;
     }
 
+    public TextBuilder append(char c) {
+        deferredContents.append(c);
+        return this;
+    }
+
     public TextBuilder newLine() {
-        return append("\n");
+        return append('\n');
     }
 
     public Text build() {
