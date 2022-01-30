@@ -99,4 +99,9 @@ final class RPGTextRenderer extends AbstractTextRenderer {
 
         return (int) layout.getAdvance();
     }
+
+    @Override
+    protected int calculateLineAdvance(int maxAscent) {
+        return 36;
+    }
 }

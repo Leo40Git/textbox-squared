@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.text.modifier.color;
+package adudecalledleo.tbsquared.color;
 
 import java.awt.*;
 

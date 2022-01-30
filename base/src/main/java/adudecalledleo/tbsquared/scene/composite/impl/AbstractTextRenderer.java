@@ -1,23 +1,60 @@
 package adudecalledleo.tbsquared.scene.composite.impl;
 
 import java.awt.*;
+import java.util.Optional;
 
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.scene.composite.TextRenderer;
-import adudecalledleo.tbsquared.text.modifier.color.ColorModifierNode;
-import adudecalledleo.tbsquared.text.modifier.style.StyleModifierNode;
-import adudecalledleo.tbsquared.text.modifier.style.StyleSpec;
-import adudecalledleo.tbsquared.text.node.LineBreakNode;
-import adudecalledleo.tbsquared.text.node.NodeList;
-import adudecalledleo.tbsquared.text.node.TextNode;
+import adudecalledleo.tbsquared.text.Text;
+import adudecalledleo.tbsquared.text.TextStyle;
+import adudecalledleo.tbsquared.text.TextVisitor;
+import adudecalledleo.tbsquared.util.Unit;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
 
-public abstract class AbstractTextRenderer implements TextRenderer {
+public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<AbstractTextRenderer.RendererState, Unit> {
+    protected static final class RendererState {
+        public final Graphics2D graphics;
+        public final DataTracker sceneMeta;
+        public final FontProvider fonts;
+        public final GraphicsState oldState;
+        public final int defaultMaxAscent;
+        public final String defaultFontKey;
+        public final int startX;
+        public final StringBuilder stringBuilder;
+
+        public int x, y;
+        public String fontKey;
+        public FontMetadata fontMetadata;
+        public FontStyle fontStyle;
+
+        public RendererState(Graphics2D graphics, DataTracker sceneMeta, FontProvider fonts, GraphicsState oldState,
+                             int defaultMaxAscent, String defaultFontKey, int startX, int startY) {
+            this.graphics = graphics;
+            this.sceneMeta = sceneMeta;
+            this.fonts = fonts;
+            this.oldState = oldState;
+            this.defaultMaxAscent = defaultMaxAscent;
+            this.defaultFontKey = defaultFontKey;
+            this.startX = x = startX;
+            this.y = startY;
+            this.stringBuilder = new StringBuilder();
+        }
+
+        public void resetX() {
+            this.x = startX;
+        }
+
+        public void setFont(String key) {
+            this.fontKey = key;
+            this.fontMetadata = fonts.getFontMetadata(key);
+        }
+    }
+
     @Override
-    public final void renderText(Graphics2D g, NodeList nodes, FontProvider fonts, DataTracker sceneMeta, int x, int y) {
+    public final void renderText(Graphics2D g, Text text, FontProvider fonts, DataTracker sceneMeta, int x, int y) {
         var oldState = GraphicsState.save(g);
         setupGraphicsState(g);
 
@@ -28,39 +65,65 @@ public abstract class AbstractTextRenderer implements TextRenderer {
         onFontChanged(g, fontKey, fontMetadata, fontStyle);
 
         final int defaultMaxAscent = g.getFontMetrics().getMaxAscent();
-        final int startX = x;
-        StyleSpec modStyleSpec = StyleSpec.DEFAULT;
 
-        for (var node : nodes) {
-            if (node instanceof TextNode text) {
-                if (text.getContents().isEmpty()) {
-                    continue;
-                }
+        RendererState state = new RendererState(g, sceneMeta, fonts, oldState, defaultMaxAscent, fontKey, x, y);
+        state.fontKey = fontKey;
+        state.fontMetadata = fontMetadata;
+        state.fontStyle = fontStyle;
 
-                x += renderString(g, oldState, text.getContents(), sceneMeta, defaultMaxAscent, x, y);
-            } else if (node instanceof ColorModifierNode modColor) {
-                g.setColor(modColor.getColor());
-            } else if (node instanceof StyleModifierNode modStyle) {
-                modStyleSpec = modStyleSpec.add(modStyle.getSpec());
-                var newFontStyle = modStyleSpec.toFontStyle();
-                if (!fontStyle.equals(newFontStyle)) {
-                    fontStyle = newFontStyle;
-                    g.setFont(fonts.getStyledFont(fontKey, fontStyle));
-                    onFontChanged(g, fontKey, fontMetadata, fontStyle);
-                }
-            } else if (node instanceof LineBreakNode) {
-                x = startX;
-                y += 36;
-            }
-        }
+        text.visit(this, state);
 
         oldState.restore(g);
     }
 
+    @Override
+    public final Optional<Unit> visit(TextStyle style, String contents, RendererState state) {
+        final var g = state.graphics;
+        final var oldState = state.oldState;
+        final var sceneMeta = state.sceneMeta;
+        final int defaultMaxAscent = state.defaultMaxAscent;
+        final var sb = state.stringBuilder;
+
+        g.setColor(style.color().orElseGet(oldState::foreground));
+
+        var newFontKey = style.font().orElse(state.defaultFontKey);
+        var newFontStyle = style.toFontStyle();
+        if (!newFontKey.equals(state.fontKey) || !newFontStyle.equals(state.fontStyle)) {
+            g.setFont(state.fonts.getStyledFont(newFontKey, newFontStyle));
+            state.setFont(newFontKey);
+            state.fontStyle = newFontStyle;
+            onFontChanged(g, newFontKey, state.fontMetadata, newFontStyle);
+        }
+
+        for (var c : contents.toCharArray()) {
+            if (c == '\n') {
+                if (!sb.isEmpty()) {
+                    renderString(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
+                    sb.setLength(0);
+                }
+                state.resetX();
+                state.y += calculateLineAdvance(defaultMaxAscent);
+            } else {
+                sb.append(c);
+            }
+        }
+        if (!sb.isEmpty()) {
+            state.x += renderString(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
+            sb.setLength(0);
+        }
+        return Optional.empty();
+    }
+
     protected abstract void setupGraphicsState(Graphics2D g);
-    protected abstract void onFontChanged(Graphics2D g, String fontKey, FontMetadata fontMetadata, FontStyle fontStyle);
+
+    protected void onFontChanged(Graphics2D g, String fontKey, FontMetadata fontMetadata, FontStyle fontStyle) { }
+
     /**
      * @return string advance
      */
     protected abstract int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y);
+
+    protected int calculateLineAdvance(int maxAscent) {
+        return maxAscent;
+    }
 }

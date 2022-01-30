@@ -18,7 +18,6 @@ import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
-import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
@@ -27,14 +26,10 @@ import adudecalledleo.tbsquared.scene.composite.impl.AbstractTextRenderer;
 import adudecalledleo.tbsquared.scene.composite.impl.DefaultSceneImageFactory;
 import adudecalledleo.tbsquared.scene.composite.impl.NinePatchTextboxRenderer;
 import adudecalledleo.tbsquared.scene.composite.impl.SingleFacePositionRenderer;
-import adudecalledleo.tbsquared.text.modifier.color.ColorModifierNode;
-import adudecalledleo.tbsquared.text.modifier.style.StyleModifierNode;
-import adudecalledleo.tbsquared.text.modifier.style.StyleSpec;
-import adudecalledleo.tbsquared.text.node.LineBreakNode;
-import adudecalledleo.tbsquared.text.node.NodeList;
-import adudecalledleo.tbsquared.text.node.TextNode;
+import adudecalledleo.tbsquared.text.Text;
+import adudecalledleo.tbsquared.text.TextBuilder;
+import adudecalledleo.tbsquared.text.TextStyle;
 import adudecalledleo.tbsquared.util.Resources;
-import adudecalledleo.tbsquared.util.TriState;
 import adudecalledleo.tbsquared.util.render.Colors;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
 
@@ -57,9 +52,6 @@ public final class CompositeScreenRendererTest {
         }
 
         @Override
-        protected void onFontChanged(Graphics2D g, String fontKey, FontMetadata fontMetadata, FontStyle fontStyle) { }
-
-        @Override
         protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
             // make the text vertically centered
             int yo = defaultMaxAscent / 2 - g.getFontMetrics().getMaxAscent() / 2;
@@ -72,6 +64,11 @@ public final class CompositeScreenRendererTest {
             g.fill(outline);
 
             return (int) layout.getAdvance();
+        }
+
+        @Override
+        protected int calculateLineAdvance(int maxAscent) {
+            return maxAscent + 4;
         }
     }
 
@@ -114,20 +111,19 @@ public final class CompositeScreenRendererTest {
 
         Face face = new Face(Definition.builtin(), "Test", faceImage, (name, image) -> new ImageIcon(image, name));
 
-        NodeList textNodes = new NodeList();
-        textNodes.add(new ColorModifierNode(0, 0, Color.WHITE)); // TODO need to specify default text color somewhere...
-        textNodes.add(new TextNode(0, 0, "Testing!"));
-        textNodes.add(new LineBreakNode(0));
-        textNodes.add(new TextNode(0, 0, "Colors are "));
-        textNodes.add(new ColorModifierNode(0, 0, Colors.brighter(Color.BLUE, 0.7)));
-        textNodes.add(new TextNode(0, 0, "cool!"));
-        textNodes.add(new ColorModifierNode(0, 0, Color.WHITE));
-        textNodes.add(new LineBreakNode(0));
-        textNodes.add(new TextNode(0, 0, "Get "));
-        textNodes.add(new StyleModifierNode(0, 0, new StyleSpec(true,
-                TriState.TRUE, TriState.DEFAULT, TriState.DEFAULT, TriState.DEFAULT,
-                StyleSpec.Superscript.DEFAULT, 0)));
-        textNodes.add(new TextNode(0, 0, "bold!"));
+        Text text = new TextBuilder()
+                .style(TextStyle.EMPTY.withColor(Color.WHITE))
+                .append("Testing!")
+                .newLine()
+                .append("Colors are ")
+                .style(TextStyle.EMPTY.withColor(Colors.brighter(Color.BLUE, 0.7)))
+                .append("cool!")
+                .style(TextStyle.EMPTY.withColor(Color.WHITE))
+                .newLine()
+                .append("Get ")
+                .style(TextStyle.EMPTY.withBold(true))
+                .append("bold!")
+                .build();
 
         SceneRenderer sceneRenderer = new CompositeSceneRenderer(
                 new CompositeSceneRenderer.Config(
@@ -143,7 +139,7 @@ public final class CompositeScreenRendererTest {
                 new TextRendererImpl()
         );
 
-        Scene scene = new Scene(textNodes, Map.of(SingleFacePositionRenderer.THE_ONLY_POSITION, face));
+        Scene scene = new Scene(text, Map.of(SingleFacePositionRenderer.THE_ONLY_POSITION, face));
 
         var image = sceneRenderer.renderScene(scene);
 

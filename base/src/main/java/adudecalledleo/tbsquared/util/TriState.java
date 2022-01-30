@@ -3,7 +3,7 @@ package adudecalledleo.tbsquared.util;
 public enum TriState {
     DEFAULT, TRUE, FALSE;
 
-    public static TriState fromBoolean(boolean b) {
+    public static TriState fromBool(boolean b) {
         return b ? TRUE : FALSE;
     }
 

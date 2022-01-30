@@ -3,14 +3,14 @@ package adudecalledleo.tbsquared.rpgmaker;
 import java.awt.*;
 import java.awt.image.*;
 
+import adudecalledleo.tbsquared.color.ArrayIndexedColorProvider;
+import adudecalledleo.tbsquared.color.IndexedColorProvider;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.CompositeSceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 import adudecalledleo.tbsquared.scene.composite.impl.DefaultSceneImageFactory;
-import adudecalledleo.tbsquared.text.modifier.color.ArrayIndexedColorProvider;
-import adudecalledleo.tbsquared.text.modifier.color.IndexedColorProvider;
 import adudecalledleo.tbsquared.util.render.HorizontalAlignment;
 import adudecalledleo.tbsquared.util.render.VerticalAlignment;
 

@@ -64,7 +64,7 @@ public record CompositeSceneRenderer(Config config,
         Dimension facePadding = faceRenderer.renderFaces(g, scene.faces(), scene.metadata(), x, y);
         x += facePadding.width;
         y += facePadding.height;
-        textRenderer.renderText(g, scene.textNodes(), fonts, scene.metadata(), x, y);
+        textRenderer.renderText(g, scene.text(), fonts, scene.metadata(), x, y);
         g.dispose();
         return image;
     }

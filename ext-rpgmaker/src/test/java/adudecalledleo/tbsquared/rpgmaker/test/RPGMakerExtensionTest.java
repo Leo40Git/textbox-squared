@@ -23,10 +23,8 @@ import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
+import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextParser;
-import adudecalledleo.tbsquared.text.modifier.ModifierRegistry;
-import adudecalledleo.tbsquared.text.modifier.color.ColorModifierNode;
-import adudecalledleo.tbsquared.text.node.NodeList;
 import adudecalledleo.tbsquared.util.Resources;
 
 public final class RPGMakerExtensionTest {
@@ -61,15 +59,10 @@ public final class RPGMakerExtensionTest {
                 816, 180,
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()));
 
-        ModifierRegistry.init();
         TextParser parser = new TextParser();
-        DataTracker ctx = DefaultDataTracker.of(ColorModifierNode.Parser.INDEXED_COLORS, winSkin.getIndexedColors());
-        NodeList nodes = parser.parse(ctx, "Mercia:\n\\c[25]Hold on.");
-        for (var node : nodes) {
-            System.out.println(node);
-        }
+        Text text = parser.parse(DataTracker.empty(), "Mercia:\n\\[foreground=25]Hold on.\n\\[style=i]What?\\[    ]\\[");
 
-        Scene scene = new Scene(nodes, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
+        Scene scene = new Scene(text, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
                 DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));
 
         var image = sceneRenderer.renderScene(scene);

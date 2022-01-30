@@ -4,12 +4,12 @@ import java.util.Map;
 
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
-import adudecalledleo.tbsquared.text.node.NodeList;
+import adudecalledleo.tbsquared.text.Text;
 
-public record Scene(NodeList textNodes,
+public record Scene(Text text,
                     Map<FacePosition, Face> faces,
                     DataTracker metadata) {
-    public Scene(NodeList textNodes, Map<FacePosition, Face> faces) {
-        this(textNodes, faces, DataTracker.empty());
+    public Scene(Text text, Map<FacePosition, Face> faces) {
+        this(text, faces, DataTracker.empty());
     }
 }
