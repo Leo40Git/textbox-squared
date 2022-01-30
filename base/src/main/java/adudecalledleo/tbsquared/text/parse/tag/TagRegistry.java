@@ -23,6 +23,6 @@ public final class TagRegistry {
 
     static {
         BasicTags.register();
-        register("attrs", AttrTestTag::new);
+        register("color", ColorTag::new);
     }
 }

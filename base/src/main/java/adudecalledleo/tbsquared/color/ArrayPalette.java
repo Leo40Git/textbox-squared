@@ -3,20 +3,20 @@ package adudecalledleo.tbsquared.color;
 import java.awt.*;
 
 @SuppressWarnings("ClassCanBeRecord")
-public final class ArrayIndexedColorProvider implements IndexedColorProvider {
+public final class ArrayPalette implements Palette {
     private final Color[] colors;
 
-    public ArrayIndexedColorProvider(Color[] colors) {
+    public ArrayPalette(Color[] colors) {
         this.colors = colors;
     }
 
     @Override
-    public int getColorIndexCount() {
+    public int getSize() {
         return colors.length;
     }
 
     @Override
-    public Color getColorByIndex(int index) {
+    public Color getColor(int index) {
         return colors[index];
     }
 

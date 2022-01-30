@@ -53,6 +53,10 @@ public final class TextBuilder {
         return style(styleModifier.apply(deferredStyle));
     }
 
+    public TextStyle getStyle() {
+        return deferredStyle;
+    }
+
     public TextBuilder append(String contents) {
         deferredContents.append(contents);
         return this;

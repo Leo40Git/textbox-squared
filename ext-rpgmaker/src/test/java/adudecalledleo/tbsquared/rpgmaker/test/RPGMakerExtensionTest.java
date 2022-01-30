@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.data.DefaultDataTracker;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
@@ -25,6 +24,7 @@ import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.parse.TextParser;
+import adudecalledleo.tbsquared.text.parse.tag.ColorTag;
 import adudecalledleo.tbsquared.util.Resources;
 
 public final class RPGMakerExtensionTest {
@@ -59,8 +59,13 @@ public final class RPGMakerExtensionTest {
                 816, 180,
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()));
 
-        Text text = TextParser.parse(DataTracker.empty(), "Mercia:\nHold on.\n[i]What?[/i]\n" +
-                "[attrs=test][attrs one=yay two='hu\"h' three=\"oh god \\\" oh no\"][/attrs][/attrs]");
+        var pal = winSkin.getPalette();
+
+        Text text = TextParser.parse(DefaultDataTracker.builder()
+                        .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
+                        .set(ColorTag.PALETTE, pal)
+                        .build(),
+                "Mercia:\n[color=palette(25)]Hold on.\n[i]What?[/i][/color]");
 
         Scene scene = new Scene(text, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
                 DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));

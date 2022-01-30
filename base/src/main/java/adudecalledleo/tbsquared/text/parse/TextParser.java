@@ -1,7 +1,10 @@
 package adudecalledleo.tbsquared.text.parse;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 
+import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextBuilder;
@@ -11,11 +14,14 @@ import adudecalledleo.tbsquared.text.parse.tag.TagRegistry;
 public final class TextParser {
     private TextParser() { }
 
+    public static final DataKey<Color> DEFAULT_COLOR = new DataKey<>(Color.class, "default_color");
+
     public static Text parse(DataTracker ctx, String text) {
         text = TextSanitizer.apply(text);
 
         var sb = new StringBuilder();
         var tb = new TextBuilder();
+        tb.style(style -> style.withColor(ctx.get(DEFAULT_COLOR).orElse(Color.WHITE)));
         List<Tag> tagStack = new ArrayList<>();
         boolean escaped = false;
         final char[] chars = text.toCharArray();
