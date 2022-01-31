@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import adudecalledleo.tbsquared.text.parse.tag.basic.BasicTags;
+import adudecalledleo.tbsquared.text.parse.tag.color.ColorTag;
 
 public final class TagRegistry {
     private TagRegistry() { }

@@ -24,7 +24,7 @@ import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.parse.TextParser;
-import adudecalledleo.tbsquared.text.parse.tag.ColorTag;
+import adudecalledleo.tbsquared.text.parse.tag.color.ColorSelector;
 import adudecalledleo.tbsquared.util.Resources;
 
 public final class RPGMakerExtensionTest {
@@ -63,7 +63,7 @@ public final class RPGMakerExtensionTest {
 
         Text text = TextParser.parse(DefaultDataTracker.builder()
                         .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
-                        .set(ColorTag.PALETTE, pal)
+                        .set(ColorSelector.PALETTE, pal)
                         .build(),
                 "Mercia:\n[color=palette(25)]Hold on.\n[i]What?[/i][/color]");
 
