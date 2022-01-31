@@ -37,6 +37,9 @@ final class ColorSelectors {
                 b = (rgb >> 16) & 0xFF;
             }
             return new ConstSelector(new Color(r | g << 8 | b << 16, false));
+        } else if (value.startsWith("rgb(") && value.endsWith(")")) {
+            String argsStr = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+            // TODO impl rgb(r, g, b)
         } else if (value.startsWith("palette(") && value.endsWith(")")) {
             String palIdxStr = value.substring(value.indexOf('(') + 1, value.indexOf(')')).trim();
             int palIdx;
