@@ -24,6 +24,6 @@ public final class TagRegistry {
 
     static {
         BasicTags.register();
-        register("color", ColorTag::new);
+        register("adudecalledleo/tbsquared/text/parse/tag/color", ColorTag::new);
     }
 }
