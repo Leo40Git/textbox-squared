@@ -65,6 +65,14 @@ public final class RPGWindowSkin {
         textRenderer = new RPGTextRenderer(colors[0]);
     }
 
+    public Version getVersion() {
+        return version;
+    }
+
+    public int getTextboxPadding() {
+        return version.textboxPadding();
+    }
+
     public TextboxRenderer getTextboxRenderer() {
         return textboxRenderer;
     }
