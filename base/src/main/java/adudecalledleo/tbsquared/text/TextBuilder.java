@@ -22,11 +22,13 @@ public final class TextBuilder {
     }
 
     private final StringBuilder deferredContents;
+    private final List<TextStyle> styleStack;
     private Node root;
     private TextStyle deferredStyle;
 
     public TextBuilder() {
         this.deferredContents = new StringBuilder();
+        this.styleStack = new ArrayList<>();
         deferredStyle = TextStyle.EMPTY;
     }
 
@@ -51,6 +53,23 @@ public final class TextBuilder {
 
     public TextBuilder style(UnaryOperator<TextStyle> styleModifier) {
         return style(styleModifier.apply(deferredStyle));
+    }
+
+    public TextBuilder pushStyle(TextStyle style) {
+        if (!this.deferredStyle.equals(style)) {
+            commitDeferred();
+            styleStack.add(0, deferredStyle);
+            this.deferredStyle = style;
+        }
+        return this;
+    }
+
+    public TextBuilder pushStyle(UnaryOperator<TextStyle> styleModifier) {
+        return pushStyle(styleModifier.apply(deferredStyle));
+    }
+
+    public TextBuilder popStyle() {
+        return style(styleStack.remove(0));
     }
 
     public TextStyle getStyle() {

@@ -11,7 +11,6 @@ public final class ColorTag extends Tag {
     public static final String NAME = "color";
 
     private final ColorSelector colorSelector;
-    private Color oldColor;
 
     public ColorTag(Map<String, String> attributes) {
         super(NAME, attributes);
@@ -25,13 +24,12 @@ public final class ColorTag extends Tag {
 
     @Override
     public void onOpen(DataTracker ctx, TextBuilder textBuilder) {
-        oldColor = textBuilder.getStyle().color().orElseThrow(() -> new IllegalStateException("no color set at all?!"));
         Color newColor = colorSelector.getColor(ctx);
-        textBuilder.style(style -> style.withColor(newColor));
+        textBuilder.pushStyle(style -> style.withColor(newColor));
     }
 
     @Override
     public void onClose(DataTracker ctx, TextBuilder textBuilder) {
-        textBuilder.style(style -> style.withColor(oldColor));
+        textBuilder.popStyle();
     }
 }

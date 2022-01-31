@@ -13,11 +13,11 @@ final class STag extends Tag {
 
     @Override
     public void onOpen(DataTracker ctx, TextBuilder textBuilder) {
-        textBuilder.style(style -> style.withStrikethrough(true));
+        textBuilder.pushStyle(style -> style.withStrikethrough(true));
     }
 
     @Override
     public void onClose(DataTracker ctx, TextBuilder textBuilder) {
-        textBuilder.style(style -> style.withStrikethrough(false));
+        textBuilder.popStyle();
     }
 }

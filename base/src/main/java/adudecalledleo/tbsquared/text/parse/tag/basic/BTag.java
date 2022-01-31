@@ -7,18 +7,17 @@ import adudecalledleo.tbsquared.text.TextBuilder;
 import adudecalledleo.tbsquared.text.parse.tag.Tag;
 
 final class BTag extends Tag {
-
     public BTag(Map<String, String> attributes) {
         super(BasicTags.BOLD, attributes);
     }
 
     @Override
     public void onOpen(DataTracker ctx, TextBuilder textBuilder) {
-        textBuilder.style(style -> style.withBold(true));
+        textBuilder.pushStyle(style -> style.withBold(true));
     }
 
     @Override
     public void onClose(DataTracker ctx, TextBuilder textBuilder) {
-        textBuilder.style(style -> style.withBold(false));
+        textBuilder.popStyle();
     }
 }
