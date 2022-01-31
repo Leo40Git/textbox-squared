@@ -50,7 +50,9 @@ public final class TextParser {
                         }
                         boolean foundEnd = false;
                         while (pos < chars.length) {
-                            if (chars[pos] == ']') {
+                            if (chars[pos] == '[') {
+                                throw new IllegalArgumentException("tried to start tag decl in the middle of other tag decl");
+                            } else if (chars[pos] == ']') {
                                 foundEnd = true;
                                 break;
                             }
