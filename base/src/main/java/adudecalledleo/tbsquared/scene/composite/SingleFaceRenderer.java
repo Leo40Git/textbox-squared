@@ -10,7 +10,7 @@ import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.FacePosition;
 import adudecalledleo.tbsquared.util.shape.Dim;
 
-public abstract class SingleFacePositionRenderer implements FaceRenderer {
+public abstract class SingleFaceRenderer implements FaceRenderer {
     public static final String THE_ONLY_POSITION_NAME = "the_one";
     public static final FacePosition THE_ONLY_POSITION = new FacePosition() {
         @Override

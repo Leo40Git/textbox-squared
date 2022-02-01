@@ -70,7 +70,7 @@ public final class CompositeScreenRendererTest {
         }
     }
 
-    private static final class FaceRendererImpl extends SingleFacePositionRenderer {
+    private static final class FaceRendererImpl extends SingleFaceRenderer {
         @Override
         protected Dim renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
             if (face.isBlank()) {
@@ -137,7 +137,7 @@ public final class CompositeScreenRendererTest {
                 new TextRendererImpl()
         );
 
-        Scene scene = new Scene(text, Map.of(SingleFacePositionRenderer.THE_ONLY_POSITION, face));
+        Scene scene = new Scene(text, Map.of(SingleFaceRenderer.THE_ONLY_POSITION, face));
 
         var image = sceneRenderer.renderScene(scene);
 

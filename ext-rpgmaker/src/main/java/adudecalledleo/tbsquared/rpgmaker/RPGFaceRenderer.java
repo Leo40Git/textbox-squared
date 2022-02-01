@@ -5,10 +5,10 @@ import java.awt.*;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.composite.FaceRenderer;
-import adudecalledleo.tbsquared.scene.composite.SingleFacePositionRenderer;
+import adudecalledleo.tbsquared.scene.composite.SingleFaceRenderer;
 import adudecalledleo.tbsquared.util.shape.Dim;
 
-public final class RPGFaceRenderer extends SingleFacePositionRenderer {
+public final class RPGFaceRenderer extends SingleFaceRenderer {
     public static final FaceRenderer INSTANCE = new RPGFaceRenderer();
 
     private RPGFaceRenderer() { }
@@ -16,9 +16,9 @@ public final class RPGFaceRenderer extends SingleFacePositionRenderer {
     @Override
     protected Dim renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
         if (face.isBlank()) {
-            return new Dimension();
+            return Dim.ZERO;
         }
         g.drawImage(face.getImage(), x, y, null);
-        return new Dimension(face.getImage().getWidth() + 24, 0);
+        return new Dim(face.getImage().getWidth() + 24, 0);
     }
 }
