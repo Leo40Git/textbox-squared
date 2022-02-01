@@ -31,8 +31,8 @@ import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 import adudecalledleo.tbsquared.util.shape.Dim;
 import adudecalledleo.tbsquared.util.shape.Rect;
 
-public final class CompositeScreenRendererTest {
-    private CompositeScreenRendererTest() { }
+public final class CompositeSceneRendererTest {
+    private CompositeSceneRendererTest() { }
 
     private static final class TextRendererImpl extends AbstractTextRenderer {
         private final AffineTransform tx;
@@ -91,7 +91,7 @@ public final class CompositeScreenRendererTest {
 
         Font font = new Font("Arial", Font.PLAIN, 21);
 
-        var resources = new AWTResourceLoader(CompositeScreenRendererTest.class);
+        var resources = new AWTResourceLoader(CompositeSceneRendererTest.class);
 
         BufferedImage tbSourceImage;
         try {
