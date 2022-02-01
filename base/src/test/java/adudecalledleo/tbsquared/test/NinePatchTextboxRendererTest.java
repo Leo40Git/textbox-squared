@@ -11,8 +11,8 @@ import javax.imageio.ImageIO;
 
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.scene.composite.NinePatchTextboxRenderer;
-import adudecalledleo.tbsquared.util.Resources;
 import adudecalledleo.tbsquared.util.render.Colors;
+import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
 public final class NinePatchTextboxRendererTest {
     private NinePatchTextboxRendererTest() { }
@@ -21,9 +21,11 @@ public final class NinePatchTextboxRendererTest {
         String sourcePath = "/ninepatch.png";
         Path outputPath = Paths.get(".", "output.png").toAbsolutePath();
 
+        var resources = new AWTResourceLoader(NinePatchTextboxRendererTest.class);
+
         BufferedImage sourceImage;
-        try (var in = Resources.openStream(NinePatchTextboxRendererTest.class, sourcePath)) {
-            sourceImage = ImageIO.read(in);
+        try {
+            sourceImage = resources.loadImage(sourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read source image from \"%s\"".formatted(sourcePath),
                     e);

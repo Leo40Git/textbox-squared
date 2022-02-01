@@ -25,9 +25,9 @@ import adudecalledleo.tbsquared.scene.composite.*;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import adudecalledleo.tbsquared.text.TextStyle;
-import adudecalledleo.tbsquared.util.Resources;
 import adudecalledleo.tbsquared.util.render.Colors;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
+import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 import adudecalledleo.tbsquared.util.shape.Dim;
 import adudecalledleo.tbsquared.util.shape.Rect;
 
@@ -91,17 +91,19 @@ public final class CompositeScreenRendererTest {
 
         Font font = new Font("Arial", Font.PLAIN, 21);
 
+        var resources = new AWTResourceLoader(CompositeScreenRendererTest.class);
+
         BufferedImage tbSourceImage;
-        try (var in = Resources.openStream(CompositeScreenRendererTest.class, tbSourcePath)) {
-            tbSourceImage = ImageIO.read(in);
+        try {
+            tbSourceImage = resources.loadImage(tbSourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read textbox source image from \"%s\"".formatted(tbSourcePath),
                     e);
         }
 
         BufferedImage faceImage;
-        try (var in = Resources.openStream(CompositeScreenRendererTest.class, faceSourcePath)) {
-            faceImage = ImageIO.read(in);
+        try {
+            faceImage = resources.loadImage(faceSourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read face image from \"%s\"".formatted(faceSourcePath),
                     e);

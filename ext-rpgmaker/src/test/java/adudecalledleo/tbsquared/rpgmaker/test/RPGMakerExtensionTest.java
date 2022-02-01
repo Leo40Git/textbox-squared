@@ -25,23 +25,35 @@ import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.parse.TextParser;
 import adudecalledleo.tbsquared.text.parse.tag.color.ColorSelector;
-import adudecalledleo.tbsquared.util.Resources;
+import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
 public final class RPGMakerExtensionTest {
     private RPGMakerExtensionTest() { }
 
     public static void main(String[] args) {
+        final String windowImagePath = "/window.png";
+        final String merciaImagePath = "/mercia.png";
         final String fontPath = "/font/VL-Gothic-Regular.ttf";
         final Path outputPath = Paths.get(".", "output.png").toAbsolutePath();
 
         BufferedImage windowImage, merciaImage;
         Font font;
 
-        windowImage = loadImage("/window.png");
-        merciaImage = loadImage("/mercia.png");
+        var resources = new AWTResourceLoader(RPGMakerExtensionTest.class);
 
-        try (var in = Resources.openStream(RPGMakerExtensionTest.class, fontPath)) {
-            font = Font.createFont(Font.TRUETYPE_FONT, in);
+        try {
+            windowImage = resources.loadImage(windowImagePath);
+        } catch (IOException e2) {
+            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(windowImagePath), e2);
+        }
+        try {
+            merciaImage = resources.loadImage(merciaImagePath);
+        } catch (IOException e1) {
+            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(merciaImagePath), e1);
+        }
+
+        try {
+            font = resources.loadFont(Font.TRUETYPE_FONT, fontPath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load font from \"%s\"".formatted(fontPath), e);
         } catch (FontFormatException e) {
@@ -85,14 +97,6 @@ public final class RPGMakerExtensionTest {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to write output image to \"%s\"".formatted(outputPath),
                     e);
-        }
-    }
-
-    private static BufferedImage loadImage(String path) {
-        try (var in = Resources.openStream(RPGMakerExtensionTest.class, path)) {
-            return ImageIO.read(in);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(path), e);
         }
     }
 }
