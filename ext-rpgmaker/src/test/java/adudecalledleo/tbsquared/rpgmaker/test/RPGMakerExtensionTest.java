@@ -55,9 +55,12 @@ public final class RPGMakerExtensionTest {
         RPGWindowSkin winSkin = new RPGWindowSkin(RPGWindowSkin.Version.MV, windowImage,
                 new RPGWindowTint(-17, -255, -255));
 
-        SceneRenderer sceneRenderer = winSkin.createSceneRenderer(816, 180, Color.BLACK,
-                816, 180,
-                SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()));
+        SceneRenderer sceneRenderer = winSkin.sceneRendererBuilder()
+                .sceneSize(816, 180)
+                .sceneBackground(Color.BLACK)
+                .textboxRect(0, 0, 816, 180)
+                .fonts(SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()))
+                .build();
 
         var pal = winSkin.getPalette();
 

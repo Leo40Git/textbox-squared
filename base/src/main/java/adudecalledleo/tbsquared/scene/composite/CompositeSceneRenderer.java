@@ -19,26 +19,129 @@ public record CompositeSceneRenderer(Config config,
                                      TextboxRenderer textboxRenderer,
                                      FaceRenderer faceRenderer,
                                      TextRenderer textRenderer) implements SceneRenderer {
+    public static final class Builder {
+        private Dim sceneSize;
+        private Color sceneBackground;
+        private Rect textboxRect;
+        private Dim textboxPadding;
+        private SceneImageFactory imageFactory;
+        private FontProvider fonts;
+        private TextboxRenderer textboxRenderer;
+        private FaceRenderer faceRenderer;
+        private TextRenderer textRenderer;
+
+        private Builder() {
+            imageFactory = SceneImageFactory.getDefault();
+        }
+
+        public Builder sceneSize(Dim sceneSize) {
+            this.sceneSize = sceneSize;
+            return this;
+        }
+
+        public Builder sceneSize(int width, int height) {
+            return sceneSize(new Dim(width, height));
+        }
+
+        public Builder sceneBackground(Color sceneBackground) {
+            this.sceneBackground = sceneBackground;
+            return this;
+        }
+
+        public Builder textboxRect(Rect textboxRect) {
+            this.textboxRect = textboxRect;
+            return this;
+        }
+
+        public Builder textboxRect(int x, int y, int width, int height) {
+            return textboxRect(new Rect(x, y, width, height));
+        }
+
+        public Builder textboxRect(int width, int height, HorizontalAlignment alignX, VerticalAlignment alignY) {
+            assertNotNull(sceneSize, "sceneSize");
+            return textboxRect(new Rect(
+                    alignX.align(sceneSize.width(), width), alignY.align(sceneSize.height(), height),
+                    width, height));
+        }
+
+        public Builder textboxPadding(Dim textboxPadding) {
+            this.textboxPadding = textboxPadding;
+            return this;
+        }
+
+        public Builder textboxPadding(int width, int height) {
+            return textboxPadding(new Dim(width, height));
+        }
+
+        public Builder config(Config config) {
+            this.sceneSize = config.sceneSize();
+            this.sceneBackground = config.sceneBackground();
+            this.textboxRect = config.textboxRect();
+            this.textboxPadding = config.textboxPadding();
+            return this;
+        }
+
+        public Builder imageFactory(SceneImageFactory imageFactory) {
+            if (imageFactory == null) {
+                this.imageFactory = SceneImageFactory.getDefault();
+            } else {
+                this.imageFactory = imageFactory;
+            }
+            return this;
+        }
+
+        public Builder fonts(FontProvider fonts) {
+            this.fonts = fonts;
+            return this;
+        }
+
+        public Builder textboxRenderer(TextboxRenderer textboxRenderer) {
+            this.textboxRenderer = textboxRenderer;
+            return this;
+        }
+
+        public Builder faceRenderer(FaceRenderer faceRenderer) {
+            this.faceRenderer = faceRenderer;
+            return this;
+        }
+
+        public Builder textRenderer(TextRenderer textRenderer) {
+            this.textRenderer = textRenderer;
+            return this;
+        }
+
+        private void assertNotNull(Object value, String name) {
+            if (value == null) {
+                throw new IllegalArgumentException(name + " is null");
+            }
+        }
+
+        public CompositeSceneRenderer build() {
+            assertNotNull(sceneSize, "sceneSize");
+            assertNotNull(sceneBackground, "sceneBackground");
+            assertNotNull(textboxRect, "textboxRect");
+            assertNotNull(textboxPadding, "textboxPadding");
+            assertNotNull(imageFactory, "imageFactory");
+            assertNotNull(fonts, "fonts");
+            assertNotNull(textboxRenderer, "textboxRenderer");
+            assertNotNull(faceRenderer, "faceRenderer");
+            assertNotNull(textRenderer, "textRenderer");
+
+            return new CompositeSceneRenderer(
+                    new Config(sceneSize, sceneBackground, textboxRect, textboxPadding),
+                    imageFactory,
+                    fonts,
+                    textboxRenderer,
+                    faceRenderer,
+                    textRenderer);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public record Config(Dim sceneSize, Color sceneBackground, Rect textboxRect, Dim textboxPadding) { }
-
-    public static Config config(int sceneWidth, int sceneHeight, Color sceneBackground,
-                                int textboxX, int textboxY,
-                                int textboxWidth, int textboxHeight,
-                                int textboxPaddingX, int textboxPaddingY) {
-        return new Config(new Dim(sceneWidth, sceneHeight), sceneBackground,
-                new Rect(textboxX, textboxY, textboxWidth, textboxHeight),
-                new Dim(textboxPaddingX, textboxPaddingY));
-    }
-
-    public static Config config(int sceneWidth, int sceneHeight, Color sceneBackground,
-                                HorizontalAlignment textboxAlignX, VerticalAlignment textboxAlignY,
-                                int textboxWidth, int textboxHeight,
-                                int textboxPaddingX, int textboxPaddingY) {
-        return config(sceneWidth, sceneHeight, sceneBackground,
-                textboxAlignX.align(sceneWidth, textboxWidth), textboxAlignY.align(sceneHeight, textboxHeight),
-                textboxWidth, textboxHeight,
-                textboxPaddingX, textboxPaddingY);
-    }
 
     @Override
     public Collection<? extends FacePosition> getFacePositions() {

@@ -5,14 +5,9 @@ import java.awt.image.*;
 
 import adudecalledleo.tbsquared.color.ArrayPalette;
 import adudecalledleo.tbsquared.color.Palette;
-import adudecalledleo.tbsquared.font.FontProvider;
-import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.CompositeSceneRenderer;
-import adudecalledleo.tbsquared.scene.composite.SceneImageFactory;
 import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
-import adudecalledleo.tbsquared.util.render.HorizontalAlignment;
-import adudecalledleo.tbsquared.util.render.VerticalAlignment;
 
 public final class RPGWindowSkin {
     public enum Version {
@@ -85,24 +80,11 @@ public final class RPGWindowSkin {
         return textRenderer;
     }
 
-    public CompositeSceneRenderer.Config createSceneRendererConfig(int sceneWidth, int sceneHeight, Color sceneBackground,
-                                                                   int textboxWidth, int textboxHeight) {
-        return CompositeSceneRenderer.config(sceneWidth, sceneHeight, sceneBackground,
-                HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM,
-                textboxWidth, textboxHeight,
-                version.textboxPadding(), version.textboxPadding());
-    }
-
-    public SceneRenderer createSceneRenderer(int sceneWidth, int sceneHeight, Color sceneBackground,
-                                             int textboxWidth, int textboxHeight,
-                                             FontProvider fonts) {
-        return new CompositeSceneRenderer(
-                createSceneRendererConfig(sceneWidth, sceneHeight, sceneBackground, textboxWidth, textboxHeight),
-                SceneImageFactory.getDefault(),
-                fonts,
-                textboxRenderer,
-                RPGFaceRenderer.INSTANCE,
-                textRenderer
-        );
+    public CompositeSceneRenderer.Builder sceneRendererBuilder() {
+        return CompositeSceneRenderer.builder()
+                .textboxPadding(version.textboxPadding(), version.textboxPadding())
+                .textboxRenderer(textboxRenderer)
+                .faceRenderer(RPGFaceRenderer.INSTANCE)
+                .textRenderer(textRenderer);
     }
 }
