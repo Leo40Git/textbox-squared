@@ -5,7 +5,7 @@ import java.awt.*;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.composite.FaceRenderer;
-import adudecalledleo.tbsquared.scene.composite.impl.SingleFacePositionRenderer;
+import adudecalledleo.tbsquared.scene.composite.SingleFacePositionRenderer;
 
 public final class RPGFaceRenderer extends SingleFacePositionRenderer {
     public static final FaceRenderer INSTANCE = new RPGFaceRenderer();

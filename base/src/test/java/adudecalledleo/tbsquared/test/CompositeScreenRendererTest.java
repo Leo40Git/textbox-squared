@@ -21,11 +21,7 @@ import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
-import adudecalledleo.tbsquared.scene.composite.CompositeSceneRenderer;
-import adudecalledleo.tbsquared.scene.composite.impl.AbstractTextRenderer;
-import adudecalledleo.tbsquared.scene.composite.impl.DefaultSceneImageFactory;
-import adudecalledleo.tbsquared.scene.composite.impl.NinePatchTextboxRenderer;
-import adudecalledleo.tbsquared.scene.composite.impl.SingleFacePositionRenderer;
+import adudecalledleo.tbsquared.scene.composite.*;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import adudecalledleo.tbsquared.text.TextStyle;
@@ -132,7 +128,7 @@ public final class CompositeScreenRendererTest {
                         new Rectangle(0, sH - tbH, tbW, tbH),
                         new Dimension(12, 12)
                 ),
-                DefaultSceneImageFactory.INSTANCE,
+                SceneImageFactory.getDefault(),
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),
                 new NinePatchTextboxRenderer(tbSourceImage),
                 new FaceRendererImpl(),

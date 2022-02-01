@@ -7,7 +7,7 @@ import java.awt.geom.*;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.FontStyle;
-import adudecalledleo.tbsquared.scene.composite.impl.AbstractTextRenderer;
+import adudecalledleo.tbsquared.scene.composite.AbstractTextRenderer;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
 
 final class RPGTextRenderer extends AbstractTextRenderer {

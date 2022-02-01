@@ -1,10 +1,9 @@
-package adudecalledleo.tbsquared.scene.composite.impl;
+package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
 import java.awt.image.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
-import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 
 public class DefaultTextboxRenderer implements TextboxRenderer {
     protected final BufferedImage backgroundImage;

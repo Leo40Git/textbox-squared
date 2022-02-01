@@ -1,10 +1,9 @@
-package adudecalledleo.tbsquared.scene.composite.impl;
+package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
 import java.awt.image.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
-import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 import adudecalledleo.tbsquared.util.render.NinePatch;
 
 public class NinePatchTextboxRenderer implements TextboxRenderer {

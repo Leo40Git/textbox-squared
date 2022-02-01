@@ -1,9 +1,8 @@
-package adudecalledleo.tbsquared.scene.composite.impl;
+package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
-import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 
 public record DualTextboxRenderer(TextboxRenderer background, int backgroundMargin,
                                   TextboxRenderer foreground) implements TextboxRenderer {

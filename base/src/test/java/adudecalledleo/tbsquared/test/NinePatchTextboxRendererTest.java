@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 
 import adudecalledleo.tbsquared.data.DataTracker;
-import adudecalledleo.tbsquared.scene.composite.impl.NinePatchTextboxRenderer;
+import adudecalledleo.tbsquared.scene.composite.NinePatchTextboxRenderer;
 import adudecalledleo.tbsquared.util.Resources;
 import adudecalledleo.tbsquared.util.render.Colors;
 
