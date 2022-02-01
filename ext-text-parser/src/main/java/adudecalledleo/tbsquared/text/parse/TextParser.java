@@ -6,11 +6,17 @@ import java.util.*;
 
 import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.parse.DOMConverter;
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import adudecalledleo.tbsquared.text.parse.tag.Tag;
 import adudecalledleo.tbsquared.text.parse.tag.TagRegistry;
 
+/**
+ * @deprecated Use {@link DOMParser} and {@link DOMConverter} insteadd.
+ */
+@Deprecated
 public final class TextParser {
     private TextParser() { }
 
