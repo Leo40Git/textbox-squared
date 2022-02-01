@@ -56,7 +56,7 @@ public record CompositeSceneRenderer(Config config,
         var g = image.createGraphics();
         g.setBackground(config.sceneBackground());
         g.clearRect(0, 0, config.sceneSize().width, config.sceneSize().height);
-        textboxRenderer.renderTextbox(g, scene.metadata(),
+        textboxRenderer.renderBackground(g, scene.metadata(),
                 config.textboxRect().x, config.textboxRect().y,
                 config.textboxRect().width, config.textboxRect().height);
         int x = config.textboxRect().x + config.textboxPadding().width;
@@ -65,6 +65,9 @@ public record CompositeSceneRenderer(Config config,
         x += facePadding.width;
         y += facePadding.height;
         textRenderer.renderText(g, scene.text(), fonts, scene.metadata(), x, y);
+        textboxRenderer.renderForeground(g, scene.metadata(),
+                config.textboxRect().x, config.textboxRect().y,
+                config.textboxRect().width, config.textboxRect().height);
         g.dispose();
         return image;
     }

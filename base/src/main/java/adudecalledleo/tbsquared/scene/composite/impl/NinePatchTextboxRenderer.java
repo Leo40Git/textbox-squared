@@ -7,15 +7,19 @@ import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 import adudecalledleo.tbsquared.util.render.NinePatch;
 
-public final class NinePatchTextboxRenderer implements TextboxRenderer {
-    private final NinePatch delegate;
+public class NinePatchTextboxRenderer implements TextboxRenderer {
+    protected final NinePatch delegate;
 
     public NinePatchTextboxRenderer(BufferedImage sourceImage) {
         delegate = new NinePatch(sourceImage);
     }
 
+    public NinePatch getDelegate() {
+        return delegate;
+    }
+
     @Override
-    public void renderTextbox(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
+    public void renderBackground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
         delegate.render(g, x, y, width, height);
     }
 }

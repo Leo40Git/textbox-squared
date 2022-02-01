@@ -35,9 +35,9 @@ public final class NinePatchTextboxRendererTest {
         var g = scratchImage.createGraphics();
         g.setBackground(Colors.TRANSPARENT);
         g.clearRect(0, 0, scratchImage.getWidth(), scratchImage.getHeight());
-        renderer.renderTextbox(g, DataTracker.empty(), 0, 0, 128, 64);
-        renderer.renderTextbox(g, DataTracker.empty(), 200, 200, 300, 200);
-        renderer.renderTextbox(g, DataTracker.empty(), 100, 500, 400, 80);
+        renderer.renderBackground(g, DataTracker.empty(), 0, 0, 128, 64);
+        renderer.renderBackground(g, DataTracker.empty(), 200, 200, 300, 200);
+        renderer.renderBackground(g, DataTracker.empty(), 100, 500, 400, 80);
         g.dispose();
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(scratchImage, "PNG", out);

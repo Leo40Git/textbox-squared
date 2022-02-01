@@ -90,14 +90,17 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     }
 
     @Override
-    public void renderTextbox(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        int arrowFrame = sceneMeta.get(SceneMetadata.ARROW_FRAME).orElse(-1);
-
+    public void renderBackground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
         /// BACKGROUND
         g.drawImage(getBackImage(width - backMargin, height - backMargin),
                 x + backMargin, y + backMargin, x + width - backMargin, y + height - backMargin,
                 0, 0, width - backMargin, height - backMargin,
                 null);
+    }
+
+    @Override
+    public void renderForeground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
+        int arrowFrame = sceneMeta.get(SceneMetadata.ARROW_FRAME).orElse(-1);
 
         /// BORDER
         // TOP
