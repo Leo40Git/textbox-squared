@@ -32,7 +32,6 @@ final class RPGTextRenderer extends AbstractTextRenderer {
 
     @Override
     protected void setupGraphicsState(Graphics2D g) {
-        g.setColor(defaultColor);
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
     }
@@ -50,7 +49,12 @@ final class RPGTextRenderer extends AbstractTextRenderer {
     }
 
     @Override
-    protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+    protected Color getDefaultTextColor(Graphics2D g, GraphicsState oldState, DataTracker sceneMeta) {
+        return defaultColor;
+    }
+
+    @Override
+    protected int renderTextImpl(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
         // fudge Y a bit
         y += 3;
         // make the text vertically centered

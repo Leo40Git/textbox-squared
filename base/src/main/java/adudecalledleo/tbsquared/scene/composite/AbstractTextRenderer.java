@@ -83,7 +83,7 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
         final int defaultMaxAscent = state.defaultMaxAscent;
         final var sb = state.stringBuilder;
 
-        g.setColor(style.color().orElseGet(oldState::foreground));
+        g.setColor(style.color().orElseGet(() -> getDefaultTextColor(g, oldState, sceneMeta)));
 
         var newFontKey = style.font().orElse(state.defaultFontKey);
         var newFontStyle = style.toFontStyle();
@@ -97,7 +97,7 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
         for (var c : contents.toCharArray()) {
             if (c == '\n') {
                 if (!sb.isEmpty()) {
-                    renderString(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
+                    renderTextImpl(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
                     sb.setLength(0);
                 }
                 state.resetX();
@@ -107,7 +107,7 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
             }
         }
         if (!sb.isEmpty()) {
-            state.x += renderString(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
+            state.x += renderTextImpl(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
             sb.setLength(0);
         }
         return Optional.empty();
@@ -117,10 +117,14 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
 
     protected void onFontChanged(Graphics2D g, String fontKey, FontMetadata fontMetadata, FontStyle fontStyle) { }
 
+    protected Color getDefaultTextColor(Graphics2D g, GraphicsState oldState, DataTracker sceneMeta) {
+        return oldState.foreground();
+    }
+
     /**
      * @return string advance
      */
-    protected abstract int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y);
+    protected abstract int renderTextImpl(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y);
 
     protected int calculateLineAdvance(int maxAscent) {
         return maxAscent;

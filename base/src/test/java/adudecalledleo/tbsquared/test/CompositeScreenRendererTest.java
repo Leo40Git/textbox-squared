@@ -50,7 +50,7 @@ public final class CompositeScreenRendererTest {
         }
 
         @Override
-        protected int renderString(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+        protected int renderTextImpl(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
             // make the text vertically centered
             int yo = defaultMaxAscent / 2 - g.getFontMetrics().getMaxAscent() / 2;
 
