@@ -2,6 +2,7 @@ package adudecalledleo.tbsquared.util.resource;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ResourceLoader {
     private final ClassLoader delegate;
@@ -26,14 +27,14 @@ public class ResourceLoader {
         return new BufferedReader(new InputStreamReader(newInputStream(path)));
     }
 
-    public String[] loadAllLines(String path) throws IOException {
+    public List<String> loadAllLines(String path) throws IOException {
         try (var reader = newBufferedReader(path)) {
             ArrayList<String> lines = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
-            return lines.toArray(String[]::new);
+            return lines;
         }
     }
 }
