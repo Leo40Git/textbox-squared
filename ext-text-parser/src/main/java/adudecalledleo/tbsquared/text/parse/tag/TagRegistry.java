@@ -5,6 +5,7 @@ import java.util.Map;
 
 import adudecalledleo.tbsquared.text.parse.tag.basic.BasicTags;
 import adudecalledleo.tbsquared.text.parse.tag.color.ColorTag;
+import adudecalledleo.tbsquared.text.parse.tag.style.StyleTag;
 
 public final class TagRegistry {
     private TagRegistry() { }
@@ -25,5 +26,6 @@ public final class TagRegistry {
     static {
         BasicTags.register();
         register(ColorTag.NAME, ColorTag::new);
+        register(StyleTag.NAME, StyleTag::new);
     }
 }

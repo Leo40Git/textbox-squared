@@ -65,7 +65,12 @@ public final class RPGMakerExtensionTest {
                         .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
                         .set(ColorSelector.PALETTE, pal)
                         .build(),
-                "Mercia:\n[color=palette(25)]Hold on.\n[i]What?[/i][/color]");
+                """
+                        Mercia:
+                        [color=palette(25)]Hold on.
+                        [i]What?[/i][/color]
+                        [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
+                        """);
 
         Scene scene = new Scene(text, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
                 DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));

@@ -7,6 +7,8 @@ public final class BasicTags {
     public static final String ITALIC = "i";
     public static final String UNDERLINE = "u";
     public static final String STRIKETHROUGH = "s";
+    public static final String SUPERSCRIPT = "sup";
+    public static final String SUBSCRIPT = "sub";
 
     private BasicTags() { }
 
@@ -15,5 +17,7 @@ public final class BasicTags {
         TagRegistry.register(ITALIC, ITag::new);
         TagRegistry.register(UNDERLINE, UTag::new);
         TagRegistry.register(STRIKETHROUGH, STag::new);
+        TagRegistry.register(SUPERSCRIPT, SupTag::new);
+        TagRegistry.register(SUBSCRIPT, SubTag::new);
     }
 }
