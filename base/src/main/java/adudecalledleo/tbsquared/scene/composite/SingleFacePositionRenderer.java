@@ -8,6 +8,7 @@ import java.util.Set;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.FacePosition;
+import adudecalledleo.tbsquared.util.shape.Dim;
 
 public abstract class SingleFacePositionRenderer implements FaceRenderer {
     public static final String THE_ONLY_POSITION_NAME = "the_one";
@@ -35,7 +36,7 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
     }
 
     @Override
-    public Dimension renderFaces(Graphics2D g, Map<FacePosition, Face> faces, DataTracker sceneMeta, int x, int y) {
+    public Dim renderFaces(Graphics2D g, Map<FacePosition, Face> faces, DataTracker sceneMeta, int x, int y) {
         Face face = faces.get(THE_ONLY_POSITION);
         if (face == null) {
             throw new IllegalStateException("Missing required face in position \"%s\"".formatted(THE_ONLY_POSITION_NAME));
@@ -43,5 +44,5 @@ public abstract class SingleFacePositionRenderer implements FaceRenderer {
         return renderFace(g, face, sceneMeta, x, y);
     }
 
-    protected abstract Dimension renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y);
+    protected abstract Dim renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y);
 }

@@ -28,6 +28,8 @@ import adudecalledleo.tbsquared.text.TextStyle;
 import adudecalledleo.tbsquared.util.Resources;
 import adudecalledleo.tbsquared.util.render.Colors;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
+import adudecalledleo.tbsquared.util.shape.Dim;
+import adudecalledleo.tbsquared.util.shape.Rect;
 
 public final class CompositeScreenRendererTest {
     private CompositeScreenRendererTest() { }
@@ -70,12 +72,12 @@ public final class CompositeScreenRendererTest {
 
     private static final class FaceRendererImpl extends SingleFacePositionRenderer {
         @Override
-        protected Dimension renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
+        protected Dim renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
             if (face.isBlank()) {
-                return new Dimension(0, 0);
+                return Dim.ZERO;
             }
             g.drawImage(face.getImage(), x, y, null);
-            return new Dimension(144 + 12, 0);
+            return new Dim(144 + 12, 0);
         }
     }
 
@@ -123,10 +125,10 @@ public final class CompositeScreenRendererTest {
 
         SceneRenderer sceneRenderer = new CompositeSceneRenderer(
                 new CompositeSceneRenderer.Config(
-                        new Dimension(sW, sH),
+                        new Dim(sW, sH),
                         Colors.darker(Color.RED, 0.2),
-                        new Rectangle(0, sH - tbH, tbW, tbH),
-                        new Dimension(12, 12)
+                        new Rect(0, sH - tbH, tbW, tbH),
+                        new Dim(12, 12)
                 ),
                 SceneImageFactory.getDefault(),
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),

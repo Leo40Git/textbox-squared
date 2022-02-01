@@ -6,6 +6,7 @@ import java.awt.image.*;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
+import adudecalledleo.tbsquared.util.shape.Rect;
 
 final class RPGTextboxRenderer implements TextboxRenderer {
     private static final class BackImageTL extends InheritableThreadLocal<BufferedImage> {
@@ -21,14 +22,12 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         }
     }
 
-    private record Piece(int x, int y, int width, int height) { }
-
     private final BufferedImage windowImage;
     private final RPGWindowTint backTint;
 
     private final int backMargin;
     private final int backTileSize;
-    private final Piece backBase, backOverlay;
+    private final Rect backBase, backOverlay;
     private final ThreadLocal<BufferedImage> backImage;
 
     private final int borderPieceSize;
@@ -42,10 +41,10 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     private static final int BORDER_PIECE_BM = 6;
     private static final int BORDER_PIECE_BR = 7;
     private static final int BORDER_PIECE_MAX = 8;
-    private final Piece[] borderPieces;
+    private final Rect[] borderPieces;
 
     private final int arrowFrameSize;
-    private final Piece[] arrowFrames;
+    private final Rect[] arrowFrames;
 
     public RPGTextboxRenderer(RPGWindowSkin.Version version, BufferedImage windowImage, RPGWindowTint backTint) {
         this.windowImage = windowImage;
@@ -54,8 +53,8 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         this.backTint = backTint;
         backMargin = version.textboxMargin();
         backTileSize = version.scale(64);
-        backBase = new Piece(0, 0, backTileSize, backTileSize);
-        backOverlay = new Piece(0, backTileSize, backTileSize, backTileSize);
+        backBase = new Rect(0, 0, backTileSize, backTileSize);
+        backOverlay = new Rect(0, backTileSize, backTileSize, backTileSize);
         backImage = new BackImageTL();
 
         /// BORDER
@@ -63,26 +62,26 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         borderMPieceWidth = borderCPieceHeight = version.scale(32);
         final int borderStartX = version.scale(64);
         final int borderMPad = version.scale(32);
-        borderPieces = new Piece[BORDER_PIECE_MAX];
+        borderPieces = new Rect[BORDER_PIECE_MAX];
         // TOP
-        borderPieces[BORDER_PIECE_TL] = new Piece(borderStartX, 0, borderPieceSize, borderPieceSize);
-        borderPieces[BORDER_PIECE_TM] = new Piece(borderStartX + borderPieceSize, 0, borderMPieceWidth, borderPieceSize);
-        borderPieces[BORDER_PIECE_TR] = new Piece(borderStartX + borderPieceSize + borderMPieceWidth, 0, borderPieceSize, borderPieceSize);
+        borderPieces[BORDER_PIECE_TL] = new Rect(borderStartX, 0, borderPieceSize, borderPieceSize);
+        borderPieces[BORDER_PIECE_TM] = new Rect(borderStartX + borderPieceSize, 0, borderMPieceWidth, borderPieceSize);
+        borderPieces[BORDER_PIECE_TR] = new Rect(borderStartX + borderPieceSize + borderMPieceWidth, 0, borderPieceSize, borderPieceSize);
         // CENTER
-        borderPieces[BORDER_PIECE_CL] = new Piece(borderStartX, borderPieceSize, borderPieceSize, borderCPieceHeight);
-        borderPieces[BORDER_PIECE_CR] = new Piece(borderStartX + borderPieceSize + borderMPad, borderPieceSize, borderPieceSize, borderCPieceHeight);
+        borderPieces[BORDER_PIECE_CL] = new Rect(borderStartX, borderPieceSize, borderPieceSize, borderCPieceHeight);
+        borderPieces[BORDER_PIECE_CR] = new Rect(borderStartX + borderPieceSize + borderMPad, borderPieceSize, borderPieceSize, borderCPieceHeight);
         // BOTTOM
-        borderPieces[BORDER_PIECE_BL] = new Piece(borderStartX, borderPieceSize + borderCPieceHeight, borderPieceSize, borderPieceSize);
-        borderPieces[BORDER_PIECE_BM] = new Piece(borderStartX + borderPieceSize, borderPieceSize + borderCPieceHeight, borderMPieceWidth, borderPieceSize);
-        borderPieces[BORDER_PIECE_BR] = new Piece(borderStartX + borderPieceSize + borderMPieceWidth, borderPieceSize + borderCPieceHeight, borderPieceSize, borderPieceSize);
+        borderPieces[BORDER_PIECE_BL] = new Rect(borderStartX, borderPieceSize + borderCPieceHeight, borderPieceSize, borderPieceSize);
+        borderPieces[BORDER_PIECE_BM] = new Rect(borderStartX + borderPieceSize, borderPieceSize + borderCPieceHeight, borderMPieceWidth, borderPieceSize);
+        borderPieces[BORDER_PIECE_BR] = new Rect(borderStartX + borderPieceSize + borderMPieceWidth, borderPieceSize + borderCPieceHeight, borderPieceSize, borderPieceSize);
 
         /// ARROW
         arrowFrameSize = version.scale(16);
-        arrowFrames = new Piece[4];
+        arrowFrames = new Rect[4];
         final int arrowStartX = version.scale(96), arrowStartY = version.scale(64);
         for (int y = 0; y < 2; y++) {
             for (int x = 0; x < 2; x++) {
-                arrowFrames[y * 2 + x] = new Piece(
+                arrowFrames[y * 2 + x] = new Rect(
                         arrowStartX + (x * arrowFrameSize), arrowStartY + (y * arrowFrameSize),
                         arrowFrameSize, arrowFrameSize);
             }
@@ -156,16 +155,14 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         return backImage;
     }
 
-    private void drawPiece(Graphics2D g, Piece piece, int x, int y, int width, int height) {
-        final int px = piece.x();
-        final int py = piece.y();
+    private void drawPiece(Graphics2D g, Rect piece, int x, int y, int width, int height) {
         g.drawImage(windowImage,
                 x, y, x + width, y + height,
-                px, py, px + piece.width(), py + piece.height(),
+                piece.x1(), piece.y1(), piece.x2(), piece.y2(),
                 null);
     }
 
-    private void drawPiece(Graphics2D g, Piece piece, int x, int y) {
+    private void drawPiece(Graphics2D g, Rect piece, int x, int y) {
         drawPiece(g, piece, x, y, piece.width(), piece.height());
     }
 }

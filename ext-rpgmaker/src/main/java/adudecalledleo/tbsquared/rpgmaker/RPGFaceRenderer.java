@@ -6,6 +6,7 @@ import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.scene.composite.FaceRenderer;
 import adudecalledleo.tbsquared.scene.composite.SingleFacePositionRenderer;
+import adudecalledleo.tbsquared.util.shape.Dim;
 
 public final class RPGFaceRenderer extends SingleFacePositionRenderer {
     public static final FaceRenderer INSTANCE = new RPGFaceRenderer();
@@ -13,7 +14,7 @@ public final class RPGFaceRenderer extends SingleFacePositionRenderer {
     private RPGFaceRenderer() { }
 
     @Override
-    protected Dimension renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
+    protected Dim renderFace(Graphics2D g, Face face, DataTracker sceneMeta, int x, int y) {
         if (face.isBlank()) {
             return new Dimension();
         }
