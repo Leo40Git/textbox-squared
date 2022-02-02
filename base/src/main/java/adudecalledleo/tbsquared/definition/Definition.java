@@ -3,6 +3,10 @@ package adudecalledleo.tbsquared.definition;
 import java.nio.file.Path;
 
 public abstract class Definition {
+    public static Definition builtin() {
+        return BuiltinDefinition.INSTANCE;
+    }
+
     public static final String[] DEFAULT_DESCRIPTION = { "(no description)" };
     public static final String[] DEFAULT_CREDITS = new String[0];
 
@@ -16,10 +20,6 @@ public abstract class Definition {
         this.credits = credits;
         this.filePath = filePath;
         this.basePath = basePath;
-    }
-
-    public static Definition builtin() {
-        return BuiltinDefinition.INSTANCE;
     }
 
     public String getName() {
