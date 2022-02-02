@@ -28,7 +28,7 @@ public final class AggregateFacePool implements FacePool {
             }
         }
 
-        categories = new LinkedHashMap<>();
+        categories = new LinkedHashMap<>(combinedCategoryMap.size());
         for (var entry : combinedCategoryMap.entrySet()) {
             categories.put(entry.getKey(), entry.getValue().toFinal());
         }
