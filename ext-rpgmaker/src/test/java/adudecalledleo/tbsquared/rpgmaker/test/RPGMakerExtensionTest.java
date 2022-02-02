@@ -19,7 +19,6 @@ import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
-import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
@@ -87,10 +86,9 @@ public final class RPGMakerExtensionTest {
                         [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
                         """);
 
-        Scene scene = new Scene(text, Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
+        var image = sceneRenderer.renderScene(text,
+                Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
                 DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));
-
-        var image = sceneRenderer.renderScene(scene);
 
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(image, "PNG", out);

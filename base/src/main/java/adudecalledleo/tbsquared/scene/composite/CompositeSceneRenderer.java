@@ -3,11 +3,14 @@ package adudecalledleo.tbsquared.scene.composite;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.Collection;
+import java.util.Map;
 
+import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.scene.FacePosition;
-import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
+import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.util.render.HorizontalAlignment;
 import adudecalledleo.tbsquared.util.render.VerticalAlignment;
 import adudecalledleo.tbsquared.util.shape.Dim;
@@ -154,21 +157,21 @@ public record CompositeSceneRenderer(Config config,
     }
 
     @Override
-    public BufferedImage renderScene(Scene scene) {
+    public BufferedImage renderScene(Text text, Map<FacePosition, Face> faces, DataTracker metadata) {
         BufferedImage image = imageFactory.createImage(config.sceneSize().width(), config.sceneSize().height());
         var g = image.createGraphics();
         g.setBackground(config.sceneBackground());
         g.clearRect(0, 0, config.sceneSize().width(), config.sceneSize().height());
-        textboxRenderer.renderBackground(g, scene.metadata(),
+        textboxRenderer.renderBackground(g, metadata,
                 config.textboxRect().x(), config.textboxRect().y(),
                 config.textboxRect().width(), config.textboxRect().height());
         int x = config.textboxRect().x() + config.textboxPadding().width();
         int y = config.textboxRect().y() + config.textboxPadding().height();
-        Dim facePadding = faceRenderer.renderFaces(g, scene.faces(), scene.metadata(), x, y);
+        Dim facePadding = faceRenderer.renderFaces(g, faces, metadata, x, y);
         x += facePadding.width();
         y += facePadding.height();
-        textRenderer.renderText(g, scene.text(), fonts, scene.metadata(), x, y);
-        textboxRenderer.renderForeground(g, scene.metadata(),
+        textRenderer.renderText(g, text, fonts, metadata, x, y);
+        textboxRenderer.renderForeground(g, metadata,
                 config.textboxRect().x(), config.textboxRect().y(),
                 config.textboxRect().width(), config.textboxRect().height());
         g.dispose();

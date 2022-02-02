@@ -19,7 +19,6 @@ import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
-import adudecalledleo.tbsquared.scene.Scene;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.*;
 import adudecalledleo.tbsquared.text.Text;
@@ -139,9 +138,8 @@ public final class CompositeSceneRendererTest {
                 new TextRendererImpl()
         );
 
-        Scene scene = new Scene(text, Map.of(SingleFaceRenderer.THE_ONLY_POSITION, face));
-
-        var image = sceneRenderer.renderScene(scene);
+        var image = sceneRenderer.renderScene(text,
+                Map.of(sceneRenderer.getDefaultFacePosition(), face));
 
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(image, "PNG", out);
