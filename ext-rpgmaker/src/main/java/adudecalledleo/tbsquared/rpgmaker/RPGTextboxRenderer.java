@@ -99,8 +99,6 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
     @Override
     public void renderForeground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        int arrowFrame = sceneMeta.get(SceneMetadata.ARROW_FRAME).orElse(-1);
-
         /// BORDER
         // TOP
         drawPiece(g, borderPieces[BORDER_PIECE_TL], x, y);
@@ -114,12 +112,12 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         drawPiece(g, borderPieces[BORDER_PIECE_BM], x + borderPieceSize, y + height - borderPieceSize, width - borderMPieceWidth, borderPieceSize);
         drawPiece(g, borderPieces[BORDER_PIECE_BR], x + width - borderPieceSize, y + height - borderPieceSize);
 
-        if (arrowFrame > 0) {
+        sceneMeta.get(SceneMetadata.ARROW_FRAME).ifPresent(arrowFrame -> {
             /// ARROW
             drawPiece(g, arrowFrames[arrowFrame],
                     x + (width / 2) - (arrowFrameSize / 2),
                     y + height - arrowFrameSize);
-        }
+        });
     }
 
     private BufferedImage getBackImage(int width, int height) {
