@@ -8,12 +8,8 @@ import javax.imageio.ImageIO;
 
 // separate class to prevent possible AWT init shenanigans
 public class AWTResourceLoader extends ResourceLoader {
-    public AWTResourceLoader(ClassLoader delegate) {
+    public AWTResourceLoader(Class<?> delegate) {
         super(delegate);
-    }
-
-    public AWTResourceLoader(Class<?> clazz) {
-        super(clazz);
     }
 
     public BufferedImage loadImage(String path) throws IOException {

@@ -5,14 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResourceLoader {
-    private final ClassLoader delegate;
+    private final Class<?> delegate;
 
-    public ResourceLoader(ClassLoader delegate) {
+    public ResourceLoader(Class<?> delegate) {
         this.delegate = delegate;
-    }
-
-    public ResourceLoader(Class<?> clazz) {
-        this(clazz.getClassLoader());
     }
 
     public InputStream newInputStream(String path) throws IOException {
