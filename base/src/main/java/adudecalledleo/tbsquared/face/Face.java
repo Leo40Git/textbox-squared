@@ -6,16 +6,18 @@ import javax.swing.*;
 
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.definition.FromDefinition;
+import org.jetbrains.annotations.Nullable;
 
 public final class Face implements FromDefinition {
     public static final Face BLANK = new Face(Definition.builtin(), "None",
-            new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), (name, image) -> new ImageIcon());
+            new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), FaceIconProvider.NONE);
 
     private final Definition sourceDefinition;
     private final String name;
     private final BufferedImage image;
     private final FaceIconProvider iconProvider;
     private ImageIcon icon;
+    private boolean iconComputed;
 
     public Face(Definition sourceDefinition, String name, BufferedImage image, FaceIconProvider iconProvider) {
         this.sourceDefinition = sourceDefinition;
@@ -41,9 +43,10 @@ public final class Face implements FromDefinition {
         return image;
     }
 
-    public ImageIcon getIcon() {
-        if (icon == null) {
+    public @Nullable ImageIcon getIcon() {
+        if (!iconComputed) {
             icon = iconProvider.createIcon(name, image);
+            iconComputed = true;
         }
         return icon;
     }

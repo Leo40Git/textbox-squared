@@ -4,7 +4,11 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+import org.jetbrains.annotations.Nullable;
+
 @FunctionalInterface
 public interface FaceIconProvider {
-    ImageIcon createIcon(String name, BufferedImage image);
+    FaceIconProvider NONE = (name, image) -> null;
+
+    @Nullable ImageIcon createIcon(String name, BufferedImage image);
 }
