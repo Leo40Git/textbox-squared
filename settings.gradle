@@ -1,5 +1,5 @@
 rootProject.name = 'textbox-squared'
 
 include 'base'
-include 'ext-text-parser'
+include 'ext-parser'
 include 'ext-rpgmaker'
