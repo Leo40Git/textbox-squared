@@ -1,15 +1,15 @@
 package adudecalledleo.tbsquared.parse.node;
 
-import java.util.List;
+import java.util.Optional;
 
-public sealed abstract class Node permits TextNode, Document {
-    protected final List<Node> children;
+public interface Node {
+    String getName();
 
-    public Node(List<Node> children) {
-        this.children = children;
+    default <T, R> Optional<R> visitSelf(NodeVisitor<T, R> visitor, T data) {
+        return visitor.visit(this, data);
     }
 
-    public List<Node> getChildren() {
-        return children;
+    default <T, R> Optional<R> visit(NodeVisitor<T, R> visitor, T data) {
+        return visitSelf(visitor, data);
     }
 }

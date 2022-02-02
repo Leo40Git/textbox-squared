@@ -1,16 +1,15 @@
 package adudecalledleo.tbsquared.parse.node;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public final class Document extends Node {
-    public static final Document EMPTY = new Document(List.of());
+public final class Document extends AbstractContainerNode {
+    public static final String NAME = "doc";
 
     public Document(List<Node> children) {
-        super(children);
+        super(NAME, children);
     }
 
     public Document() {
-        super(new ArrayList<>());
+        super(NAME);
     }
 }

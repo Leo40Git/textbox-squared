@@ -1,12 +1,12 @@
 package adudecalledleo.tbsquared.parse.node;
 
-import java.util.List;
+public final class TextNode extends AbstractNode {
+    public static final String NAME = "text";
 
-public final class TextNode extends Node {
     private final String contents;
 
     public TextNode(String contents) {
-        super(List.of());
+        super(NAME);
         this.contents = contents;
     }
 
