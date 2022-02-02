@@ -14,7 +14,7 @@ import adudecalledleo.tbsquared.util.shape.Dim;
 import adudecalledleo.tbsquared.util.shape.Rect;
 
 public record CompositeSceneRenderer(Config config,
-                                     SceneImageFactory imageFactory,
+                                     ImageFactory imageFactory,
                                      FontProvider fonts,
                                      TextboxRenderer textboxRenderer,
                                      FaceRenderer faceRenderer,
@@ -24,14 +24,14 @@ public record CompositeSceneRenderer(Config config,
         private Color sceneBackground;
         private Rect textboxRect;
         private Dim textboxPadding;
-        private SceneImageFactory imageFactory;
+        private ImageFactory imageFactory;
         private FontProvider fonts;
         private TextboxRenderer textboxRenderer;
         private FaceRenderer faceRenderer;
         private TextRenderer textRenderer;
 
         private Builder() {
-            imageFactory = SceneImageFactory.getDefault();
+            imageFactory = ImageFactory.DEFAULT;
         }
 
         public Builder sceneSize(Dim sceneSize) {
@@ -81,9 +81,9 @@ public record CompositeSceneRenderer(Config config,
             return this;
         }
 
-        public Builder imageFactory(SceneImageFactory imageFactory) {
+        public Builder imageFactory(ImageFactory imageFactory) {
             if (imageFactory == null) {
-                this.imageFactory = SceneImageFactory.getDefault();
+                this.imageFactory = ImageFactory.DEFAULT;
             } else {
                 this.imageFactory = imageFactory;
             }
@@ -155,7 +155,7 @@ public record CompositeSceneRenderer(Config config,
 
     @Override
     public BufferedImage renderScene(Scene scene) {
-        BufferedImage image = imageFactory.createSceneImage(config.sceneSize().width(), config.sceneSize().height());
+        BufferedImage image = imageFactory.createImage(config.sceneSize().width(), config.sceneSize().height());
         var g = image.createGraphics();
         g.setBackground(config.sceneBackground());
         g.clearRect(0, 0, config.sceneSize().width(), config.sceneSize().height());

@@ -132,7 +132,7 @@ public final class CompositeSceneRendererTest {
                         new Rect(0, sH - tbH, tbW, tbH),
                         new Dim(12, 12)
                 ),
-                SceneImageFactory.getDefault(),
+                ImageFactory.DEFAULT,
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),
                 new NinePatchTextboxRenderer(tbSourceImage),
                 new FaceRendererImpl(),
