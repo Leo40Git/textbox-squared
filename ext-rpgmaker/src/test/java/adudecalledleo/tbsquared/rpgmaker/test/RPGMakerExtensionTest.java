@@ -17,6 +17,8 @@ import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
+import adudecalledleo.tbsquared.parse.DOMConverter;
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
@@ -75,16 +77,17 @@ public final class RPGMakerExtensionTest {
 
         var pal = winSkin.getPalette();
 
-        Text text = TextParser.parse(DefaultDataTracker.builder()
-                        .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
-                        .set(ColorSelector.PALETTE, pal)
-                        .build(),
-                """
+        var doc = DOMParser.parse("""
                         Mercia:
                         [color=palette(25)]Hold on.
                         [i]What?[/i][/color]
                         [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
                         """);
+
+        Text text = DOMConverter.toText(doc, DefaultDataTracker.builder()
+                .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
+                .set(ColorSelector.PALETTE, pal)
+                .build());
 
         var image = sceneRenderer.renderScene(text,
                 Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
