@@ -1,13 +1,18 @@
 package adudecalledleo.tbsquared.font;
 
 import java.awt.*;
+import java.util.Set;
 
 public interface FontProvider {
-    boolean hasFontKey(String key);
+    Set<String> getFontKeys();
     Font getBaseFont(String key);
     Font getStyledFont(String key, FontStyle style);
     FontMetadata getFontMetadata(String key);
     String getDefaultFontKey();
+
+    default boolean hasFontKey(String key) {
+        return getFontKeys().contains(key);
+    }
 
     default Font getDefaultBaseFont() {
         return getBaseFont(getDefaultFontKey());

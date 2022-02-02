@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.font;
 
 import java.awt.*;
+import java.util.Set;
 
 public final class SingleFontProvider implements FontProvider {
     public static FontProvider of(Font baseFont, FontMetadata fontMetadata) {
@@ -8,18 +9,19 @@ public final class SingleFontProvider implements FontProvider {
     }
 
     public static final String THE_ONLY_KEY = "the_one";
+    private static final Set<String> FONT_KEYS = Set.of(THE_ONLY_KEY);
 
     private final StyledFontCache styledFontCache;
     private final FontMetadata fontMetadata;
 
-    private SingleFontProvider(Font baseFont, FontMetadata fontMetadata) {
+    public SingleFontProvider(Font baseFont, FontMetadata fontMetadata) {
         styledFontCache = new StyledFontCache(baseFont);
         this.fontMetadata = fontMetadata;
     }
 
     @Override
-    public boolean hasFontKey(String key) {
-        return THE_ONLY_KEY.equals(key);
+    public Set<String> getFontKeys() {
+        return FONT_KEYS;
     }
 
     @Override
@@ -49,6 +51,11 @@ public final class SingleFontProvider implements FontProvider {
     @Override
     public String getDefaultFontKey() {
         return THE_ONLY_KEY;
+    }
+
+    @Override
+    public boolean hasFontKey(String key) {
+        return THE_ONLY_KEY.equals(key);
     }
 
     @Override

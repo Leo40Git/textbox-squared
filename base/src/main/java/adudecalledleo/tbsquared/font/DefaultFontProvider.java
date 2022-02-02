@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.font;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class DefaultFontProvider implements FontProvider {
     public record FontRecord(StyledFontCache styledCache, FontMetadata metadata) { }
@@ -41,13 +42,16 @@ public class DefaultFontProvider implements FontProvider {
     protected final String defaultFontKey;
 
     public DefaultFontProvider(Map<String, FontRecord> records, String defaultFontKey) {
+        if (!records.containsKey(defaultFontKey)) {
+            throw new IllegalArgumentException("Default font \"%s\" is missing!".formatted(defaultFontKey));
+        }
         this.records = Map.copyOf(records);
         this.defaultFontKey = defaultFontKey;
     }
 
     @Override
-    public boolean hasFontKey(String key) {
-        return records.containsKey(key);
+    public Set<String> getFontKeys() {
+        return records.keySet();
     }
 
     protected FontRecord getFontRecord(String key) {
