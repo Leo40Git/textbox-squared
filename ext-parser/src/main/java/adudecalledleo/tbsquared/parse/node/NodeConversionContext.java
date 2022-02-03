@@ -3,10 +3,10 @@ package adudecalledleo.tbsquared.parse.node;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public record NodeConversionContext(DataTracker metadata) {
+public record NodeConversionContext(NodeRegistry registry, DataTracker metadata) {
     @SuppressWarnings("unchecked")
     public void convert(Node node, TextBuilder tb) {
-        var handler = (NodeHandler<Node>) NodeRegistry.get(node.getName());
+        var handler = (NodeHandler<Node>) registry.getHandler(node.getName());
         if (handler == null) {
             throw new IllegalStateException("Unknown node \"" + node.getName() + "\"");
         }
