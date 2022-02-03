@@ -6,6 +6,7 @@ import java.util.OptionalInt;
 
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.util.TriState;
+import org.jetbrains.annotations.Nullable;
 
 public record TextStyle(Optional<Color> color, Optional<String> font,
                         TriState bold, TriState italic, TriState underline, TriState strikethrough,
@@ -20,12 +21,12 @@ public record TextStyle(Optional<Color> color, Optional<String> font,
                 superscript.orElse(FontStyle.Superscript.MID), sizeAdjust.orElse(0));
     }
 
-    public TextStyle withColor(Color color) {
-        return new TextStyle(Optional.of(color), font, bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    public TextStyle withColor(@Nullable Color color) {
+        return new TextStyle(Optional.ofNullable(color), font, bold, italic, underline, strikethrough, superscript, sizeAdjust);
     }
 
-    public TextStyle withFont(String font) {
-        return new TextStyle(color, Optional.of(font), bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    public TextStyle withFont(@Nullable String font) {
+        return new TextStyle(color, Optional.ofNullable(font), bold, italic, underline, strikethrough, superscript, sizeAdjust);
     }
 
     public TextStyle withBold(boolean bold) {

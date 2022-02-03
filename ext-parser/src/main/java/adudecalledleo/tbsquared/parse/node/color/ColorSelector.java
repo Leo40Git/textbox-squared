@@ -5,6 +5,7 @@ import java.awt.*;
 import adudecalledleo.tbsquared.color.Palette;
 import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
+import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface ColorSelector {
@@ -14,5 +15,5 @@ public interface ColorSelector {
         return ColorSelectors.parse(value);
     }
 
-    Color getColor(DataTracker ctx);
+    @Nullable Color getColor(DataTracker ctx);
 }

@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.parse.node.color;
 import java.awt.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("ClassCanBeRecord")
 final class ColorSelectors {
@@ -37,20 +38,64 @@ final class ColorSelectors {
                 b = (rgb >> 16) & 0xFF;
             }
             return new ConstSelector(new Color(r | g << 8 | b << 16, false));
-        } else if (value.startsWith("rgb(") && value.endsWith(")")) {
-            String argsStr = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-            // TODO impl rgb(r, g, b)
-        } else if (value.startsWith("palette(") && value.endsWith(")")) {
-            String palIdxStr = value.substring(value.indexOf('(') + 1, value.indexOf(')')).trim();
-            int palIdx;
-            try {
-                palIdx = Integer.parseInt(palIdxStr);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("failed to parse palette index", e);
+        } else {
+            value = value.trim();
+            if (NullSelector.NAME.equals(value)) {
+                return NullSelector.INSTANCE;
+            } else if (value.contains("(") && value.contains(")")) {
+                int obIdx = value.indexOf('(');
+                String argsStr = value.substring(obIdx + 1, value.indexOf(')')).trim();
+                value = value.substring(obIdx).trim();
+                /// function-like - value is function name
+                if (PalIdxSelector.NAME.equals(value)) {
+                    int palIdx;
+                    try {
+                        palIdx = Integer.parseUnsignedInt(argsStr);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("failed to parse palette index", e);
+                    }
+                    return new PalIdxSelector(palIdx);
+                } else if ("rgb".equals(value)) {
+                    String[] compsStr = argsStr.split(",");
+                    if (compsStr.length != 3) {
+                        throw new IllegalArgumentException("rgb function takes 3 arguments");
+                    }
+                    int r = parseRGBComponent(compsStr[0], "red");
+                    int g = parseRGBComponent(compsStr[1], "green");
+                    int b = parseRGBComponent(compsStr[2], "blue");
+                    return new ConstSelector(new Color(r, g, b, 255));
+                }
             }
-            return new PalIdxSelector(palIdx);
         }
         throw new IllegalArgumentException("couldn't parse color selector \"%s\"".formatted(value));
+    }
+
+    private static int parseRGBComponent(String str, String name) {
+        int i;
+        try {
+            i = Integer.parseInt(str.trim(), 10);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("failed to parse " + name + " component", e);
+        }
+        if (i < 0 || i > 255) {
+            throw new IllegalArgumentException(name + " component must be between 0 and 255");
+        }
+        return i;
+    }
+
+    public static final class NullSelector implements ColorSelector {
+        public static final String NAME = "default";
+        public static final ColorSelector INSTANCE = new NullSelector();
+
+        @Override
+        public @Nullable Color getColor(DataTracker ctx) {
+            return null;
+        }
+
+        @Override
+        public String toString() {
+            return NAME;
+        }
     }
 
     public static final class ConstSelector implements ColorSelector {
@@ -72,6 +117,8 @@ final class ColorSelectors {
     }
 
     public static final class PalIdxSelector implements ColorSelector {
+        public static final String NAME = "palette";
+
         private final int palIdx;
 
         public PalIdxSelector(int palIdx) {
@@ -80,7 +127,8 @@ final class ColorSelectors {
 
         @Override
         public Color getColor(DataTracker ctx) {
-            var pal = ctx.get(PALETTE).orElseThrow(() -> new IllegalArgumentException("palette reference is unsupported"));
+            var pal = ctx.get(PALETTE)
+                    .orElseThrow(() -> new IllegalArgumentException("palette reference is unsupported"));
             if (palIdx >= pal.getSize()) {
                 throw new IllegalArgumentException("palette index is too high");
             }
@@ -89,7 +137,7 @@ final class ColorSelectors {
 
         @Override
         public String toString() {
-            return "palette(" + palIdx + ")";
+            return NAME + "(" + palIdx + ")";
         }
     }
 }
