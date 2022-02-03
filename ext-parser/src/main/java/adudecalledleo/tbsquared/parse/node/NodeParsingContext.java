@@ -15,18 +15,28 @@ public record NodeParsingContext(NodeRegistry registry) {
         final var sb = new StringBuilder();
         boolean escaped = false;
         char c;
-        while ((c = scanner.read()) != StringScanner.EOF) {
+        while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
                 escaped = false;
                 switch (c) {
-                    case 'u' -> {
-                        // TODO impl unicode escape
+                    case 'u' -> parseUnicodeEscape(scanner, sb);
+                    default -> {
+                        sb.append(c);
+                        scanner.next();
                     }
-                    default -> sb.append(c);
                 }
             } else switch (c) {
-                case '\\' -> escaped = true;
+                case '\\' -> {
+                    escaped = true;
+                    scanner.next();
+                }
                 case '[' -> {
+                    if (!sb.isEmpty()) {
+                        list.add(new TextNode(sb.toString()));
+                        sb.setLength(0);
+                    }
+
+                    scanner.next();
                     String name = scanner.until(']')
                             .orElseThrow(() -> new IllegalArgumentException("malformed opening tag"))
                             .trim();
@@ -56,8 +66,14 @@ public record NodeParsingContext(NodeRegistry registry) {
                     } // else, no attrs
 
                     final String nameF = name;
-                    list.add(handler.parse(this, attrs, scanner.until("[/%s]".formatted(name))
-                            .orElseThrow(() -> new IllegalArgumentException("missing closing tag for \"" + nameF + "\""))));
+                    list.add(handler.parse(this, attrs,
+                            scanner.until("[/%s]".formatted(name))
+                                    .orElseThrow(() ->
+                                            new IllegalArgumentException("missing closing tag for \"" + nameF + "\""))));
+                }
+                default -> {
+                    sb.append(c);
+                    scanner.next();
                 }
             }
         }
@@ -70,6 +86,8 @@ public record NodeParsingContext(NodeRegistry registry) {
     }
 
     public static Map<String, String> parseAttributes(StringBuilder sb, String attrString) {
+        sb.setLength(0);
+
         Map<String, String> attrs;
         attrs = new LinkedHashMap<>();
 
@@ -78,13 +96,22 @@ public record NodeParsingContext(NodeRegistry registry) {
         char quoteChar = 0;
         String currentKey = null;
         char c;
-        while ((c = scanner.read()) != StringScanner.EOF) {
+        while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
                 escaped = false;
-                sb.append(c);
+                switch (c) {
+                    case 'u' -> parseUnicodeEscape(scanner, sb);
+                    default -> {
+                        sb.append(c);
+                        scanner.next();
+                    }
+                }
             } else {
                 switch (c) {
-                    case '\\' -> escaped = true;
+                    case '\\' -> {
+                        escaped = true;
+                        scanner.next();
+                    }
                     case '"', '\'' -> {
                         if (quoteChar == 0) {
                             quoteChar = c;
@@ -93,10 +120,17 @@ public record NodeParsingContext(NodeRegistry registry) {
                         } else {
                             sb.append(c);
                         }
+                        scanner.next();
                     }
                     case '=' -> {
-                        currentKey = getAttributeKey(sb);
-                        sb.setLength(0);
+                        if (quoteChar == 0) {
+                            if (sb.isEmpty()) {
+                                throw new IllegalArgumentException("unexpected =");
+                            }
+                            currentKey = getAttributeKey(sb);
+                            sb.setLength(0);
+                        }
+                        scanner.next();
                     }
                     case ' ' -> {
                         if (quoteChar == 0) {
@@ -113,8 +147,12 @@ public record NodeParsingContext(NodeRegistry registry) {
                         } else {
                             sb.append(c);
                         }
+                        scanner.next();
                     }
-                    default -> sb.append(c);
+                    default -> {
+                        sb.append(c);
+                        scanner.next();
+                    }
                 }
             }
         }
@@ -144,5 +182,10 @@ public record NodeParsingContext(NodeRegistry registry) {
             throw new IllegalArgumentException("empty attribute key");
         }
         return currentKey;
+    }
+
+    private static void parseUnicodeEscape(StringScanner scanner, StringBuilder sb) {
+        // FIXME stub
+        scanner.next();
     }
 }

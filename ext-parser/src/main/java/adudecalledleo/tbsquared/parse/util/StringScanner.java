@@ -7,13 +7,11 @@ public final class StringScanner {
 
     private final char[] chars;
     private final StringBuilder tempSB;
-    private final int maxPos;
     private int pos;
 
     public StringScanner(String string) {
         chars = string.toCharArray();
         tempSB = new StringBuilder();
-        maxPos = chars.length - 1;
         pos = 0;
     }
 
@@ -22,18 +20,22 @@ public final class StringScanner {
     }
 
     public void seek(int newPos) {
-        this.pos = Math.max(0, Math.min(maxPos, newPos));
+        this.pos = Math.max(0, Math.min(chars.length, newPos));
     }
 
     public char peek() {
-        if (pos >= maxPos) {
+        if (pos >= chars.length) {
             return EOF;
         }
         return chars[pos];
     }
 
+    public void next() {
+        pos++;
+    }
+
     public char read() {
-        if (pos >= maxPos) {
+        if (pos >= chars.length) {
             return EOF;
         }
         return chars[pos++];
@@ -43,7 +45,7 @@ public final class StringScanner {
         if (length <= 0) {
             throw new IllegalArgumentException("length <= 0");
         }
-        if (pos + length >= maxPos) {
+        if (pos + length >= chars.length) {
             return Optional.empty();
         }
         var s = new String(chars, pos, length);
@@ -52,17 +54,22 @@ public final class StringScanner {
     }
 
     public Optional<String> until(char terminator) {
-        final int oldPos = pos;
-        tempSB.setLength(0);
-        char c;
-        while ((c = read()) != EOF && c != terminator) {
-            tempSB.append(c);
+        if (pos >= chars.length) {
+            return Optional.empty();
+        }
+        if (chars[pos] == terminator) {
+            return Optional.of("");
+        }
+        final int startPos = pos;
+        char c = read();
+        while (c != EOF && c != terminator) {
+            c = read();
         }
         if (c == terminator) {
-            pos++;
-            return Optional.of(tempSB.toString());
+            var s = new String(chars, startPos, pos - startPos - 1);
+            return Optional.of(s);
         } else {
-            pos = oldPos;
+            pos = startPos;
             return Optional.empty();
         }
     }
@@ -72,12 +79,11 @@ public final class StringScanner {
         tempSB.setLength(0);
         boolean found = false;
         final char[] termChars = terminator.toCharArray();
-        final int maxSearchPos = maxPos - termChars.length + 1;
-        for (int i = pos; i < maxSearchPos; i++) {
-            pos = i;
+        final int maxSearchPos = chars.length - termChars.length + 1;
+        for (; pos < maxSearchPos; pos++) {
             found = true;
-            for (int j = 0; j < termChars.length; j++) {
-                if (chars[i + j] != termChars[j]) {
+            for (int termPos = 0; termPos < termChars.length; termPos++) {
+                if (chars[pos + termPos] != termChars[termPos]) {
                     found = false;
                     break;
                 }
@@ -89,6 +95,7 @@ public final class StringScanner {
             }
         }
         if (found) {
+            pos += termChars.length;
             return Optional.of(tempSB.toString());
         } else {
             pos = oldPos;

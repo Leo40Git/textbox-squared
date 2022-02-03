@@ -22,6 +22,8 @@ public final class NodeRegistry {
 
     private NodeRegistry(Map<String, NodeHandler<?>> handlers) {
         this.handlers = handlers;
+        register(Document.NAME, Document.HANDLER);
+        register(TextNode.NAME, TextNode.HANDLER);
     }
 
     public NodeRegistry() {
@@ -29,8 +31,7 @@ public final class NodeRegistry {
     }
 
     public void registerDefaults() {
-        register(Document.NAME, Document.HANDLER);
-        register(TextNode.NAME, TextNode.HANDLER);
+        
     }
 
     public void register(String name, NodeHandler<?> handler) {
