@@ -9,6 +9,6 @@ public final class DOMParser {
 
     public static Document parse(NodeRegistry registry, String contents) {
         var ctx = new NodeParsingContext(registry);
-        return new Document(ctx.parse(contents));
+        return new Document(ctx.parse(DOMInputSanitizer.apply(contents)));
     }
 }

@@ -1,9 +1,9 @@
-package adudecalledleo.tbsquared.text.parse;
+package adudecalledleo.tbsquared.parse;
 
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
-public final class TextSanitizer {
+public final class DOMInputSanitizer {
     private static final UnaryOperator<String> FUNCTION = createFunction();
 
     public static String apply(String input) {

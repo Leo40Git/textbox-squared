@@ -20,13 +20,12 @@ import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.parse.DOMConverter;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
+import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.text.Text;
-import adudecalledleo.tbsquared.text.parse.TextParser;
-import adudecalledleo.tbsquared.text.parse.tag.color.ColorSelector;
 import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
 public final class RPGMakerExtensionTest {
@@ -85,10 +84,8 @@ public final class RPGMakerExtensionTest {
                         [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
                         """);
 
-        Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(), DefaultDataTracker.builder()
-                .set(TextParser.DEFAULT_COLOR, pal.getColor(0))
-                .set(ColorSelector.PALETTE, pal)
-                .build());
+        Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(),
+                DefaultDataTracker.of(ColorSelector.PALETTE, pal));
 
         var image = sceneRenderer.renderScene(text,
                 Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
