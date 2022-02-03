@@ -2,17 +2,20 @@ package adudecalledleo.tbsquared.text.parse.tag.color;
 
 import java.awt.*;
 
-import adudecalledleo.tbsquared.color.Palette;
-import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
 
+@Deprecated
 @FunctionalInterface
-public interface ColorSelector {
-    DataKey<Palette> PALETTE = new DataKey<>(Palette.class, "palette");
-
+public interface ColorSelector extends adudecalledleo.tbsquared.parse.node.color.ColorSelector {
     static ColorSelector parse(String value) {
-        return ColorSelectors.parse(value);
-    }
+        var delegate = adudecalledleo.tbsquared.parse.node.color.ColorSelector.parse(value);
+        return new ColorSelector() {
+            private final adudecalledleo.tbsquared.parse.node.color.ColorSelector _delegate = delegate;
 
-    Color getColor(DataTracker ctx);
+            @Override
+            public Color getColor(DataTracker ctx) {
+                return _delegate.getColor(ctx);
+            }
+        };
+    }
 }

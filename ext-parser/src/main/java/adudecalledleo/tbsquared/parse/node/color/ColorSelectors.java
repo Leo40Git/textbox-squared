@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.text.parse.tag.color;
+package adudecalledleo.tbsquared.parse.node.color;
 
 import java.awt.*;
 

@@ -3,6 +3,9 @@ package adudecalledleo.tbsquared.parse.node;
 import java.util.HashMap;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.parse.node.color.ColorNode;
+import adudecalledleo.tbsquared.parse.node.style.BasicStyleNodes;
+import adudecalledleo.tbsquared.parse.node.style.StyleNode;
 import org.jetbrains.annotations.Nullable;
 
 public final class NodeRegistry {
@@ -31,7 +34,9 @@ public final class NodeRegistry {
     }
 
     public void registerDefaults() {
-        
+        BasicStyleNodes.register(this);
+        ColorNode.register(this);
+        StyleNode.register(this);
     }
 
     public void register(String name, NodeHandler<?> handler) {
