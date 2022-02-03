@@ -1,15 +1,14 @@
 package adudecalledleo.tbsquared.parse;
 
-import java.util.List;
-
 import adudecalledleo.tbsquared.parse.node.Document;
-import adudecalledleo.tbsquared.parse.node.TextNode;
+import adudecalledleo.tbsquared.parse.node.NodeParsingContext;
+import adudecalledleo.tbsquared.parse.node.NodeRegistry;
 
 public final class DOMParser {
     private DOMParser() { }
 
-    public static Document parse(String text) {
-        // TODO actually implement this!
-        return new Document(List.of(new TextNode(text)));
+    public static Document parse(NodeRegistry registry, String contents) {
+        var ctx = new NodeParsingContext(registry);
+        return new Document(ctx.parse(contents));
     }
 }

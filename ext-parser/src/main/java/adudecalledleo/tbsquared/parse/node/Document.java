@@ -6,7 +6,7 @@ import adudecalledleo.tbsquared.text.TextBuilder;
 
 public final class Document extends AbstractContainerNode {
     public static final String NAME = "doc";
-    public static final Handler HANDLER = new Handler();
+    public static final NodeHandler<Document> HANDLER = new Handler();
 
     public Document(List<Node> children) {
         super(NAME, children);

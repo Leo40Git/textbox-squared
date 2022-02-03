@@ -78,7 +78,7 @@ public final class RPGMakerExtensionTest {
 
         var pal = winSkin.getPalette();
 
-        var doc = DOMParser.parse("""
+        var doc = DOMParser.parse(NodeRegistry.getDefault(), """
                         Mercia:
                         [color=palette(25)]Hold on.
                         [i]What?[/i][/color]

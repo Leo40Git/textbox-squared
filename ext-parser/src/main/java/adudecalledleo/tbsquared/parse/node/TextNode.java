@@ -4,7 +4,7 @@ import adudecalledleo.tbsquared.text.TextBuilder;
 
 public final class TextNode extends AbstractNode {
     public static final String NAME = "text";
-    public static final Handler HANDLER = new Handler();
+    public static final NodeHandler<TextNode> HANDLER = new Handler();
 
     private final String contents;
 

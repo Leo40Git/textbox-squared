@@ -12,7 +12,7 @@ public abstract class ImplicitNodeHandler<T extends Node> implements NodeHandler
     }
 
     @Override
-    public final T parse(Map<String, String> attributes) {
+    public final T parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
         throw new UnsupportedOperationException("Explicit [%s] declaration not allowed!".formatted(name));
     }
 
