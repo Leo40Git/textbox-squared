@@ -6,7 +6,7 @@ public interface MutableDataTracker extends DataTracker {
     void clear();
 
     /**
-     * Returns an immutable view of this metadata tracker.
+     * Returns an immutable view of this data tracker.
      *
      * @return immutable view of this tracker
      */
