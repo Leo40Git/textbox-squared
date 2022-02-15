@@ -25,6 +25,7 @@ import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
+import adudecalledleo.tbsquared.scene.composite.SolidColorImageFactory;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
@@ -70,8 +71,8 @@ public final class RPGMakerExtensionTest {
 
         SceneRenderer sceneRenderer = winSkin.sceneRendererBuilder()
                 .sceneSize(816, 180)
-                .sceneBackground(Color.BLACK)
                 .textboxRect(0, 0, 816, 180)
+                .imageFactory(new SolidColorImageFactory(Color.BLACK))
                 .fonts(SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()))
                 .build();
 

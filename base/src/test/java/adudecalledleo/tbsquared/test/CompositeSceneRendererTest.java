@@ -127,11 +127,10 @@ public final class CompositeSceneRendererTest {
         SceneRenderer sceneRenderer = new CompositeSceneRenderer(
                 new CompositeSceneRenderer.Config(
                         new Dim(sW, sH),
-                        Colors.darker(Color.RED, 0.2),
                         new Rect(0, sH - tbH, tbW, tbH),
                         new Dim(12, 12)
                 ),
-                ImageFactory.DEFAULT,
+                new SolidColorImageFactory(Colors.darker(Color.RED, 0.2)),
                 SingleFontProvider.of(font, FontMetadata.builder(Definition.builtin()).build()),
                 new NinePatchTextboxRenderer(tbSourceImage),
                 new FaceRendererImpl(),

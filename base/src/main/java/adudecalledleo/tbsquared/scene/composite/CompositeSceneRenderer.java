@@ -1,6 +1,5 @@
 package adudecalledleo.tbsquared.scene.composite;
 
-import java.awt.*;
 import java.awt.image.*;
 import java.util.Collection;
 import java.util.Map;
@@ -24,7 +23,6 @@ public record CompositeSceneRenderer(Config config,
                                      TextRenderer textRenderer) implements SceneRenderer {
     public static final class Builder {
         private Dim sceneSize;
-        private Color sceneBackground;
         private Rect textboxRect;
         private Dim textboxPadding;
         private ImageFactory imageFactory;
@@ -34,7 +32,7 @@ public record CompositeSceneRenderer(Config config,
         private TextRenderer textRenderer;
 
         private Builder() {
-            imageFactory = ImageFactory.DEFAULT;
+            imageFactory = ImageFactory.BLANK;
         }
 
         public Builder sceneSize(Dim sceneSize) {
@@ -44,11 +42,6 @@ public record CompositeSceneRenderer(Config config,
 
         public Builder sceneSize(int width, int height) {
             return sceneSize(new Dim(width, height));
-        }
-
-        public Builder sceneBackground(Color sceneBackground) {
-            this.sceneBackground = sceneBackground;
-            return this;
         }
 
         public Builder textboxRect(Rect textboxRect) {
@@ -78,7 +71,6 @@ public record CompositeSceneRenderer(Config config,
 
         public Builder config(Config config) {
             this.sceneSize = config.sceneSize();
-            this.sceneBackground = config.sceneBackground();
             this.textboxRect = config.textboxRect();
             this.textboxPadding = config.textboxPadding();
             return this;
@@ -86,7 +78,7 @@ public record CompositeSceneRenderer(Config config,
 
         public Builder imageFactory(ImageFactory imageFactory) {
             if (imageFactory == null) {
-                this.imageFactory = ImageFactory.DEFAULT;
+                this.imageFactory = ImageFactory.BLANK;
             } else {
                 this.imageFactory = imageFactory;
             }
@@ -121,7 +113,6 @@ public record CompositeSceneRenderer(Config config,
 
         public CompositeSceneRenderer build() {
             assertNotNull(sceneSize, "sceneSize");
-            assertNotNull(sceneBackground, "sceneBackground");
             assertNotNull(textboxRect, "textboxRect");
             assertNotNull(textboxPadding, "textboxPadding");
             assertNotNull(imageFactory, "imageFactory");
@@ -131,7 +122,7 @@ public record CompositeSceneRenderer(Config config,
             assertNotNull(textRenderer, "textRenderer");
 
             return new CompositeSceneRenderer(
-                    new Config(sceneSize, sceneBackground, textboxRect, textboxPadding),
+                    new Config(sceneSize, textboxRect, textboxPadding),
                     imageFactory,
                     fonts,
                     textboxRenderer,
@@ -144,7 +135,7 @@ public record CompositeSceneRenderer(Config config,
         return new Builder();
     }
 
-    public record Config(Dim sceneSize, Color sceneBackground, Rect textboxRect, Dim textboxPadding) { }
+    public record Config(Dim sceneSize, Rect textboxRect, Dim textboxPadding) { }
 
     @Override
     public Collection<? extends FacePosition> getFacePositions() {
@@ -158,10 +149,8 @@ public record CompositeSceneRenderer(Config config,
 
     @Override
     public BufferedImage renderScene(Text text, Map<FacePosition, Face> faces, DataTracker metadata) {
-        BufferedImage image = imageFactory.createImage(config.sceneSize().width(), config.sceneSize().height());
+        BufferedImage image = imageFactory.createImage(config.sceneSize());
         var g = image.createGraphics();
-        g.setBackground(config.sceneBackground());
-        g.clearRect(0, 0, config.sceneSize().width(), config.sceneSize().height());
         textboxRenderer.renderBackground(g, metadata,
                 config.textboxRect().x(), config.textboxRect().y(),
                 config.textboxRect().width(), config.textboxRect().height());
