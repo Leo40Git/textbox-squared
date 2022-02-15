@@ -185,7 +185,13 @@ public record NodeParsingContext(NodeRegistry registry) {
     }
 
     private static void parseUnicodeEscape(StringScanner scanner, StringBuilder sb) {
-        // FIXME stub
-        scanner.next();
+        String charIdStr = scanner.read(4).orElseThrow(() -> new IllegalArgumentException("unicode escape has <4 digits"));
+        int charId;
+        try {
+            charId = Integer.parseUnsignedInt(charIdStr, 16);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("failed to parse unicode escape", e);
+        }
+        sb.append((char) charId);
     }
 }
