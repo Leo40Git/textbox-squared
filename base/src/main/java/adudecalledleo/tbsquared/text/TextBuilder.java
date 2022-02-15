@@ -4,41 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+import adudecalledleo.tbsquared.util.Pair;
+
 public final class TextBuilder {
-    private static final class Node {
-        private final TextStyle style;
-        private final String contents;
-        private final List<Node> children;
-
-        public Node(TextStyle style, String contents) {
-            this.style = style;
-            this.contents = contents;
-            this.children = new ArrayList<>();
-        }
-
-        public Text toText() {
-            return new Text(style, contents, children.stream().map(Node::toText).toList());
-        }
-    }
-
     private final StringBuilder deferredContents;
     private final List<TextStyle> styleStack;
-    private Node root;
+    private final List<Pair<TextStyle, String>> committedTexts;
     private TextStyle deferredStyle;
 
     public TextBuilder() {
         this.deferredContents = new StringBuilder();
         this.styleStack = new ArrayList<>();
-        deferredStyle = TextStyle.EMPTY;
+        this.committedTexts = new ArrayList<>();
+        this.deferredStyle = TextStyle.EMPTY;
     }
 
     private void commitDeferred() {
         if (!deferredContents.isEmpty()) {
-            if (root == null) {
-                root = new Node(deferredStyle, deferredContents.toString());
-            } else {
-                root.children.add(new Node(deferredStyle, deferredContents.toString()));
-            }
+            committedTexts.add(new Pair<>(deferredStyle, deferredContents.toString()));
             deferredContents.setLength(0);
         }
     }
@@ -90,11 +73,26 @@ public final class TextBuilder {
         return append('\n');
     }
 
+    private static Text commit2Text(Pair<TextStyle, String> commit) {
+        return new LiteralText(commit.left(), commit.right());
+    }
+
     public Text build() {
         commitDeferred();
-        if (root == null) {
-            return Text.EMPTY;
+        final int commitCount = committedTexts.size();
+        if (commitCount <= 0) {
+            return LiteralText.EMPTY;
+        } else if (commitCount == 1) {
+            return commit2Text(committedTexts.get(0));
+        } else {
+            // commit 0 is the "root commit", and is converted into the Text we return
+            // all subsequent commits are converted into children of our returned Text
+            Text[] children = new Text[commitCount - 1];
+            for (int i = 0; i < children.length; i++) {
+                children[i] = commit2Text(committedTexts.get(i + 1));
+            }
+            var rootCommit = committedTexts.get(0);
+            return new LiteralText(rootCommit.left(), rootCommit.right(), children);
         }
-        return root.toText();
     }
 }
