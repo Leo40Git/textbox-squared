@@ -6,7 +6,7 @@ import java.util.OptionalInt;
 
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.util.TriState;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public record TextStyle(Optional<Color> color, Optional<String> font,
                         TriState bold, TriState italic, TriState underline, TriState strikethrough,
@@ -21,12 +21,20 @@ public record TextStyle(Optional<Color> color, Optional<String> font,
                 superscript.orElse(FontStyle.Superscript.MID), sizeAdjust.orElse(0));
     }
 
-    public TextStyle withColor(@Nullable Color color) {
-        return new TextStyle(Optional.ofNullable(color), font, bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    public TextStyle withColor(@NotNull Color color) {
+        return new TextStyle(Optional.of(color), font, bold, italic, underline, strikethrough, superscript, sizeAdjust);
     }
 
-    public TextStyle withFont(@Nullable String font) {
-        return new TextStyle(color, Optional.ofNullable(font), bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    public TextStyle withDefaultColor() {
+        return new TextStyle(Optional.empty(), font, bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    }
+
+    public TextStyle withFont(@NotNull String font) {
+        return new TextStyle(color, Optional.of(font), bold, italic, underline, strikethrough, superscript, sizeAdjust);
+    }
+
+    public TextStyle withDefaultFont() {
+        return new TextStyle(color, Optional.empty(), bold, italic, underline, strikethrough, superscript, sizeAdjust);
     }
 
     public TextStyle withBold(boolean bold) {
@@ -45,7 +53,7 @@ public record TextStyle(Optional<Color> color, Optional<String> font,
         return new TextStyle(color, font, bold, italic, underline, TriState.fromBool(strikethrough), superscript, sizeAdjust);
     }
 
-    public TextStyle withSuperscript(FontStyle.Superscript superscript) {
+    public TextStyle withSuperscript(@NotNull FontStyle.Superscript superscript) {
         return new TextStyle(color, font, bold, italic, underline, strikethrough, Optional.of(superscript), sizeAdjust);
     }
 

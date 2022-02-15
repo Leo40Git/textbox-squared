@@ -84,7 +84,12 @@ public final class StyleNode extends AbstractContainerNode {
         public void convert(NodeConversionContext ctx, StyleNode node, TextBuilder tb) {
             tb.pushStyle(style -> {
                 if (node.getColorSelector() != null) {
-                    style = style.withColor(node.getColorSelector().getColor(ctx.metadata()));
+                    var color = node.getColorSelector().getColor(ctx.metadata());
+                    if (color == null) {
+                        return style.withDefaultColor();
+                    } else {
+                        return style.withColor(color);
+                    }
                 }
                 if (node.getFont() != null) {
                     style = style.withFont(node.getFont());

@@ -37,7 +37,14 @@ public final class ColorNode extends AbstractContainerNode {
 
         @Override
         public void convert(NodeConversionContext ctx, ColorNode node, TextBuilder tb) {
-            tb.pushStyle(style -> style.withColor(node.getSelector().getColor(ctx.metadata())));
+            tb.pushStyle(style -> {
+                var color = node.getSelector().getColor(ctx.metadata());
+                if (color == null) {
+                    return style.withDefaultColor();
+                } else {
+                    return style.withColor(color);
+                }
+            });
             ctx.convert(node.getChildren(), tb);
             tb.popStyle();
         }
