@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class StyledFontCache {
+    private static final ThreadLocal<Map<TextAttribute, Object>> TL_ATTR_MAP =
+            ThreadLocal.withInitial(() -> new HashMap<>(6));
+
     private final Font baseFont;
     private final Map<FontStyle, Font> styledFonts;
 
@@ -21,7 +24,7 @@ public final class StyledFontCache {
 
     public Font getStyledFont(FontStyle style) {
         return styledFonts.computeIfAbsent(style, key -> {
-            Map<TextAttribute, Object> map = new HashMap<>();
+            Map<TextAttribute, Object> map = TL_ATTR_MAP.get();
             map.put(TextAttribute.WEIGHT, key.bold() ? TextAttribute.WEIGHT_BOLD : TextAttribute.WEIGHT_REGULAR);
             map.put(TextAttribute.POSTURE, key.italic() ? TextAttribute.POSTURE_OBLIQUE : TextAttribute.POSTURE_REGULAR);
             map.put(TextAttribute.UNDERLINE, key.underline() ? TextAttribute.UNDERLINE_ON : -1);
