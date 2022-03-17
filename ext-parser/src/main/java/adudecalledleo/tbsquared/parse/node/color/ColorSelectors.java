@@ -45,7 +45,7 @@ final class ColorSelectors {
             } else if (value.contains("(") && value.contains(")")) {
                 int obIdx = value.indexOf('(');
                 String argsStr = value.substring(obIdx + 1, value.indexOf(')')).trim();
-                value = value.substring(obIdx).trim();
+                value = value.substring(0, obIdx).trim();
                 /// function-like - value is function name
                 if (PalIdxSelector.NAME.equals(value)) {
                     int palIdx;

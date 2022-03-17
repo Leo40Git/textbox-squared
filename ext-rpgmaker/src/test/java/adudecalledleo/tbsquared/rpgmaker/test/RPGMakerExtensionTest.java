@@ -81,7 +81,7 @@ public final class RPGMakerExtensionTest {
         var doc = DOMParser.parse(NodeRegistry.getDefault(), """
                         Mercia:
                         [color=palette(25)]Hold on.
-                        [i]What?[/i][/color]
+                        [i]What?[/i][/color] \\u0123
                         [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
                         """);
 

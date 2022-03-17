@@ -19,7 +19,10 @@ public record NodeParsingContext(NodeRegistry registry) {
             if (escaped) {
                 escaped = false;
                 switch (c) {
-                    case 'u' -> parseUnicodeEscape(scanner, sb);
+                    case 'u' -> {
+                        scanner.next();
+                        parseUnicodeEscape(scanner, sb);
+                    }
                     default -> {
                         sb.append(c);
                         scanner.next();
@@ -45,11 +48,6 @@ public record NodeParsingContext(NodeRegistry registry) {
                         throw new IllegalArgumentException("empty tag decl");
                     }
 
-                    var handler = registry.getHandler(name);
-                    if (handler == null) {
-                        throw new IllegalArgumentException("unknown tag \"" + name + "\"");
-                    }
-
                     Map<String, String> attrs = Map.of();
                     int eqIndex = name.indexOf('=');
                     int spIndex = name.indexOf(' ');
@@ -64,6 +62,11 @@ public record NodeParsingContext(NodeRegistry registry) {
                         name = name.substring(0, eqIndex);
                         attrs = Map.of("value", value);
                     } // else, no attrs
+
+                    var handler = registry.getHandler(name);
+                    if (handler == null) {
+                        throw new IllegalArgumentException("unknown tag \"" + name + "\"");
+                    }
 
                     final String nameF = name;
                     list.add(handler.parse(this, attrs,
@@ -100,7 +103,10 @@ public record NodeParsingContext(NodeRegistry registry) {
             if (escaped) {
                 escaped = false;
                 switch (c) {
-                    case 'u' -> parseUnicodeEscape(scanner, sb);
+                    case 'u' -> {
+                        scanner.next();
+                        parseUnicodeEscape(scanner, sb);
+                    }
                     default -> {
                         sb.append(c);
                         scanner.next();
