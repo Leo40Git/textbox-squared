@@ -3,7 +3,7 @@ package adudecalledleo.tbsquared.parse;
 import adudecalledleo.tbsquared.parse.node.Document;
 import adudecalledleo.tbsquared.parse.node.NodeParsingContext;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
-import adudecalledleo.tbsquared.parse.node.span.NodeSpanTracker;
+import adudecalledleo.tbsquared.parse.node.NodeSpanTracker;
 
 public final class DOMParser {
     private DOMParser() { }

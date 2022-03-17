@@ -2,8 +2,6 @@ package adudecalledleo.tbsquared.parse.node;
 
 import java.util.*;
 
-import adudecalledleo.tbsquared.parse.node.span.NodeDeclarationType;
-import adudecalledleo.tbsquared.parse.node.span.NodeSpanTracker;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
 
 public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTracker) {
@@ -61,22 +59,19 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                         // standard attrs
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);
-                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
-                                openStart, openEnd);
+                        spanTracker.markNodeDeclOpening(name, openStart, openEnd);
                         attrs = parseAttributes(spanTracker, scanner.tell(), name, sb, attrString);
                     } else if (eqIndex >= 0) {
                         // compact [<tag>=<value>] (equal to [<tag> value="<value>"])
                         String value = name.substring(eqIndex + 1);
                         name = name.substring(0, eqIndex);
-                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
-                                openStart, openEnd);
+                        spanTracker.markNodeDeclOpening(name, openStart, openEnd);
                         attrs = Map.of("value", value);
-                        spanTracker.markNodeAttribute(name, "value", -1, -1, value,
+                        spanTracker.markNodeDeclAttribute(name, "value", -1, -1, value,
                                 eqIndex + 1, eqIndex + 1 + value.length());
                     } else {
                         // no attrs
-                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
-                                openStart, openEnd);
+                        spanTracker.markNodeDeclOpening(name, openStart, openEnd);
                     }
 
                     var handler = registry.getHandler(name);
@@ -90,8 +85,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                                     .orElseThrow(() ->
                                             new IllegalArgumentException("missing closing tag for \"" + nameF + "\""))));
 
-                    spanTracker.markNodeDeclaration(name, NodeDeclarationType.CLOSING,
-                            scanner.tell() - name.length(), scanner.tell());
+                    spanTracker.markNodeDeclClosing(name, scanner.tell() - name.length(), scanner.tell());
                 }
                 default -> {
                     sb.append(c);
@@ -124,7 +118,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                 escaped = false;
                 sb.append(c);
                 scanner.next();
-                spanTracker.markEscape(offset + scanner.tell() - 2, offset + scanner.tell());
+                spanTracker.markEscaped(offset + scanner.tell() - 2, offset + scanner.tell());
             } else {
                 switch (c) {
                     case '\\' -> {
@@ -183,7 +177,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
             if (eqIndex < 0) {
                 key = toAttributeKey(contents);
                 attrs.put(key, "");
-                spanTracker.markNodeAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), "",
+                spanTracker.markNodeDeclAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), "",
                         -1, -1);
                 continue;
             }
@@ -196,7 +190,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
 
             String parsedValue = parseEscapes(spanTracker, offset + entry.start() + eqIndex + 1, value, sb);
             attrs.put(key, parsedValue);
-            spanTracker.markNodeAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), parsedValue,
+            spanTracker.markNodeDeclAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), parsedValue,
                     offset + entry.start() + eqIndex + 1, offset + entry.start() + eqIndex + 1 + value.length());
         }
 
@@ -250,6 +244,6 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
             throw new IllegalArgumentException("failed to parse unicode escape", e);
         }
         sb.append((char) charId);
-        spanTracker.markEscape(offset + scanner.tell() - 6, offset + scanner.tell());
+        spanTracker.markEscaped(offset + scanner.tell() - 6, offset + scanner.tell());
     }
 }
