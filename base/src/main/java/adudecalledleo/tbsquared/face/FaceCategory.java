@@ -2,6 +2,8 @@ package adudecalledleo.tbsquared.face;
 
 import java.util.*;
 
+import org.jetbrains.annotations.Nullable;
+
 public final class FaceCategory {
     public static final class Builder {
         private final String name;
@@ -51,17 +53,28 @@ public final class FaceCategory {
     private final Map<String, Face> faces;
     private final Face iconFace;
 
-    public FaceCategory(String name, List<Face> faces, String iconFaceName) {
+    public FaceCategory(String name, List<Face> faces, @Nullable String iconFaceName) {
+        if (name.contains("/")) {
+            throw new IllegalArgumentException("Name \"%s\" contains disallowed character '/'!"
+                    .formatted(name));
+        }
+        if (faces.isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be empty!");
+        }
         this.name = name;
         Map<String, Face> facesMap = new LinkedHashMap<>(faces.size());
         for (var face : faces) {
             facesMap.put(face.getName(), face);
         }
         this.faces = Map.copyOf(facesMap);
-        try {
-            this.iconFace = getFace(iconFaceName);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Icon face \"%s\" doesn't exist in face list".formatted(iconFaceName));
+        if (iconFaceName == null) {
+            this.iconFace = faces.get(0);
+        } else {
+            try {
+                this.iconFace = getFace(iconFaceName);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Icon face \"%s\" doesn't exist in face list".formatted(iconFaceName));
+            }
         }
     }
 
@@ -73,8 +86,16 @@ public final class FaceCategory {
         return faces.values();
     }
 
+    public Face getIconFace() {
+        return iconFace;
+    }
+
     public String getIconFaceName() {
-        return iconFace.getName();
+        if (iconFace == null) {
+            return null;
+        } else {
+            return iconFace.getName();
+        }
     }
 
     public Face getFace(String name) {
@@ -83,9 +104,5 @@ public final class FaceCategory {
             throw new IllegalArgumentException("Unknown face \"%s\"".formatted(name));
         }
         return face;
-    }
-
-    public Face getIconFace() {
-        return iconFace;
     }
 }
