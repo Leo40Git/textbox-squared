@@ -2,9 +2,11 @@ package adudecalledleo.tbsquared.parse.node;
 
 import java.util.*;
 
+import adudecalledleo.tbsquared.parse.node.span.NodeDeclarationType;
+import adudecalledleo.tbsquared.parse.node.span.NodeSpanTracker;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
 
-public record NodeParsingContext(NodeRegistry registry) {
+public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTracker) {
     public List<Node> parse(String contents) {
         if (contents.isEmpty()) {
             return List.of();
@@ -14,6 +16,7 @@ public record NodeParsingContext(NodeRegistry registry) {
         final var scanner = new StringScanner(contents);
         final var sb = new StringBuilder();
         boolean escaped = false;
+        int openStart = 0, openEnd = 0;
         char c;
         while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
@@ -21,7 +24,7 @@ public record NodeParsingContext(NodeRegistry registry) {
                 switch (c) {
                     case 'u' -> {
                         scanner.next();
-                        parseUnicodeEscape(scanner, sb);
+                        parseUnicodeEscape(spanTracker, 0, scanner, sb);
                     }
                     default -> {
                         sb.append(c);
@@ -48,6 +51,9 @@ public record NodeParsingContext(NodeRegistry registry) {
                         throw new IllegalArgumentException("empty tag decl");
                     }
 
+                    openEnd = scanner.tell();
+                    openStart = openEnd - name.length();
+
                     Map<String, String> attrs = Map.of();
                     int eqIndex = name.indexOf('=');
                     int spIndex = name.indexOf(' ');
@@ -55,13 +61,23 @@ public record NodeParsingContext(NodeRegistry registry) {
                         // standard attrs
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);
-                        attrs = parseAttributes(sb, attrString);
+                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
+                                openStart, openEnd);
+                        attrs = parseAttributes(spanTracker, scanner.tell(), name, sb, attrString);
                     } else if (eqIndex >= 0) {
                         // compact [<tag>=<value>] (equal to [<tag> value="<value>"])
                         String value = name.substring(eqIndex + 1);
                         name = name.substring(0, eqIndex);
+                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
+                                openStart, openEnd);
                         attrs = Map.of("value", value);
-                    } // else, no attrs
+                        spanTracker.markNodeAttribute(name, "value", -1, -1, value,
+                                eqIndex + 1, eqIndex + 1 + value.length());
+                    } else {
+                        // no attrs
+                        spanTracker.markNodeDeclaration(name, NodeDeclarationType.OPENING,
+                                openStart, openEnd);
+                    }
 
                     var handler = registry.getHandler(name);
                     if (handler == null) {
@@ -73,6 +89,9 @@ public record NodeParsingContext(NodeRegistry registry) {
                             scanner.until("[/%s]".formatted(name))
                                     .orElseThrow(() ->
                                             new IllegalArgumentException("missing closing tag for \"" + nameF + "\""))));
+
+                    spanTracker.markNodeDeclaration(name, NodeDeclarationType.CLOSING,
+                            scanner.tell() - name.length(), scanner.tell());
                 }
                 default -> {
                     sb.append(c);
@@ -88,34 +107,29 @@ public record NodeParsingContext(NodeRegistry registry) {
         return list;
     }
 
-    public static Map<String, String> parseAttributes(StringBuilder sb, String attrString) {
+    public static Map<String, String> parseAttributes(NodeSpanTracker spanTracker, int offset, String node, StringBuilder sb, String attrString) {
         sb.setLength(0);
 
-        Map<String, String> attrs;
-        attrs = new LinkedHashMap<>();
+        // step 1 - split string into substrings using spaces as a delimiter while respecting quotes
+        record Entry(int start, String contents) { }
 
+        List<Entry> entries = new ArrayList<>();
         final var scanner = new StringScanner(attrString);
         boolean escaped = false;
+        int start = 0;
         char quoteChar = 0;
-        String currentKey = null;
         char c;
         while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
                 escaped = false;
-                switch (c) {
-                    case 'u' -> {
-                        scanner.next();
-                        parseUnicodeEscape(scanner, sb);
-                    }
-                    default -> {
-                        sb.append(c);
-                        scanner.next();
-                    }
-                }
+                sb.append(c);
+                scanner.next();
+                spanTracker.markEscape(offset + scanner.tell() - 2, offset + scanner.tell());
             } else {
                 switch (c) {
                     case '\\' -> {
                         escaped = true;
+                        sb.append(c);
                         scanner.next();
                     }
                     case '"', '\'' -> {
@@ -128,27 +142,12 @@ public record NodeParsingContext(NodeRegistry registry) {
                         }
                         scanner.next();
                     }
-                    case '=' -> {
-                        if (quoteChar == 0) {
-                            if (sb.isEmpty()) {
-                                throw new IllegalArgumentException("unexpected =");
-                            }
-                            currentKey = getAttributeKey(sb);
-                            sb.setLength(0);
-                        }
-                        scanner.next();
-                    }
                     case ' ' -> {
                         if (quoteChar == 0) {
                             if (!sb.isEmpty()) {
-                                String value = "";
-                                if (currentKey == null) {
-                                    currentKey = getAttributeKey(sb);
-                                } else {
-                                    value = sb.toString();
-                                }
+                                entries.add(new Entry(start, sb.toString()));
                                 sb.setLength(0);
-                                attrs.put(currentKey, value);
+                                start = scanner.tell() + 1;
                             }
                         } else {
                             sb.append(c);
@@ -163,34 +162,86 @@ public record NodeParsingContext(NodeRegistry registry) {
             }
         }
 
+        if (escaped) {
+            throw new IllegalArgumentException("escaping end of text?");
+        }
+
         if (quoteChar != 0) {
             throw new IllegalArgumentException("unclosed quote " + quoteChar);
         }
 
         if (!sb.isEmpty()) {
-            String value = "";
-            if (currentKey == null) {
-                currentKey = getAttributeKey(sb);
-            } else {
-                value = sb.toString();
+            entries.add(new Entry(start, sb.toString()));
+        }
+
+        // step 2 - parse substrings into key-value pairs
+        Map<String, String> attrs = new LinkedHashMap<>();
+        String key, value;
+        for (var entry : entries) {
+            String contents = entry.contents();
+            int eqIndex = contents.indexOf('=');
+            if (eqIndex < 0) {
+                key = toAttributeKey(contents);
+                attrs.put(key, "");
+                spanTracker.markNodeAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), "",
+                        -1, -1);
+                continue;
             }
-            sb.setLength(0);
-            attrs.put(currentKey, value);
+            key = toAttributeKey(contents.substring(0, eqIndex));
+            value = contents.substring(eqIndex + 1).trim();
+            if ((value.startsWith("\"") && value.endsWith("\""))
+             || (value.startsWith("'") && value.endsWith("'"))) {
+                value = value.substring(1, value.length() - 1);
+            }
+
+            String parsedValue = parseEscapes(spanTracker, offset + entry.start() + eqIndex + 1, value, sb);
+            attrs.put(key, parsedValue);
+            spanTracker.markNodeAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), parsedValue,
+                    offset + entry.start() + eqIndex + 1, offset + entry.start() + eqIndex + 1 + value.length());
         }
 
         sb.setLength(0);
         return attrs;
     }
 
-    private static String getAttributeKey(StringBuilder sb) {
-        String currentKey = sb.toString().trim().toLowerCase(Locale.ROOT);
+    private static String toAttributeKey(String str) {
+        String currentKey = str.trim().toLowerCase(Locale.ROOT);
         if (currentKey.isEmpty()) {
             throw new IllegalArgumentException("empty attribute key");
         }
         return currentKey;
     }
 
-    private static void parseUnicodeEscape(StringScanner scanner, StringBuilder sb) {
+    public static String parseEscapes(NodeSpanTracker spanTracker, int offset, String string, StringBuilder sb) {
+        sb.setLength(0);
+        var scanner = new StringScanner(string);
+        boolean escaped = false;
+        char c;
+        while ((c = scanner.peek()) != StringScanner.EOF) {
+            if (escaped) {
+                escaped = false;
+                switch (c) {
+                    case 'u' -> {
+                        scanner.next();
+                        parseUnicodeEscape(spanTracker, offset, scanner, sb);
+                    }
+                    default -> {
+                        sb.append(c);
+                        scanner.next();
+                    }
+                }
+            } else if (c == '\\') {
+                escaped = true;
+                scanner.next();
+            } else {
+                sb.append(c);
+                scanner.next();
+            }
+        }
+        return sb.toString();
+    }
+
+    private static void parseUnicodeEscape(NodeSpanTracker spanTracker, int offset, StringScanner scanner, StringBuilder sb) {
         String charIdStr = scanner.read(4).orElseThrow(() -> new IllegalArgumentException("unicode escape has <4 digits"));
         int charId;
         try {
@@ -199,5 +250,6 @@ public record NodeParsingContext(NodeRegistry registry) {
             throw new IllegalArgumentException("failed to parse unicode escape", e);
         }
         sb.append((char) charId);
+        spanTracker.markEscape(offset + scanner.tell() - 6, offset + scanner.tell());
     }
 }

@@ -21,6 +21,8 @@ import adudecalledleo.tbsquared.parse.DOMConverter;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
 import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.parse.node.span.NodeDeclarationType;
+import adudecalledleo.tbsquared.parse.node.span.NodeSpanTracker;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
@@ -78,7 +80,25 @@ public final class RPGMakerExtensionTest {
 
         var pal = winSkin.getPalette();
 
-        var doc = DOMParser.parse(NodeRegistry.getDefault(), """
+        var doc = DOMParser.parse(NodeRegistry.getDefault(),
+                new NodeSpanTracker() {
+                    @Override
+                    public void markEscape(int start, int end) {
+                        System.out.format("ESCAPE - %d to %d%n", start, end);
+                    }
+
+                    @Override
+                    public void markNodeDeclaration(String node, NodeDeclarationType type, int start, int end) {
+                        System.out.format("%s NODE DECL - node %s, %d to %d%n", type.toString(), node, start, end);
+                    }
+
+                    @Override
+                    public void markNodeAttribute(String node, String key, int keyStart, int keyEnd, String value, int valueStart, int valueEnd) {
+                        System.out.format("NODE ATTR - node %s, %s (%d to %d) = %s (%d to %d)%n",
+                                node, key, keyStart, keyEnd, value, valueStart, valueEnd);
+                    }
+                },
+                        """
                         Mercia:
                         [color=palette(25)]Hold on.
                         [i]What?[/i][/color] \\u0123
