@@ -24,6 +24,7 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
     private final BufferedImage windowImage;
     private final RPGWindowTint backTint;
+    private final int flags;
 
     private final int backMargin;
     private final int backTileSize;
@@ -46,8 +47,9 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     private final int arrowFrameSize;
     private final Rect[] arrowFrames;
 
-    public RPGTextboxRenderer(RPGWindowSkin.Version version, BufferedImage windowImage, RPGWindowTint backTint) {
+    public RPGTextboxRenderer(RPGWindowSkin.Version version, BufferedImage windowImage, RPGWindowTint backTint, int flags) {
         this.windowImage = windowImage;
+        this.flags = flags;
 
         /// BACKGROUND
         this.backTint = backTint;
@@ -90,16 +92,33 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
     @Override
     public void renderBackground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        /// BACKGROUND
+        renderTextboxBackground(g, x, y, width, height);
+        if ((flags & RPGWindowSkin.TEXTBOX_BORDER_IN_BACKGROUND) != 0) {
+            renderTextboxBorder(g, x, y, width, height);
+        }
+        if ((flags & RPGWindowSkin.TEXTBOX_ARROW_IN_BACKGROUND) != 0) {
+            renderTextboxArrow(g, sceneMeta, x, y, width, height);
+        }
+    }
+
+    @Override
+    public void renderForeground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
+        if ((flags & RPGWindowSkin.TEXTBOX_BORDER_IN_BACKGROUND) == 0) {
+            renderTextboxBorder(g, x, y, width, height);
+        }
+        if ((flags & RPGWindowSkin.TEXTBOX_ARROW_IN_BACKGROUND) == 0) {
+            renderTextboxArrow(g, sceneMeta, x, y, width, height);
+        }
+    }
+
+    private void renderTextboxBackground(Graphics2D g, int x, int y, int width, int height) {
         g.drawImage(getBackImage(width - backMargin, height - backMargin),
                 x + backMargin, y + backMargin, x + width - backMargin, y + height - backMargin,
                 0, 0, width - backMargin, height - backMargin,
                 null);
     }
 
-    @Override
-    public void renderForeground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        /// BORDER
+    private void renderTextboxBorder(Graphics2D g, int x, int y, int width, int height) {
         // TOP
         drawPiece(g, borderPieces[BORDER_PIECE_TL], x, y);
         drawPiece(g, borderPieces[BORDER_PIECE_TM], x + borderPieceSize, y, width - borderMPieceWidth, borderPieceSize);
@@ -111,9 +130,10 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         drawPiece(g, borderPieces[BORDER_PIECE_BL], x, y + height - borderPieceSize);
         drawPiece(g, borderPieces[BORDER_PIECE_BM], x + borderPieceSize, y + height - borderPieceSize, width - borderMPieceWidth, borderPieceSize);
         drawPiece(g, borderPieces[BORDER_PIECE_BR], x + width - borderPieceSize, y + height - borderPieceSize);
+    }
 
+    private void renderTextboxArrow(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
         sceneMeta.get(SceneMetadata.ARROW_FRAME).ifPresent(arrowFrame -> {
-            /// ARROW
             drawPiece(g, arrowFrames[arrowFrame],
                     x + (width / 2) - (arrowFrameSize / 2),
                     y + height - arrowFrameSize);

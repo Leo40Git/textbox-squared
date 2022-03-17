@@ -69,7 +69,8 @@ public final class RPGMakerExtensionTest {
         Face merciaFace = new Face(Definition.builtin(), "Mercia", merciaImage, (name, image) -> new ImageIcon());
 
         RPGWindowSkin winSkin = new RPGWindowSkin(RPGWindowSkin.Version.MV, windowImage,
-                new RPGWindowTint(-17, -255, -255));
+                new RPGWindowTint(-17, -255, -255),
+                0);
 
         SceneRenderer sceneRenderer = winSkin.sceneRendererBuilder()
                 .sceneSize(816, 180)

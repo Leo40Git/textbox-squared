@@ -22,10 +22,12 @@ final class RPGTextRenderer extends AbstractTextRenderer {
     public static final Composite OUTLINE2_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, OUTLINE2_OPAQUENESS);
 
     private final Color defaultColor;
+    private final int flags;
     private final AffineTransform tx, tx2;
 
-    public RPGTextRenderer(Color defaultColor) {
+    public RPGTextRenderer(Color defaultColor, int flags) {
         this.defaultColor = defaultColor;
+        this.flags = flags;
         tx = new AffineTransform();
         tx2 = new AffineTransform();
     }
@@ -86,16 +88,18 @@ final class RPGTextRenderer extends AbstractTextRenderer {
             outline = layout.getOutline(tx);
         }
 
-        // draw a transparent outline of the text...
         var c = g.getColor(); // (save the actual text color for later)
-        g.setStroke(OUTLINE_STROKE);
-        g.setColor(OUTLINE_COLOR);
-        g.draw(outline);
-        g.setColor(c);
-        // ...then draw a secondary outline...
-        g.setComposite(OUTLINE2_COMPOSITE);
-        g.setStroke(OUTLINE2_STROKE);
-        g.draw(outline);
+        if ((flags & RPGWindowSkin.TEXT_NO_OUTLINE) == 0) {
+            // draw a transparent outline of the text...
+            g.setStroke(OUTLINE_STROKE);
+            g.setColor(OUTLINE_COLOR);
+            g.draw(outline);
+            g.setColor(c);
+            // ...then draw a secondary outline...
+            g.setComposite(OUTLINE2_COMPOSITE);
+            g.setStroke(OUTLINE2_STROKE);
+            g.draw(outline);
+        }
         // ...and then, fill in the text!
         g.setComposite(oldState.composite());
         g.fill(outline);

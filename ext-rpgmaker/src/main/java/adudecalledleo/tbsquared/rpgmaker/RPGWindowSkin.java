@@ -8,8 +8,13 @@ import adudecalledleo.tbsquared.color.Palette;
 import adudecalledleo.tbsquared.scene.composite.CompositeSceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextRenderer;
 import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
+import org.intellij.lang.annotations.MagicConstant;
 
 public final class RPGWindowSkin {
+    public static final int TEXTBOX_BORDER_IN_BACKGROUND = 1 << 0;
+    public static final int TEXTBOX_ARROW_IN_BACKGROUND = 1 << 1;
+    public static final int TEXT_NO_OUTLINE = 1 << 2;
+
     public enum Version {
         VX, MV, MZ;
 
@@ -42,9 +47,14 @@ public final class RPGWindowSkin {
     private final Palette palette;
     private final TextRenderer textRenderer;
 
-    public RPGWindowSkin(Version version, BufferedImage windowImage, RPGWindowTint backTint) {
+    public RPGWindowSkin(Version version, BufferedImage windowImage, RPGWindowTint backTint,
+                         @MagicConstant(flags = {
+                                 RPGWindowSkin.TEXTBOX_BORDER_IN_BACKGROUND,
+                                 RPGWindowSkin.TEXTBOX_ARROW_IN_BACKGROUND,
+                                 RPGWindowSkin.TEXT_NO_OUTLINE
+                         }) int flags) {
         this.version = version;
-        this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint);
+        this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint, flags);
 
         Color[] colors = new Color[COLOR_COUNT];
         final int colorSize = version.scale(8);
@@ -57,7 +67,7 @@ public final class RPGWindowSkin {
             }
         }
         palette = new ArrayPalette(colors);
-        textRenderer = new RPGTextRenderer(colors[0]);
+        textRenderer = new RPGTextRenderer(colors[0], flags);
     }
 
     public Version getVersion() {
