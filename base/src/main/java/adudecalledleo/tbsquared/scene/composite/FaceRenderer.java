@@ -1,7 +1,6 @@
 package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
-import java.util.Collection;
 import java.util.Map;
 
 import adudecalledleo.tbsquared.data.DataTracker;
@@ -10,7 +9,6 @@ import adudecalledleo.tbsquared.scene.FacePosition;
 import adudecalledleo.tbsquared.util.shape.Dim;
 
 public interface FaceRenderer {
-    Collection<? extends FacePosition> getFacePositions();
     FacePosition getDefaultFacePosition();
     /**
      * @return the X and Y offset the textbox's text should be rendered with

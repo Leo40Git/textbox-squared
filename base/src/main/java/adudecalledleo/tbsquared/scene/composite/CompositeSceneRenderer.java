@@ -1,7 +1,6 @@
 package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.image.*;
-import java.util.Collection;
 import java.util.Map;
 
 import adudecalledleo.tbsquared.data.DataTracker;
@@ -136,11 +135,6 @@ public record CompositeSceneRenderer(Config config,
     }
 
     public record Config(Dim sceneSize, Rect textboxRect, Dim textboxPadding) { }
-
-    @Override
-    public Collection<? extends FacePosition> getFacePositions() {
-        return faceRenderer.getFacePositions();
-    }
 
     @Override
     public FacePosition getDefaultFacePosition() {
