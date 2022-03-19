@@ -14,7 +14,7 @@ public final class NodeRegistry {
     static {
         DEFAULT = new NodeRegistry();
         DEFAULT.registerDefaults();
-        DEFAULT.handlers = Map.copyOf(DEFAULT.handlers);
+        DEFAULT.freeze();
     }
 
     public static NodeRegistry getDefault() {
@@ -48,5 +48,9 @@ public final class NodeRegistry {
 
     public @Nullable NodeHandler<?> getHandler(String name) {
         return handlers.get(name);
+    }
+
+    public void freeze() {
+        handlers = Map.copyOf(handlers);
     }
 }
