@@ -20,7 +20,6 @@ import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.parse.DOMConverter;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
-import adudecalledleo.tbsquared.parse.node.NodeSpanTracker;
 import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
@@ -80,8 +79,8 @@ public final class RPGMakerExtensionTest {
 
         var pal = winSkin.getPalette();
 
-        var doc = DOMParser.parse(NodeRegistry.getDefault(),
-                new NodeSpanTracker() {
+        var result = DOMParser.parse(NodeRegistry.getDefault(),
+                new DOMParser.SpanTracker() {
                     @Override
                     public void markEscaped(int start, int end) {
                         System.out.format("ESCAPE - %d to %d%n", start, end);
@@ -109,6 +108,15 @@ public final class RPGMakerExtensionTest {
                         [i]What?[/i][/color] \\u0123
                         [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
                         """);
+
+        if (result.hasErrors()) {
+            System.out.format("%d error(s) while parsing:%n", result.errors().size());
+            for (var error : result.errors()) {
+                System.out.format(" - %s (%d to %d)%n", error.message(), error.start(), error.end());
+            }
+            return;
+        }
+        var doc = result.document();
 
         Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(),
                 DefaultDataTracker.of(ColorSelector.PALETTE, pal));

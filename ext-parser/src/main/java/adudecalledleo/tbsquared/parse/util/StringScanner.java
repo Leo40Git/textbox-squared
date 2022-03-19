@@ -19,6 +19,14 @@ public final class StringScanner {
         return pos;
     }
 
+    public int end() {
+        return chars.length - 1;
+    }
+
+    public int remaining() {
+        return chars.length - 1 - pos;
+    }
+
     public void seek(int newPos) {
         this.pos = Math.max(0, Math.min(chars.length, newPos));
     }

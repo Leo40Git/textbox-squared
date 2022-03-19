@@ -2,19 +2,21 @@ package adudecalledleo.tbsquared.parse.node;
 
 import java.util.*;
 
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
 
-public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTracker) {
-    public List<Node> parse(String contents) {
+public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker spanTracker) {
+    public Result parse(String contents) {
         if (contents.isEmpty()) {
-            return List.of();
+            return Result.EMPTY;
         }
 
-        final var list = new LinkedList<Node>();
+        final var nodes = new LinkedList<Node>();
+        final var errors = new LinkedList<DOMParser.Error>();
         final var scanner = new StringScanner(contents);
         final var sb = new StringBuilder();
         boolean escaped = false;
-        int openStart = 0, openEnd = 0;
+        int openStart, openEnd;
         char c;
         while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
@@ -22,7 +24,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                 switch (c) {
                     case 'u' -> {
                         scanner.next();
-                        parseUnicodeEscape(spanTracker, 0, scanner, sb);
+                        parseUnicodeEscape(errors, spanTracker, 0, scanner, sb);
                     }
                     default -> {
                         sb.append(c);
@@ -36,17 +38,22 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                 }
                 case '[' -> {
                     if (!sb.isEmpty()) {
-                        list.add(new TextNode(sb.toString()));
+                        nodes.add(new TextNode(sb.toString()));
                         sb.setLength(0);
                     }
 
                     scanner.next();
                     String name = scanner.until(']')
-                            .orElseThrow(() -> new IllegalArgumentException("malformed opening tag"))
+                            .orElseGet(() -> {
+                                errors.add(new DOMParser.Error(scanner.tell(), scanner.end(),
+                                        "malformed opening tag"));
+                                return "";
+                            })
                             .trim();
 
                     if (name.isEmpty()) {
-                        throw new IllegalArgumentException("empty tag decl");
+                        sb.append('[');
+                        continue;
                     }
 
                     openEnd = scanner.tell();
@@ -60,7 +67,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
-                        attrs = parseAttributes(spanTracker, scanner.tell(), name, sb, attrString);
+                        attrs = parseAttributes(errors, spanTracker, scanner.tell(), name, sb, attrString);
                     } else if (eqIndex >= 0) {
                         // compact [<tag>=<value>] (equal to [<tag> value="<value>"])
                         String value = name.substring(eqIndex + 1);
@@ -76,14 +83,29 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
 
                     var handler = registry.getHandler(name);
                     if (handler == null) {
-                        throw new IllegalArgumentException("unknown tag \"" + name + "\"");
+                        int nameStart = openStart + 1;
+                        int nameEnd = nameStart;
+                        if (spIndex > 0) {
+                            nameEnd += spIndex - 1;
+                        } else if (eqIndex > 0) {
+                            nameEnd += eqIndex - 1;
+                        } else {
+                            nameEnd += name.length();
+                        }
+                        errors.add(new DOMParser.Error(nameStart, nameEnd,
+                                "unknown tag \"" + name + "\""));
                     }
-
                     final String nameF = name;
-                    list.add(handler.parse(this, attrs,
-                            scanner.until("[/%s]".formatted(name))
-                                    .orElseThrow(() ->
-                                            new IllegalArgumentException("missing closing tag for \"" + nameF + "\""))));
+                    String myContents = scanner.until("[/%s]".formatted(name))
+                            .orElseGet(() -> {
+                                errors.add(new DOMParser.Error(scanner.tell(), scanner.tell() + scanner.remaining(),
+                                        "missing closing tag for \"" + nameF + "\""));
+                                return null;
+                            });
+
+                    if (handler != null && myContents != null) {
+                        nodes.add(handler.parse(this, attrs, myContents));
+                    }
 
                     spanTracker.markNodeDeclClosing(name, scanner.tell() - name.length(), scanner.tell());
                 }
@@ -95,13 +117,19 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
         }
 
         if (!sb.isEmpty()) {
-            list.add(new TextNode(sb.toString()));
+            nodes.add(new TextNode(sb.toString()));
         }
 
-        return list;
+        return new Result(nodes, errors);
     }
 
-    public static Map<String, String> parseAttributes(NodeSpanTracker spanTracker, int offset, String node, StringBuilder sb, String attrString) {
+    public record Result(List<Node> nodes, List<DOMParser.Error> errors) {
+        public static final Result EMPTY = new Result(List.of(), List.of());
+    }
+
+    private static Map<String, String> parseAttributes(List<DOMParser.Error> errors,
+                                                       DOMParser.SpanTracker spanTracker, int offset,
+                                                       String node, StringBuilder sb, String attrString) {
         sb.setLength(0);
 
         // step 1 - split string into substrings using spaces as a delimiter while respecting quotes
@@ -112,6 +140,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
         boolean escaped = false;
         int start = 0;
         char quoteChar = 0;
+        int quoteCharPos = 0;
         char c;
         while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
@@ -129,8 +158,10 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                     case '"', '\'' -> {
                         if (quoteChar == 0) {
                             quoteChar = c;
+                            quoteCharPos = scanner.tell();
                         } else if (quoteChar == c) {
                             quoteChar = 0;
+                            quoteCharPos = scanner.tell();
                         } else {
                             sb.append(c);
                         }
@@ -157,11 +188,13 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
         }
 
         if (escaped) {
-            throw new IllegalArgumentException("escaping end of text?");
+            errors.add(new DOMParser.Error(offset + scanner.end() - 1, offset + scanner.end(),
+                    "escaping end of text?"));
         }
 
         if (quoteChar != 0) {
-            throw new IllegalArgumentException("unclosed quote " + quoteChar);
+            errors.add(new DOMParser.Error(offset + quoteCharPos, offset + quoteCharPos + scanner.remaining(),
+                    "unclosed quote " + quoteChar));
         }
 
         if (!sb.isEmpty()) {
@@ -181,14 +214,20 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                         -1, -1);
                 continue;
             }
-            key = toAttributeKey(contents.substring(0, eqIndex));
+            try {
+                key = toAttributeKey(contents.substring(0, eqIndex));
+            } catch (IllegalArgumentException ignored) {
+                errors.add(new DOMParser.Error(offset + entry.start(), offset + entry.start() + eqIndex - 1,
+                        "got '=' without key"));
+                continue;
+            }
             value = contents.substring(eqIndex + 1).trim();
             if ((value.startsWith("\"") && value.endsWith("\""))
              || (value.startsWith("'") && value.endsWith("'"))) {
                 value = value.substring(1, value.length() - 1);
             }
 
-            String parsedValue = parseEscapes(spanTracker, offset + entry.start() + eqIndex + 1, value, sb);
+            String parsedValue = parseEscapes(errors, spanTracker, offset + entry.start() + eqIndex + 1, value, sb);
             attrs.put(key, parsedValue);
             spanTracker.markNodeDeclAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), parsedValue,
                     offset + entry.start() + eqIndex + 1, offset + entry.start() + eqIndex + 1 + value.length());
@@ -206,7 +245,9 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
         return currentKey;
     }
 
-    public static String parseEscapes(NodeSpanTracker spanTracker, int offset, String string, StringBuilder sb) {
+    public static String parseEscapes(List<DOMParser.Error> errors,
+                                      DOMParser.SpanTracker spanTracker, int offset,
+                                      String string, StringBuilder sb) {
         sb.setLength(0);
         var scanner = new StringScanner(string);
         boolean escaped = false;
@@ -217,7 +258,7 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
                 switch (c) {
                     case 'u' -> {
                         scanner.next();
-                        parseUnicodeEscape(spanTracker, offset, scanner, sb);
+                        parseUnicodeEscape(errors, spanTracker, offset, scanner, sb);
                     }
                     default -> {
                         sb.append(c);
@@ -235,13 +276,27 @@ public record NodeParsingContext(NodeRegistry registry, NodeSpanTracker spanTrac
         return sb.toString();
     }
 
-    private static void parseUnicodeEscape(NodeSpanTracker spanTracker, int offset, StringScanner scanner, StringBuilder sb) {
-        String charIdStr = scanner.read(4).orElseThrow(() -> new IllegalArgumentException("unicode escape has <4 digits"));
+    private static void parseUnicodeEscape(List<DOMParser.Error> errors,
+                                           DOMParser.SpanTracker spanTracker, int offset,
+                                           StringScanner scanner, StringBuilder sb) {
+        String charIdStr = scanner.read(4).orElseGet(() -> {
+            errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + 2,
+                    "unicode escape has <4 digits"));
+            sb.append("\\u");
+            return "";
+        });
+        if (charIdStr.isEmpty()) {
+            return;
+        }
+
         int charId;
         try {
             charId = Integer.parseUnsignedInt(charIdStr, 16);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("failed to parse unicode escape", e);
+        } catch (NumberFormatException ignored) {
+            errors.add(new DOMParser.Error(offset + scanner.tell() - 6, offset + scanner.tell(),
+                    "unicode escape is not valid hex number"));
+            sb.append("\\u").append(charIdStr);
+            return;
         }
         sb.append((char) charId);
         spanTracker.markEscaped(offset + scanner.tell() - 6, offset + scanner.tell());
