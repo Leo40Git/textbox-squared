@@ -29,6 +29,18 @@ public final class DefaultDataTracker extends AbstractDataTracker {
         return new DefaultDataTracker(Map.of(key, value));
     }
 
+    @SuppressWarnings("unchecked")
+    public static DataTracker copyOf(DataTracker tracker) {
+        if (tracker instanceof DefaultDataTracker) {
+            return tracker;
+        }
+        var builder = builder();
+        for (var entry : tracker) {
+            builder.set((DataKey<Object>) entry.key(), entry.value());
+        }
+        return builder.build();
+    }
+
     private DefaultDataTracker(Map<DataKey<?>, Object> values) {
         super(values);
     }
