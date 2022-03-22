@@ -20,6 +20,16 @@ public final class DefaultMutableDataTracker extends AbstractDataTracker impleme
             return DefaultMutableDataTracker.this.get(key);
         }
 
+        @Override
+        public boolean containsKey(DataKey<?> key) {
+            return DefaultMutableDataTracker.this.containsKey(key);
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return DefaultMutableDataTracker.this.isEmpty();
+        }
+
         @NotNull
         @Override
         public Iterator<Entry<?>> iterator() {

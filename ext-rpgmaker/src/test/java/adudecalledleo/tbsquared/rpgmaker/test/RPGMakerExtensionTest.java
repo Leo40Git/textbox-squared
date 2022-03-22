@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import adudecalledleo.tbsquared.data.DefaultDataTracker;
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
@@ -119,11 +119,11 @@ public final class RPGMakerExtensionTest {
         var doc = result.document();
 
         Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(),
-                DefaultDataTracker.of(ColorSelector.PALETTE, pal));
+                DataTracker.of(ColorSelector.PALETTE, pal));
 
         var image = sceneRenderer.renderScene(text,
                 Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
-                DefaultDataTracker.of(SceneMetadata.ARROW_FRAME, 1));
+                DataTracker.of(SceneMetadata.ARROW_FRAME, 1));
 
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(image, "PNG", out);
