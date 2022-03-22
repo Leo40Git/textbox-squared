@@ -6,13 +6,12 @@ import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
 
 public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker spanTracker) {
-    public Result parse(String contents) {
+    public List<Node> parse(String contents, int offset, List<DOMParser.Error> errors) {
         if (contents.isEmpty()) {
-            return Result.EMPTY;
+            return List.of();
         }
 
         final var nodes = new LinkedList<Node>();
-        final var errors = new LinkedList<DOMParser.Error>();
         final var scanner = new StringScanner(contents);
         final var sb = new StringBuilder();
         boolean escaped = false;
@@ -24,7 +23,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                 switch (c) {
                     case 'u' -> {
                         scanner.next();
-                        parseUnicodeEscape(errors, spanTracker, 0, scanner, sb);
+                        parseUnicodeEscape(errors, spanTracker, offset, scanner, sb);
                     }
                     default -> {
                         sb.append(c);
@@ -45,7 +44,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     scanner.next();
                     String name = scanner.until(']')
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(scanner.tell(), scanner.end(),
+                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.end(),
                                         "malformed opening tag"));
                                 return "";
                             })
@@ -56,8 +55,8 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         continue;
                     }
 
-                    openEnd = scanner.tell();
-                    openStart = openEnd - name.length();
+                    openEnd = offset + scanner.tell();
+                    openStart = offset + openEnd - name.length();
 
                     Map<String, String> attrs = Map.of();
                     int eqIndex = name.indexOf('=');
@@ -67,7 +66,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
-                        attrs = parseAttributes(errors, spanTracker, scanner.tell(), name, sb, attrString);
+                        attrs = parseAttributes(errors, spanTracker, offset + scanner.tell(), name, sb, attrString);
                     } else if (eqIndex >= 0) {
                         // compact [<tag>=<value>] (equal to [<tag> value="<value>"])
                         String value = name.substring(eqIndex + 1);
@@ -75,7 +74,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
                         attrs = Map.of("value", value);
                         spanTracker.markNodeDeclAttribute(name, "value", -1, -1, value,
-                                eqIndex + 1, eqIndex + 1 + value.length());
+                                offset + eqIndex + 1, offset + eqIndex + 1 + value.length());
                     } else {
                         // no attrs
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
@@ -95,19 +94,20 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         errors.add(new DOMParser.Error(nameStart, nameEnd,
                                 "unknown tag \"" + name + "\""));
                     }
+                    final int contentStart = scanner.tell();
                     final String nameF = name;
                     String myContents = scanner.until("[/%s]".formatted(name))
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(scanner.tell(), scanner.tell() + scanner.remaining(),
+                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + scanner.remaining(),
                                         "missing closing tag for \"" + nameF + "\""));
                                 return null;
                             });
 
                     if (handler != null && myContents != null) {
-                        nodes.add(handler.parse(this, attrs, myContents));
+                        nodes.add(handler.parse(this, offset + contentStart, errors, attrs, myContents));
                     }
 
-                    spanTracker.markNodeDeclClosing(name, scanner.tell() - name.length(), scanner.tell());
+                    spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length(), offset + scanner.tell());
                 }
                 default -> {
                     sb.append(c);
@@ -120,11 +120,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
             nodes.add(new TextNode(sb.toString()));
         }
 
-        return new Result(nodes, errors);
-    }
-
-    public record Result(List<Node> nodes, List<DOMParser.Error> errors) {
-        public static final Result EMPTY = new Result(List.of(), List.of());
+        return nodes;
     }
 
     private static Map<String, String> parseAttributes(List<DOMParser.Error> errors,
@@ -273,6 +269,12 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                 scanner.next();
             }
         }
+
+        if (escaped) {
+            errors.add(new DOMParser.Error(offset + scanner.end() - 1, offset + scanner.end(),
+                    "escaping end of text?"));
+        }
+
         return sb.toString();
     }
 

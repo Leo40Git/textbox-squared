@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.parse.node.color;
 import java.util.List;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
@@ -27,12 +28,12 @@ public final class ColorNode extends AbstractContainerNode {
 
     private static final class Handler implements NodeHandler<ColorNode> {
         @Override
-        public ColorNode parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
+        public ColorNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
             String colorStr = attributes.get("value");
             if (colorStr == null) {
                 throw new IllegalArgumentException("Missing required attribute \"value\"");
             }
-            return new ColorNode(ColorSelector.parse(colorStr), ctx.parse(contents));
+            return new ColorNode(ColorSelector.parse(colorStr), ctx.parse(contents, offset, errors));
         }
 
         @Override

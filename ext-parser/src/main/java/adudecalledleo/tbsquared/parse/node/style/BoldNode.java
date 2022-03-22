@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.parse.node.style;
 import java.util.List;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
@@ -16,7 +17,7 @@ public final class BoldNode extends AbstractContainerNode {
 
     private static final class Handler implements NodeHandler<BoldNode> {
         @Override
-        public BoldNode parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
+        public BoldNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
             return new BoldNode(ctx.parse(contents));
         }
 

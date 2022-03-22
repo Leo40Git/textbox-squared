@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import adudecalledleo.tbsquared.font.FontStyle;
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
@@ -17,8 +18,8 @@ public final class SubscriptNode extends AbstractContainerNode {
 
     private static final class Handler implements NodeHandler<SubscriptNode> {
         @Override
-        public SubscriptNode parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
-            return new SubscriptNode(ctx.parse(contents));
+        public SubscriptNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
+            return new SubscriptNode(ctx.parse(contents, offset, errors));
         }
 
         @Override

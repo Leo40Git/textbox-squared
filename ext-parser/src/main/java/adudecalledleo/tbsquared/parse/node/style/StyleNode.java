@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.parse.node.style;
 import java.util.List;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
 import adudecalledleo.tbsquared.text.TextBuilder;
@@ -41,7 +42,7 @@ public final class StyleNode extends AbstractContainerNode {
 
     private static final class Handler implements NodeHandler<StyleNode> {
         @Override
-        public StyleNode parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
+        public StyleNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
             @Nullable String font = null;
             @Nullable Integer size = null;
             @Nullable ColorSelector color = null;
@@ -77,7 +78,7 @@ public final class StyleNode extends AbstractContainerNode {
                 color = ColorSelector.parse(colorStr);
             }
 
-            return new StyleNode(font, size, color, ctx.parse(contents));
+            return new StyleNode(font, size, color, ctx.parse(contents, offset, errors));
         }
 
         @Override

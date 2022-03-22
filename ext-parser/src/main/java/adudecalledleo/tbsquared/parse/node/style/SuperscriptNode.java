@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import adudecalledleo.tbsquared.font.FontStyle;
+import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
@@ -17,8 +18,8 @@ public final class SuperscriptNode extends AbstractContainerNode {
 
     private static final class Handler implements NodeHandler<SuperscriptNode> {
         @Override
-        public SuperscriptNode parse(NodeParsingContext ctx, Map<String, String> attributes, String contents) {
-            return new SuperscriptNode(ctx.parse(contents));
+        public SuperscriptNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
+            return new SuperscriptNode(ctx.parse(contents, offset, errors));
         }
 
         @Override

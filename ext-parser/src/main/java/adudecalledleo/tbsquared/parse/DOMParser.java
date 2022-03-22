@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.parse;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import adudecalledleo.tbsquared.parse.node.Document;
@@ -12,11 +13,12 @@ public final class DOMParser {
 
     public static Result parse(NodeRegistry registry, SpanTracker spanTracker, String contents) {
         var ctx = new NodeParsingContext(registry, spanTracker);
-        var result = ctx.parse(DOMInputSanitizer.apply(contents));
-        if (result.errors().isEmpty()) {
-            return Result.success(new Document(result.nodes()));
+        var errors = new LinkedList<DOMParser.Error>();
+        var result = ctx.parse(DOMInputSanitizer.apply(contents), 0, errors);
+        if (errors.isEmpty()) {
+            return Result.success(new Document(result));
         } else {
-            return Result.failure(result.errors());
+            return Result.failure(errors);
         }
     }
 
