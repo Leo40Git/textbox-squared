@@ -12,6 +12,9 @@ public final class DOMParser {
     private DOMParser() { }
 
     public static Result parse(NodeRegistry registry, SpanTracker spanTracker, String contents) {
+        if (contents.isEmpty()) {
+            return Result.success(new Document());
+        }
         var ctx = new NodeParsingContext(registry, spanTracker);
         var errors = new LinkedList<DOMParser.Error>();
         var result = ctx.parse(DOMInputSanitizer.apply(contents), 0, errors);
