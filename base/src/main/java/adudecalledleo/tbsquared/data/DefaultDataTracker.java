@@ -2,11 +2,8 @@ package adudecalledleo.tbsquared.data;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
-@SuppressWarnings("ClassCanBeRecord")
-public final class DefaultDataTracker implements DataTracker {
+public final class DefaultDataTracker extends AbstractDataTracker {
     public static final class Builder {
         private final Map<DataKey<?>, Object> values;
 
@@ -32,25 +29,7 @@ public final class DefaultDataTracker implements DataTracker {
         return new DefaultDataTracker(Map.of(key, value));
     }
 
-    private final Map<DataKey<?>, Object> values;
-
     private DefaultDataTracker(Map<DataKey<?>, Object> values) {
-        this.values = values;
+        super(values);
     }
-
-    @Override
-    public <T> Optional<T> get(DataKey<T> key) {
-        Object rawValue = values.get(key);
-        if (!key.type().isInstance(rawValue)) {
-            return Optional.empty();
-        }
-        return Optional.of(key.type().cast(rawValue));
-    }
-
-    @Override
-    public Set<DataKey<?>> getKeys() {
-        return values.keySet();
-    }
-
-
 }
