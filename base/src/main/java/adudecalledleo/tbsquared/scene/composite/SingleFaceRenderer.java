@@ -26,11 +26,6 @@ public abstract class SingleFaceRenderer implements FaceRenderer {
     private static final Collection<? extends FacePosition> FACE_POSITIONS = Set.of(THE_ONLY_POSITION);
 
     @Override
-    public Collection<? extends FacePosition> getFacePositions() {
-        return FACE_POSITIONS;
-    }
-
-    @Override
     public FacePosition getDefaultFacePosition() {
         return THE_ONLY_POSITION;
     }
