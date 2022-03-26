@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     api project(':base')
+    api libs.slf4j.api
+    api libs.pf4j
 
     compileOnlyApi 'org.jetbrains:annotations:23.0.0'
 

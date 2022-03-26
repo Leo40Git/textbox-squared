@@ -1,8 +1,12 @@
 rootProject.name = 'textbox-squared'
 
-include ':base'
-include ':ext-parser'
-include ':ext-rpgmaker'
-include ':app'
-include ':app:plugin-api'
-include ':app:shell'
+enableFeaturePreview('VERSION_CATALOGS')
+
+include (
+        ':base',
+        ':ext-parser',
+        ':ext-rpgmaker',
+        ':app',
+        ':app:plugin-api',
+        ':app:shell'
+)
