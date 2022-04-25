@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.data;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,7 @@ final class EmptyDataTracker implements DataTracker {
 
         @Override
         public Entry<?> next() {
-            throw new UnsupportedOperationException();
+            throw new NoSuchElementException();
         }
     }
 }
