@@ -7,14 +7,18 @@ import adudecalledleo.tbsquared.data.DataKey;
 import org.jetbrains.annotations.NotNull;
 
 public final class ConfigSpec implements Iterable<ConfigEntry<?>> {
+    public static final ConfigSpec EMPTY = new ConfigSpec(List.of());
+
     private final List<ConfigEntry<?>> entries;
     private final Map<String, List<ConfigEntry<?>>> byCategories;
 
     public static final class Builder {
         private final List<ConfigEntry<?>> entries;
+        private String category;
 
         private Builder() {
             entries = new ArrayList<>();
+            category = null;
         }
 
         public Builder add(ConfigEntry<?> entry) {
@@ -22,21 +26,16 @@ public final class ConfigSpec implements Iterable<ConfigEntry<?>> {
             return this;
         }
 
-        public final class Category {
-            private final String category;
-
-            private Category(String category) {
-                this.category = category;
-            }
-
-            public <T> Category add(ConfigEntryType<T> type, DataKey<T> key, String name, String description) {
-                Builder.this.add(new ConfigEntry<>(type, key, category, name, description));
-                return this;
-            }
+        public Builder category(String name) {
+            this.category = category;
+            return this;
         }
 
-        public Builder category(String name, Consumer<Category> action) {
-            action.accept(new Category(name));
+        public <T> Builder add(ConfigEntryType<T> type, DataKey<T> key, String name, String description) {
+            if (category == null) {
+                throw new IllegalArgumentException("category is null");
+            }
+            add(new ConfigEntry<>(type, key, category, name, description));
             return this;
         }
 

@@ -6,6 +6,7 @@ jansi = { module = "org.fusesource.jansi:jansi", version = "2.3.4" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version = "1.7.36" }
 log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
+jsemver = { module = "com.github.zafarkhaja:java-semver", version = "0.9.0" }
 pf4j = { module = "org.pf4j:pf4j", version = "3.6.0" }
 
 [bundles]
