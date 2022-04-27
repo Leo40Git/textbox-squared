@@ -14,6 +14,7 @@ dependencies {
     api libs.slf4j.api
     api libs.jsemver
     api libs.pf4j
+    api libs.bundles.jackson
 
     compileOnlyApi 'org.jetbrains:annotations:23.0.0'
 
