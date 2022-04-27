@@ -1,46 +1,39 @@
 package adudecalledleo.tbsquared.app.plugin.config;
 
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import adudecalledleo.tbsquared.data.DataKey;
-import org.jetbrains.annotations.NotNull;
+@SuppressWarnings("ClassCanBeRecord")
+public final class ConfigSpec {
+    public static final String DEFAULT_SECTION = "general";
 
-public final class ConfigSpec implements Iterable<ConfigEntry<?>> {
-    public static final ConfigSpec EMPTY = new ConfigSpec(List.of());
+    public static final ConfigSpec EMPTY = new ConfigSpec(Map.of());
 
-    private final List<ConfigEntry<?>> entries;
-    private final Map<String, List<ConfigEntry<?>>> byCategories;
+    private final Map<String, List<ConfigEntry<?>>> sections;
 
     public static final class Builder {
-        private final List<ConfigEntry<?>> entries;
-        private String category;
+        private final Map<String, List<ConfigEntry<?>>> sections;
+        private String currentSection;
 
         private Builder() {
-            entries = new ArrayList<>();
-            category = null;
+            this.sections = new HashMap<>();
+            this.currentSection = DEFAULT_SECTION;
+        }
+
+        public Builder section(String section) {
+            this.currentSection = section;
+            return this;
         }
 
         public Builder add(ConfigEntry<?> entry) {
-            entries.add(entry);
-            return this;
-        }
-
-        public Builder category(String name) {
-            this.category = category;
-            return this;
-        }
-
-        public <T> Builder add(ConfigEntryType<T> type, DataKey<T> key, String name, String description) {
-            if (category == null) {
-                throw new IllegalArgumentException("category is null");
-            }
-            add(new ConfigEntry<>(type, key, category, name, description));
+            this.sections.computeIfAbsent(currentSection, s -> new LinkedList<>()).add(entry);
             return this;
         }
 
         public ConfigSpec build() {
-            return new ConfigSpec(List.copyOf(entries));
+            return new ConfigSpec(Map.copyOf(sections));
         }
     }
 
@@ -48,36 +41,11 @@ public final class ConfigSpec implements Iterable<ConfigEntry<?>> {
         return new Builder();
     }
 
-    private ConfigSpec(List<ConfigEntry<?>> entries) {
-        this.entries = entries;
-
-        var byCategoriesMap = new HashMap<String, List<ConfigEntry<?>>>();
-        for (var entry : entries) {
-            byCategoriesMap.computeIfAbsent(entry.category(), s -> new ArrayList<>()).add(entry);
-        }
-        for (var entry : byCategoriesMap.entrySet()) {
-            entry.setValue(List.copyOf(entry.getValue()));
-        }
-        byCategories = Map.copyOf(byCategoriesMap);
+    private ConfigSpec(Map<String, List<ConfigEntry<?>>> sections) {
+        this.sections = sections;
     }
 
-    @NotNull
-    @Override
-    public Iterator<ConfigEntry<?>> iterator() {
-        return entries.iterator();
-    }
-
-    @Override
-    public Spliterator<ConfigEntry<?>> spliterator() {
-        return entries.spliterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super ConfigEntry<?>> action) {
-        entries.forEach(action);
-    }
-
-    public Map<String, List<ConfigEntry<?>>> byCategories() {
-        return byCategories;
+    public Map<String, List<ConfigEntry<?>>> getSections() {
+        return sections;
     }
 }

@@ -1,30 +1,17 @@
 package adudecalledleo.tbsquared.app.plugin.config;
 
-public final class IntegerEntryType implements ConfigEntryType<Long> {
-    private final long defaultValue;
-    private final long minimumValue, maximumValue;
+final class IntegerEntryType implements ConfigEntryType<Long> {
+    static final ConfigEntryType<Long> INSTANCE = new IntegerEntryType();
 
-    public IntegerEntryType(long defaultValue, long minimumValue, long maximumValue) {
-        this.defaultValue = defaultValue;
-        this.minimumValue = minimumValue;
-        this.maximumValue = maximumValue;
-    }
+    private IntegerEntryType() { }
 
     @Override
-    public Class<Long> getValueClass() {
+    public Class<Long> valueClass() {
         return Long.class;
     }
 
     @Override
-    public Long getDefaultValue() {
-        return defaultValue;
-    }
-
-    public long getMinimumValue() {
-        return minimumValue;
-    }
-
-    public long getMaximumValue() {
-        return maximumValue;
+    public Long defaultValue() {
+        return 0L;
     }
 }

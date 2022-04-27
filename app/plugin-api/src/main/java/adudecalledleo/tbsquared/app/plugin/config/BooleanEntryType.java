@@ -1,22 +1,17 @@
 package adudecalledleo.tbsquared.app.plugin.config;
 
-public final class BooleanEntryType implements ConfigEntryType<Boolean> {
-    public static final BooleanEntryType DEFAULT_TRUE = new BooleanEntryType(true);
-    public static final BooleanEntryType DEFAULT_FALSE = new BooleanEntryType(false);
+final class BooleanEntryType implements ConfigEntryType<Boolean> {
+    static final ConfigEntryType<Boolean> INSTANCE = new BooleanEntryType();
 
-    private final boolean defaultValue;
-
-    private BooleanEntryType(boolean defaultValue) {
-        this.defaultValue = defaultValue;
-    }
+    private BooleanEntryType() { }
 
     @Override
-    public Class<Boolean> getValueClass() {
+    public Class<Boolean> valueClass() {
         return Boolean.class;
     }
 
     @Override
-    public Boolean getDefaultValue() {
-        return defaultValue;
+    public Boolean defaultValue() {
+        return false;
     }
 }
