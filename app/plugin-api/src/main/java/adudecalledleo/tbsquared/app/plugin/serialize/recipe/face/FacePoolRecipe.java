@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.app.plugin.serialize.descriptor.face;
+package adudecalledleo.tbsquared.app.plugin.serialize.recipe.face;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -14,28 +14,29 @@ import adudecalledleo.tbsquared.face.FacePool;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public final class FacePoolDescriptor {
+public final class FacePoolRecipe {
     @JsonValue
-    public final Map<String, FaceCategoryDescriptor> categories;
+    public final Map<String, FaceCategoryRecipe> categories;
 
-    public FacePoolDescriptor() {
+    public FacePoolRecipe() {
         this.categories = new LinkedHashMap<>();
     }
 
     @JsonAnySetter
-    public void addCategory(String name, FaceCategoryDescriptor category) {
+    public FacePoolRecipe addCategory(String name, FaceCategoryRecipe category) {
         this.categories.put(name, category);
+        return this;
     }
 
-    public FacePool build(Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
-            throws FacePoolBuildException {
+    public FacePool make(Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
+            throws FaceRecipeException {
         List<FaceCategory> builtCats = new LinkedList<>();
         for (var entry : this.categories.entrySet()) {
             var name = entry.getKey();
             try {
-                builtCats.add(entry.getValue().build(name, sourceDefinition, basePath, iconProvider));
-            } catch (FacePoolBuildException e) {
-                throw new FacePoolBuildException("Failed to build category \"%s\"".formatted(name), e);
+                builtCats.add(entry.getValue().make(name, sourceDefinition, basePath, iconProvider));
+            } catch (FaceRecipeException e) {
+                throw new FaceRecipeException("Failed to build category \"%s\"".formatted(name), e);
             }
         }
         return new DefaultFacePool(builtCats);
@@ -43,7 +44,7 @@ public final class FacePoolDescriptor {
 
     @Override
     public String toString() {
-        return "FacePoolDescriptor{" +
+        return "FacePoolRecipe{" +
                 "categories=" + categories +
                 '}';
     }

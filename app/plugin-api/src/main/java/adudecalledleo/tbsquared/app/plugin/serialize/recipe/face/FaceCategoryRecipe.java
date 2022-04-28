@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.app.plugin.serialize.descriptor.face;
+package adudecalledleo.tbsquared.app.plugin.serialize.recipe.face;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -10,27 +10,37 @@ import adudecalledleo.tbsquared.face.FaceIconProvider;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "icon", "faces" })
-public final class FaceCategoryDescriptor {
-    public final Map<String, FaceDescriptor> faces;
+public final class FaceCategoryRecipe {
+    public final Map<String, FaceRecipe> faces;
     public String icon;
 
-    public FaceCategoryDescriptor() {
+    public FaceCategoryRecipe() {
         this.faces = new LinkedHashMap<>();
         this.icon = null;
     }
 
-    public FaceCategory build(String name, Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
-            throws FacePoolBuildException {
+    public FaceCategoryRecipe addFace(String name, FaceRecipe face) {
+        this.faces.put(name, face);
+        return this;
+    }
+
+    public FaceCategoryRecipe setIcon(String icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    public FaceCategory make(String name, Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
+            throws FaceRecipeException {
         var builder = FaceCategory.builder(name).iconFace(this.icon);
         for (var entry : this.faces.entrySet()) {
-            builder.addFace(entry.getValue().build(entry.getKey(), sourceDefinition, basePath, iconProvider));
+            builder.addFace(entry.getValue().make(entry.getKey(), sourceDefinition, basePath, iconProvider));
         }
         return builder.build();
     }
 
     @Override
     public String toString() {
-        return "FaceCategoryDescriptor{" +
+        return "FaceCategoryRecipe{" +
                 "faces=" + faces +
                 ", icon='" + icon + '\'' +
                 '}';

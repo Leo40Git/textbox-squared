@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.app.plugin.serialize.descriptor.face;
+package adudecalledleo.tbsquared.app.plugin.serialize.recipe.face;
 
 import java.io.IOException;
 
@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-final class FaceDescriptorSerializer extends JsonSerializer<FaceDescriptor> {
+final class FaceRecipeSerializer extends JsonSerializer<FaceRecipe> {
     @Override
-    public void serialize(FaceDescriptor value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(FaceRecipe value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (value.comment().isEmpty()) {
             gen.writeString(value.path());
         } else {
