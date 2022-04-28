@@ -49,6 +49,10 @@ public final class FaceCategory {
         }
     }
 
+    public static Builder builder(String name) {
+        return new Builder(name);
+    }
+
     private final String name;
     private final Map<String, Face> faces;
     private final Face iconFace;

@@ -16,14 +16,20 @@ public final class Face implements FromDefinition {
     private final String name;
     private final BufferedImage image;
     private final FaceIconProvider iconProvider;
+    private final String comment;
     private ImageIcon icon;
     private boolean iconComputed;
 
-    public Face(Definition sourceDefinition, String name, BufferedImage image, FaceIconProvider iconProvider) {
+    public Face(Definition sourceDefinition, String name, BufferedImage image, FaceIconProvider iconProvider, String comment) {
         this.sourceDefinition = sourceDefinition;
         this.name = name;
         this.image = image;
         this.iconProvider = iconProvider;
+        this.comment = comment;
+    }
+
+    public Face(Definition sourceDefinition, String name, BufferedImage image, FaceIconProvider iconProvider) {
+        this(sourceDefinition, name, image, iconProvider, "");
     }
 
     public boolean isBlank() {
@@ -41,6 +47,10 @@ public final class Face implements FromDefinition {
 
     public BufferedImage getImage() {
         return image;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public @Nullable ImageIcon getIcon() {
