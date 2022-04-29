@@ -18,7 +18,7 @@ public final class BoldNode extends AbstractContainerNode {
     private static final class Handler implements NodeHandler<BoldNode> {
         @Override
         public BoldNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
-            return new BoldNode(ctx.parse(contents));
+            return new BoldNode(ctx.parse(contents, offset, errors));
         }
 
         @Override
