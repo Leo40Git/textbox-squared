@@ -9,6 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.zafarkhaja.semver.Version;
 
 public interface PluginAPI {
+    static PluginAPI get() {
+        var api = PluginAPIHolder.getInstance();
+        if (api == null) {
+            throw new IllegalStateException("No PluginAPI instance configured!");
+        }
+        return api;
+    }
+
     Version getVersion();
 
     ObjectMapper getObjectMapper();

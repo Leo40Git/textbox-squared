@@ -1,11 +1,17 @@
 package adudecalledleo.tbsquared.app;
 
+import java.nio.file.Paths;
+
+import adudecalledleo.tbsquared.app.plugin.PluginAPIImpl;
+import adudecalledleo.tbsquared.app.plugin.SceneRendererProviderRegistry;
+import adudecalledleo.tbsquared.app.plugin.renderer.SceneRendererProvider;
 import adudecalledleo.tbsquared.app.plugin.serialize.module.JSemVerModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.github.zafarkhaja.semver.Version;
+import org.pf4j.DefaultPluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +36,14 @@ public final class Main {
     }
 
     public static void main(String[] args) {
-        LOGGER.info("Hello world!");
-        LOGGER.error("a");
+        PluginAPIImpl.set();
+
+        LOGGER.info("Initializing plugin manager...");
+        var pluginManager = new DefaultPluginManager(Paths.get("plugins"));
+        pluginManager.loadPlugins();
+        pluginManager.startPlugins();
+        for (var provider : pluginManager.getExtensions(SceneRendererProvider.class)) {
+            SceneRendererProviderRegistry.register(provider);
+        }
     }
 }

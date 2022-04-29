@@ -8,7 +8,9 @@ import com.github.zafarkhaja.semver.Version;
 public final class PluginAPIImpl implements PluginAPI {
     public static final PluginAPI INSTANCE = new PluginAPIImpl();
 
-    private PluginAPIImpl() { }
+    public static void set() {
+        PluginAPIHolder.setInstance(INSTANCE);
+    }
 
     @Override
     public Version getVersion() {
@@ -17,7 +19,7 @@ public final class PluginAPIImpl implements PluginAPI {
 
     @Override
     public void registerSceneRendererProvider(SceneRendererProvider provider) {
-
+        SceneRendererProviderRegistry.register(provider);
     }
 
     @Override
