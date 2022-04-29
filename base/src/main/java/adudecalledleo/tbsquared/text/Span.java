@@ -6,4 +6,12 @@ public record Span(int start, int length) {
     public boolean isValid() {
         return start > 0 && length > 0;
     }
+
+    public int end() {
+        return start + length;
+    }
+
+    public boolean isIn(Span outer) {
+        return this.start >= outer.start() && this.end() <= outer.end();
+    }
 }

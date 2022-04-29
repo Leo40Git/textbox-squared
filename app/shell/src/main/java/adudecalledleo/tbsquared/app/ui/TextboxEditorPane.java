@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.*;
@@ -18,11 +20,21 @@ import adudecalledleo.tbsquared.app.ui.text.UnderlineHighlighter;
 import adudecalledleo.tbsquared.app.ui.text.ZigZagHighlighter;
 import adudecalledleo.tbsquared.app.ui.util.UnmodifiableAttributeSetView;
 import adudecalledleo.tbsquared.color.Palette;
+import adudecalledleo.tbsquared.data.DefaultMutableDataTracker;
+import adudecalledleo.tbsquared.data.MutableDataTracker;
 import adudecalledleo.tbsquared.font.FontProvider;
+import adudecalledleo.tbsquared.parse.DOMParser;
+import adudecalledleo.tbsquared.parse.node.ContainerNode;
+import adudecalledleo.tbsquared.parse.node.Node;
+import adudecalledleo.tbsquared.parse.node.NodeRegistry;
+import adudecalledleo.tbsquared.parse.node.color.ColorNode;
+import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.parse.node.style.StyleNode;
+import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.util.render.Colors;
 
 public final class TextboxEditorPane extends JEditorPane
-        implements SceneRendererUpdatedListener, ActionListener {
+        implements SceneRendererUpdatedListener, DOMParser.SpanTracker, ActionListener {
     private static final ZigZagHighlighter HLP_ERROR = new ZigZagHighlighter(Color.RED);
     private static final Map<Color, UnderlineHighlighter> HLP_ESCAPED_COLORS = new HashMap<>();
 
@@ -40,10 +52,12 @@ public final class TextboxEditorPane extends JEditorPane
     private final SimpleAttributeSet styleNormal, styleMod;
     private final JPopupMenu popupMenu;
 
+    private final MutableDataTracker ctx;
     private BackgroundRenderer backgroundRenderer;
     private FontProvider fonts;
     private Palette palette;
     private boolean forceCaretRendering;
+    private final List<Span> escapedSpans;
 
     public TextboxEditorPane(TextUpdatedListener textUpdatedListener) {
         this.textUpdatedListener = textUpdatedListener;
@@ -118,7 +132,10 @@ public final class TextboxEditorPane extends JEditorPane
                 }
             }
         });
+
+        this.ctx = new DefaultMutableDataTracker();
         this.forceCaretRendering = false;
+        this.escapedSpans = new LinkedList<>();
 
         highlight();
     }
@@ -225,26 +242,152 @@ public final class TextboxEditorPane extends JEditorPane
         fonts = newProvider.getTextboxFonts();
         palette = newProvider.getTextboxPalette().orElse(null);
 
+        ctx.set(ColorSelector.PALETTE, palette);
+
         Color defaultColor = newProvider.getTextboxTextColor();
-        if (palette != null) {
-            defaultColor = palette.getColor(0);
-        }
+        setCaretColor(defaultColor);
+        StyleConstants.setForeground(styleNormal, defaultColor);
 
         var defaultFont = fonts.getDefaultBaseFont();
-
-        setCaretColor(defaultColor);
         StyleConstants.setFontFamily(styleNormal, defaultFont.getFamily());
         StyleConstants.setFontSize(styleNormal, defaultFont.getSize());
-        StyleConstants.setForeground(styleNormal, defaultColor);
+        StyleConstants.setFontFamily(styleMod, defaultFont.getFamily());
+        StyleConstants.setFontSize(styleMod, defaultFont.getSize());
+
         flushChanges(true);
     }
 
     private void highlight() {
+        errors.clear();
+        escapedSpans.clear();
         if (getDocument() instanceof StyledDocument doc) {
             MutableAttributeSet style = styleNormal, styleEscaped = styleMod;
             doc.setParagraphAttributes(0, doc.getLength(), style, true);
             doc.setCharacterAttributes(0, doc.getLength(), style, true);
             getHighlighter().removeAllHighlights();
+
+            var result = DOMParser.parse(NodeRegistry.getDefault(), this, getText());
+
+            if (result.hasErrors()) {
+                highlightEscapesUncolored(doc);
+                for (var error : result.errors()) {
+                    try {
+                        Rectangle2D startRect, endRect;
+
+                        startRect = modelToView2D(error.start());
+                        endRect = modelToView2D(error.end());
+
+                        errors.put(new Rectangle2D.Double(startRect.getX(), startRect.getY(),
+                                        endRect.getX() - startRect.getX(), Math.max(startRect.getHeight(), endRect.getHeight())),
+                                error.message());
+                    } catch (BadLocationException e) {
+                        //Logger.error("Failed to generate tooltip bounds for error!", e);
+                    }
+
+                    try {
+                        getHighlighter().addHighlight(error.start(), error.end(), HLP_ERROR);
+                        doc.setCharacterAttributes(error.start(), error.length(), styleNormal, true);
+                    } catch (BadLocationException e) {
+                        //Logger.error("Failed to properly highlight error!", e);
+                    }
+                }
+            } else {
+                highlight0(doc, result.document().getChildren(), style, styleEscaped);
+            }
+        }
+    }
+
+    @Override
+    public void markEscaped(int start, int end) {
+        this.escapedSpans.add(new Span(start, end - start));
+    }
+
+    private void highlightEscapesUncolored(StyledDocument doc) {
+        for (var span : escapedSpans) {
+            doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
+        }
+    }
+
+    private void highlight0(StyledDocument doc, List<Node> nodes, MutableAttributeSet style, MutableAttributeSet styleEscaped) {
+        for (var node : nodes) {
+            var opening = node.getOpeningSpan();
+            var closing = node.getClosingSpan();
+            if (!opening.isValid() || !closing.isValid()) {
+                continue;
+            }
+            doc.setCharacterAttributes(opening.start(), opening.length(), styleMod, true);
+            doc.setCharacterAttributes(closing.start(), closing.length(), styleMod, true);
+            if (node instanceof ColorNode nColor) {
+                var color = nColor.getSelector().getColor(this.ctx);
+
+                var attr = nColor.getAttributes().get("value");
+                if (attr != null) {
+                    var attrStyle = new SimpleAttributeSet(styleMod);
+                    StyleConstants.setForeground(style, color);
+                    doc.setCharacterAttributes(attr.valueSpan().start(), attr.valueSpan().length(),
+                            attrStyle, true);
+                }
+
+                style = new SimpleAttributeSet(style);
+                StyleConstants.setForeground(style, color);
+            } else if (node instanceof StyleNode nStyle) {
+                String fontKey = nStyle.getFontKey();
+                Integer size = nStyle.getSize();
+                Color color = null;
+                if (nStyle.getColorSelector() != null) {
+                    color = nStyle.getColorSelector().getColor(this.ctx);
+
+                    var colorAttr = nStyle.getAttributes().get("color");
+                    if (colorAttr != null) {
+                        var attrStyle = new SimpleAttributeSet(styleMod);
+                        StyleConstants.setForeground(style, color);
+                        doc.setCharacterAttributes(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(),
+                                attrStyle, true);
+                    }
+                }
+
+                boolean escapedModified = fontKey != null || size != null;
+                boolean normalModified = escapedModified || color != null;
+                if (normalModified) style = new SimpleAttributeSet(style);
+                if (escapedModified) styleEscaped = new SimpleAttributeSet(styleEscaped);
+
+                if (fontKey != null) {
+                    var font = fonts.getBaseFont(fontKey);
+                    StyleConstants.setFontFamily(style, font.getFamily());
+                    StyleConstants.setFontFamily(styleEscaped, font.getFamily());
+                }
+
+                if (size != null) {
+                    final int newSize = StyleConstants.getFontSize(styleNormal) + size;
+                    StyleConstants.setFontSize(style, newSize);
+                    StyleConstants.setFontSize(styleEscaped, newSize);
+                }
+
+                if (color != null) {
+                    StyleConstants.setForeground(style, color);
+                }
+            }
+
+            final Span contentSpan = node.getContentSpan();
+            doc.setCharacterAttributes(contentSpan.start(), contentSpan.length(), style, true);
+            final Color contentColor = StyleConstants.getForeground(style);
+            var it = escapedSpans.iterator();
+            while (it.hasNext()) {
+                var escapedSpan = it.next();
+                if (escapedSpan.isIn(contentSpan)) {
+                    it.remove();
+                    doc.setCharacterAttributes(escapedSpan.start(), escapedSpan.length(), styleEscaped, true);
+                    try {
+                        getHighlighter().addHighlight(escapedSpan.start(), escapedSpan.end(), getEscapedColorHighlightPainter(contentColor));
+                    } catch (BadLocationException e) {
+                        // TODO log
+                    }
+                }
+            }
+
+            if (node instanceof ContainerNode container) {
+                highlight0(doc, container.getChildren(), style, styleEscaped);
+            }
         }
     }
 

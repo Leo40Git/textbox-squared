@@ -29,7 +29,11 @@ public final class DOMParser {
         return parse(registry, SpanTracker.NO_OP, contents);
     }
 
-    public record Error(int start, int end, String message) { }
+    public record Error(int start, int end, String message) {
+        public int length() {
+            return end - start;
+        }
+    }
 
     public static final class Result {
         private final Document document;

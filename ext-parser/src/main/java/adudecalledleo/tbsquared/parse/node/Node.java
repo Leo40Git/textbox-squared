@@ -7,13 +7,14 @@ import adudecalledleo.tbsquared.text.Span;
 
 public abstract class Node {
     protected final String name;
-    protected final Span openingSpan, closingSpan;
+    protected final Span openingSpan, closingSpan, contentSpan;
     protected final Map<String, Attribute> attributes;
 
     public Node(String name, Span openingSpan, Span closingSpan, Map<String, Attribute> attributes) {
         this.name = name;
         this.openingSpan = openingSpan;
         this.closingSpan = closingSpan;
+        this.contentSpan = new Span(openingSpan.start() + openingSpan.length(), closingSpan.start() - openingSpan.start());
         this.attributes = attributes;
     }
 
@@ -31,6 +32,10 @@ public abstract class Node {
 
     public Span getClosingSpan() {
         return closingSpan;
+    }
+
+    public Span getContentSpan() {
+        return contentSpan;
     }
 
     public Map<String, Attribute> getAttributes() {

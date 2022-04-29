@@ -18,20 +18,20 @@ public final class StyleNode extends ContainerNode {
         registry.register(NAME, HANDLER);
     }
 
-    private final @Nullable String font;
+    private final @Nullable String fontKey;
     private final @Nullable Integer size;
     private final @Nullable ColorSelector colorSelector;
 
-    public StyleNode(@Nullable String font, @Nullable Integer size, @Nullable ColorSelector colorSelector,
+    public StyleNode(@Nullable String fontKey, @Nullable Integer size, @Nullable ColorSelector colorSelector,
                      Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
         super(NAME, openingSpan, closingSpan, attributes, children);
-        this.font = font;
+        this.fontKey = fontKey;
         this.size = size;
         this.colorSelector = colorSelector;
     }
 
-    public @Nullable String getFont() {
-        return font;
+    public @Nullable String getFontKey() {
+        return fontKey;
     }
 
     public @Nullable Integer getSize() {
@@ -46,7 +46,7 @@ public final class StyleNode extends ContainerNode {
         @Override
         public StyleNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors,
                                Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
-            @Nullable String font = null;
+            @Nullable String fontKey = null;
             @Nullable Integer size = null;
             @Nullable ColorSelector color = null;
 
@@ -56,7 +56,7 @@ public final class StyleNode extends ContainerNode {
                 if (fontStr.isEmpty()) {
                     throw new IllegalArgumentException("font cannot be blank");
                 }
-                font = fontStr;
+                fontKey = fontStr;
             }
 
             var sizeAttr = attributes.get("size");
@@ -81,7 +81,7 @@ public final class StyleNode extends ContainerNode {
                 color = ColorSelector.parse(colorAttr.value());
             }
 
-            return new StyleNode(font, size, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
+            return new StyleNode(fontKey, size, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override
@@ -95,8 +95,8 @@ public final class StyleNode extends ContainerNode {
                         return style.withColor(color);
                     }
                 }
-                if (node.getFont() != null) {
-                    style = style.withFont(node.getFont());
+                if (node.getFontKey() != null) {
+                    style = style.withFont(node.getFontKey());
                 }
                 if (node.getSize() != null) {
                     style = style.withSizeAdjust(style.sizeAdjust().orElse(0) + node.getSize());
