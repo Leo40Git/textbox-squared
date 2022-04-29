@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation project(':app:plugin-api')
+    implementation project(':ext-parser')
     runtimeOnly libs.jansi
     runtimeOnly libs.bundles.log4j
 

@@ -1,5 +1,6 @@
 package adudecalledleo.tbsquared.app.plugin.api.renderer;
 
+import java.awt.*;
 import java.util.Optional;
 
 import adudecalledleo.tbsquared.app.plugin.api.config.ConfigSpec;
@@ -17,5 +18,6 @@ public interface SceneRendererProvider extends ExtensionPoint {
     // for textbox editor UI
     BackgroundRenderer getTextboxBackgroundRenderer();
     FontProvider getTextboxFonts();
+    Color getTextboxTextColor();
     Optional<Palette> getTextboxPalette();
 }
