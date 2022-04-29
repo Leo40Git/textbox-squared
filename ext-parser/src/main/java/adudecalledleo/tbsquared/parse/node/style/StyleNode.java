@@ -6,6 +6,7 @@ import java.util.Map;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +22,9 @@ public final class StyleNode extends ContainerNode {
     private final @Nullable Integer size;
     private final @Nullable ColorSelector colorSelector;
 
-    public StyleNode(@Nullable String font, @Nullable Integer size, @Nullable ColorSelector colorSelector, List<Node> children) {
-        super(NAME, children);
+    public StyleNode(@Nullable String font, @Nullable Integer size, @Nullable ColorSelector colorSelector,
+                     Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
+        super(NAME, openingSpan, closingSpan, attributes, children);
         this.font = font;
         this.size = size;
         this.colorSelector = colorSelector;
@@ -42,23 +44,24 @@ public final class StyleNode extends ContainerNode {
 
     private static final class Handler implements NodeHandler<StyleNode> {
         @Override
-        public StyleNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
+        public StyleNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors,
+                               Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
             @Nullable String font = null;
             @Nullable Integer size = null;
             @Nullable ColorSelector color = null;
 
-            String fontStr = attributes.get("font");
-            if (fontStr != null) {
-                fontStr = fontStr.trim();
+            var fontAttr = attributes.get("font");
+            if (fontAttr != null) {
+                String fontStr = fontAttr.value().trim();
                 if (fontStr.isEmpty()) {
                     throw new IllegalArgumentException("font cannot be blank");
                 }
                 font = fontStr;
             }
 
-            String sizeStr = attributes.get("size");
-            if (sizeStr != null) {
-                sizeStr = sizeStr.trim();
+            var sizeAttr = attributes.get("size");
+            if (sizeAttr != null) {
+                String sizeStr = sizeAttr.value().trim();
                 if (sizeStr.isEmpty()) {
                     throw new IllegalArgumentException("size cannot be blank");
                 }
@@ -73,12 +76,12 @@ public final class StyleNode extends ContainerNode {
                 }
             }
 
-            String colorStr = attributes.get("color");
-            if (colorStr != null) {
-                color = ColorSelector.parse(colorStr);
+            var colorAttr = attributes.get("color");
+            if (colorAttr != null) {
+                color = ColorSelector.parse(colorAttr.value());
             }
 
-            return new StyleNode(font, size, color, ctx.parse(contents, offset, errors));
+            return new StyleNode(font, size, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override

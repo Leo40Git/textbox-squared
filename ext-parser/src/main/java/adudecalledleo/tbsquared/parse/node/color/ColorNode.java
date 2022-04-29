@@ -5,6 +5,7 @@ import java.util.Map;
 
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
+import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
 public final class ColorNode extends ContainerNode {
@@ -17,8 +18,8 @@ public final class ColorNode extends ContainerNode {
 
     private final ColorSelector selector;
 
-    public ColorNode(ColorSelector selector, List<Node> children) {
-        super(NAME, children);
+    public ColorNode(ColorSelector selector, Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
+        super(NAME, openingSpan, closingSpan, attributes, children);
         this.selector = selector;
     }
 
@@ -28,12 +29,13 @@ public final class ColorNode extends ContainerNode {
 
     private static final class Handler implements NodeHandler<ColorNode> {
         @Override
-        public ColorNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors, Map<String, String> attributes, String contents) {
-            String colorStr = attributes.get("value");
-            if (colorStr == null) {
+        public ColorNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors,
+                               Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
+            var colorAttr = attributes.get("value");
+            if (colorAttr == null) {
                 throw new IllegalArgumentException("Missing required attribute \"value\"");
             }
-            return new ColorNode(ColorSelector.parse(colorStr), ctx.parse(contents, offset, errors));
+            return new ColorNode(ColorSelector.parse(colorAttr.value()), openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override

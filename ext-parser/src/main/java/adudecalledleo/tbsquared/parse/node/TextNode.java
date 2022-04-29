@@ -1,5 +1,8 @@
 package adudecalledleo.tbsquared.parse.node;
 
+import java.util.Map;
+
+import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
 public final class TextNode extends Node {
@@ -9,7 +12,7 @@ public final class TextNode extends Node {
     private final String contents;
 
     public TextNode(String contents) {
-        super(NAME);
+        super(NAME, Span.INVALID, Span.INVALID, Map.of());
         this.contents = contents;
     }
 

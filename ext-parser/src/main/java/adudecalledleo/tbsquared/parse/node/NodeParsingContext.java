@@ -4,6 +4,7 @@ import java.util.*;
 
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
+import adudecalledleo.tbsquared.text.Span;
 
 public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker spanTracker) {
     public List<Node> parse(String contents, int offset, List<DOMParser.Error> errors) {
@@ -58,7 +59,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     openEnd = offset + scanner.tell();
                     openStart = offset + openEnd - name.length();
 
-                    Map<String, String> attrs = Map.of();
+                    Map<String, Attribute> attrs = new LinkedHashMap<>();
                     int eqIndex = name.indexOf('=');
                     int spIndex = name.indexOf(' ');
                     if (spIndex > 0 && eqIndex > 0 && spIndex < eqIndex) {
@@ -72,7 +73,8 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         String value = name.substring(eqIndex + 1);
                         name = name.substring(0, eqIndex);
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
-                        attrs = Map.of("value", value);
+                        attrs.put("value", new Attribute("value", Span.INVALID,
+                                value, new Span(offset + eqIndex + 1, value.length())));
                         spanTracker.markNodeDeclAttribute(name, "value", -1, -1, value,
                                 offset + eqIndex + 1, offset + eqIndex + 1 + value.length());
                     } else {
@@ -104,7 +106,10 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                             });
 
                     if (handler != null && myContents != null) {
-                        nodes.add(handler.parse(this, offset + contentStart, errors, attrs, myContents));
+                        nodes.add(handler.parse(this, offset + contentStart, errors,
+                                new Span(openStart, openEnd - openStart),
+                                new Span(offset + scanner.tell() - name.length(), name.length()),
+                                attrs, myContents));
                     }
 
                     spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length(), offset + scanner.tell());
@@ -123,9 +128,9 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
         return nodes;
     }
 
-    private static Map<String, String> parseAttributes(List<DOMParser.Error> errors,
-                                                       DOMParser.SpanTracker spanTracker, int offset,
-                                                       String node, StringBuilder sb, String attrString) {
+    private static Map<String, Attribute> parseAttributes(List<DOMParser.Error> errors,
+                                                          DOMParser.SpanTracker spanTracker, int offset,
+                                                          String node, StringBuilder sb, String attrString) {
         sb.setLength(0);
 
         // step 1 - split string into substrings using spaces as a delimiter while respecting quotes
@@ -198,14 +203,14 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
         }
 
         // step 2 - parse substrings into key-value pairs
-        Map<String, String> attrs = new LinkedHashMap<>();
+        Map<String, Attribute> attrs = new LinkedHashMap<>();
         String key, value;
         for (var entry : entries) {
             String contents = entry.contents();
             int eqIndex = contents.indexOf('=');
             if (eqIndex < 0) {
                 key = toAttributeKey(contents);
-                attrs.put(key, "");
+                attrs.put(key, new Attribute(key, new Span(offset + entry.start(), key.length()), "", Span.INVALID));
                 spanTracker.markNodeDeclAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), "",
                         -1, -1);
                 continue;
@@ -224,7 +229,8 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
             }
 
             String parsedValue = parseEscapes(errors, spanTracker, offset + entry.start() + eqIndex + 1, value, sb);
-            attrs.put(key, parsedValue);
+            attrs.put(key, new Attribute(key, new Span(offset + entry.start(), key.length()),
+                    parsedValue, new Span(offset + entry.start() + eqIndex + 1, value.length())));
             spanTracker.markNodeDeclAttribute(node, key, offset + entry.start(), offset + entry.start() + key.length(), parsedValue,
                     offset + entry.start() + eqIndex + 1, offset + entry.start() + eqIndex + 1 + value.length());
         }
