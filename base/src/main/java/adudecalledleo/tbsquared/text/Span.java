@@ -1,3 +1,3 @@
-package adudecalledleo.tbsquared.util;
+package adudecalledleo.tbsquared.text;
 
 public record Span(int start, int length) { }
