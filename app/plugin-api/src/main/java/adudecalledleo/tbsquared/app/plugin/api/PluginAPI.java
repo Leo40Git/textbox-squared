@@ -31,4 +31,6 @@ public interface PluginAPI {
     }
 
     void registerSceneRendererProvider(SceneRendererProvider provider);
+
+    void addPostLoadListener(PostLoadListener listener);
 }

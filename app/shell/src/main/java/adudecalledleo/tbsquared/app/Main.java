@@ -45,5 +45,6 @@ public final class Main {
         for (var provider : pluginManager.getExtensions(SceneRendererProvider.class)) {
             SceneRendererProviderRegistry.register(provider);
         }
+        PluginAPIImpl.INSTANCE.executePostLoadListeners(pluginManager);
     }
 }
