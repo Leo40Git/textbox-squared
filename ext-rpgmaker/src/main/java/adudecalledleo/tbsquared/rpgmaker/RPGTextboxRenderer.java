@@ -9,27 +9,9 @@ import adudecalledleo.tbsquared.scene.composite.TextboxRenderer;
 import adudecalledleo.tbsquared.util.shape.Rect;
 
 final class RPGTextboxRenderer implements TextboxRenderer {
-    private static final class BackImageTL extends InheritableThreadLocal<BufferedImage> {
-        @Override
-        protected BufferedImage childValue(BufferedImage parentValue) {
-            if (parentValue == null) {
-                return null;
-            } else {
-                return new BufferedImage(parentValue.getColorModel(),
-                        parentValue.copyData(parentValue.getRaster().createCompatibleWritableRaster()),
-                        parentValue.isAlphaPremultiplied(), null);
-            }
-        }
-    }
-
     private final BufferedImage windowImage;
-    private final RPGWindowTint backTint;
+    private final RPGBackgroundRenderer backgroundRenderer;
     private final int flags;
-
-    private final int backMargin;
-    private final int backTileSize;
-    private final Rect backBase, backOverlay;
-    private final ThreadLocal<BufferedImage> backImage;
 
     private final int borderPieceSize;
     private final int borderMPieceWidth, borderCPieceHeight;
@@ -47,17 +29,11 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     private final int arrowFrameSize;
     private final Rect[] arrowFrames;
 
-    public RPGTextboxRenderer(RPGWindowSkin.Version version, BufferedImage windowImage, RPGWindowTint backTint, int flags) {
+    public RPGTextboxRenderer(RPGWindowSkin.Version version, BufferedImage windowImage,
+                              RPGBackgroundRenderer backgroundRenderer, int flags) {
         this.windowImage = windowImage;
+        this.backgroundRenderer = backgroundRenderer;
         this.flags = flags;
-
-        /// BACKGROUND
-        this.backTint = backTint;
-        backMargin = version.textboxMargin();
-        backTileSize = version.scale(64);
-        backBase = new Rect(0, 0, backTileSize, backTileSize);
-        backOverlay = new Rect(0, backTileSize, backTileSize, backTileSize);
-        backImage = new BackImageTL();
 
         /// BORDER
         borderPieceSize = version.scale(16);
@@ -92,7 +68,7 @@ final class RPGTextboxRenderer implements TextboxRenderer {
 
     @Override
     public void renderBackground(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        renderTextboxBackground(g, x, y, width, height);
+        backgroundRenderer.renderBackground(g, x, y, width, height);
         if ((flags & RPGWindowSkin.TEXTBOX_BORDER_IN_BACKGROUND) != 0) {
             renderTextboxBorder(g, x, y, width, height);
         }
@@ -111,13 +87,6 @@ final class RPGTextboxRenderer implements TextboxRenderer {
         }
     }
 
-    private void renderTextboxBackground(Graphics2D g, int x, int y, int width, int height) {
-        g.drawImage(getBackImage(width - backMargin, height - backMargin),
-                x + backMargin, y + backMargin, x + width - backMargin, y + height - backMargin,
-                0, 0, width - backMargin, height - backMargin,
-                null);
-    }
-
     private void renderTextboxBorder(Graphics2D g, int x, int y, int width, int height) {
         // TOP
         drawPiece(g, borderPieces[BORDER_PIECE_TL], x, y);
@@ -133,44 +102,10 @@ final class RPGTextboxRenderer implements TextboxRenderer {
     }
 
     private void renderTextboxArrow(Graphics2D g, DataTracker sceneMeta, int x, int y, int width, int height) {
-        sceneMeta.get(SceneMetadata.ARROW_FRAME).ifPresent(arrowFrame -> {
-            drawPiece(g, arrowFrames[arrowFrame],
-                    x + (width / 2) - (arrowFrameSize / 2),
-                    y + height - arrowFrameSize);
-        });
-    }
-
-    private BufferedImage getBackImage(int width, int height) {
-        BufferedImage backImage = this.backImage.get();
-        if (backImage == null || backImage.getWidth() != width || backImage.getHeight() != height) {
-            backImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-            var g = backImage.createGraphics();
-
-            // draw stretched and tinted base
-            g.setComposite(new RPGWindowTintComposite(backTint));
-            drawPiece(g, backBase, 0, 0, width, height);
-            // draw tiled overlay
-            g.setComposite(AlphaComposite.SrcOver);
-            final int tilesWide = width / backTileSize, tilesHigh = height / backTileSize;
-            for (int ty = 0; ty <= tilesHigh; ty++) {
-                for (int tx = 0; tx <= tilesWide; tx++) {
-                    drawPiece(g, backOverlay, tx * backTileSize, ty * backTileSize);
-                }
-            }
-            g.dispose();
-
-            // reduce everyone's alpha by 25%
-            // NOTE: this loop relies on the BG image being of TYPE_INT_ARGB!
-            int[] pixels = ((DataBufferInt) backImage.getRaster().getDataBuffer()).getData();
-            for (int i = 0; i < pixels.length; i++) {
-                // mask out old alpha and OR in new alpha
-                pixels[i] = (pixels[i] & ~0xFF000000) | (((int) Math.floor(((pixels[i] >> 24) & 0xFF) * 0.75)) << 24);
-            }
-
-            this.backImage.set(backImage);
-        }
-        return backImage;
+        sceneMeta.get(SceneMetadata.ARROW_FRAME).ifPresent(arrowFrame ->
+                drawPiece(g, arrowFrames[arrowFrame],
+                        x + (width / 2) - (arrowFrameSize / 2),
+                        y + height - arrowFrameSize));
     }
 
     private void drawPiece(Graphics2D g, Rect piece, int x, int y, int width, int height) {

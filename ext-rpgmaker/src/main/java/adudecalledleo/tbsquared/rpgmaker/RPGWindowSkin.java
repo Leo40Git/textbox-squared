@@ -43,6 +43,7 @@ public final class RPGWindowSkin {
     private static final int COLOR_COUNT = 32;
 
     private final Version version;
+    private final RPGBackgroundRenderer backgroundRenderer;
     private final TextboxRenderer textboxRenderer;
     private final Palette palette;
     private final TextRenderer textRenderer;
@@ -54,7 +55,8 @@ public final class RPGWindowSkin {
                                  RPGWindowSkin.TEXT_NO_OUTLINE
                          }) int flags) {
         this.version = version;
-        this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, backTint, flags);
+        this.backgroundRenderer = new RPGBackgroundRenderer(version, windowImage, backTint);
+        this.textboxRenderer = new RPGTextboxRenderer(version, windowImage, this.backgroundRenderer, flags);
 
         Color[] colors = new Color[COLOR_COUNT];
         final int colorSize = version.scale(8);
@@ -66,8 +68,8 @@ public final class RPGWindowSkin {
                         false);
             }
         }
-        palette = new ArrayPalette(colors);
-        textRenderer = new RPGTextRenderer(colors[0], flags);
+        this.palette = new ArrayPalette(colors);
+        this.textRenderer = new RPGTextRenderer(colors[0], flags);
     }
 
     public Version getVersion() {
@@ -76,6 +78,10 @@ public final class RPGWindowSkin {
 
     public int getTextboxPadding() {
         return version.textboxPadding();
+    }
+
+    public RPGBackgroundRenderer getBackgroundRenderer() {
+        return backgroundRenderer;
     }
 
     public TextboxRenderer getTextboxRenderer() {
