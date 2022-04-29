@@ -1,8 +1,8 @@
 package adudecalledleo.tbsquared.app.plugin.test;
 
-import adudecalledleo.tbsquared.app.plugin.serialize.recipe.face.FaceCategoryRecipe;
-import adudecalledleo.tbsquared.app.plugin.serialize.recipe.face.FacePoolRecipe;
-import adudecalledleo.tbsquared.app.plugin.serialize.recipe.face.FaceRecipe;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FaceCategoryRecipe;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FacePoolRecipe;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FaceRecipe;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public final class FaceRecipeTest {

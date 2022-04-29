@@ -1,8 +1,7 @@
 package adudecalledleo.tbsquared.app.plugin.test;
 
-import adudecalledleo.tbsquared.app.plugin.PluginAPI;
-import adudecalledleo.tbsquared.app.plugin.renderer.SceneRendererProvider;
-import adudecalledleo.tbsquared.app.plugin.serialize.module.JSemVerModule;
+import adudecalledleo.tbsquared.app.plugin.api.PluginAPI;
+import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,8 +14,7 @@ public final class TestPluginAPI implements PluginAPI {
             .registerModules(
                     new ParameterNamesModule(),
                     new Jdk8Module(),
-                    new JavaTimeModule(),
-                    new JSemVerModule());
+                    new JavaTimeModule());
 
     @Override
     public Version getVersion() {

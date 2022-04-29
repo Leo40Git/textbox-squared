@@ -2,10 +2,10 @@ package adudecalledleo.tbsquared.app;
 
 import java.nio.file.Paths;
 
-import adudecalledleo.tbsquared.app.plugin.PluginAPIImpl;
-import adudecalledleo.tbsquared.app.plugin.SceneRendererProviderRegistry;
-import adudecalledleo.tbsquared.app.plugin.renderer.SceneRendererProvider;
-import adudecalledleo.tbsquared.app.plugin.serialize.module.JSemVerModule;
+import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
+import adudecalledleo.tbsquared.app.plugin.impl.PluginAPIImpl;
+import adudecalledleo.tbsquared.app.plugin.impl.renderer.SceneRendererProviderRegistry;
+import adudecalledleo.tbsquared.app.serialize.module.JSemVerModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
