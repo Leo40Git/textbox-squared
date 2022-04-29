@@ -2,7 +2,7 @@ package adudecalledleo.tbsquared.parse.node;
 
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public final class TextNode extends AbstractNode {
+public final class TextNode extends Node {
     public static final String NAME = "text";
     public static final NodeHandler<TextNode> HANDLER = new Handler();
 

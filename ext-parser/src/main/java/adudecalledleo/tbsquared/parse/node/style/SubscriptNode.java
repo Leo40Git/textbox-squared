@@ -8,7 +8,7 @@ import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public final class SubscriptNode extends AbstractContainerNode {
+public final class SubscriptNode extends ContainerNode {
     public static final String NAME = "sub";
     public static final NodeHandler<SubscriptNode> HANDLER = new Handler();
 

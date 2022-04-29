@@ -7,7 +7,7 @@ import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public final class StrikethroughNode extends AbstractContainerNode {
+public final class StrikethroughNode extends ContainerNode {
     public static final String NAME = "s";
     public static final NodeHandler<StrikethroughNode> HANDLER = new Handler();
 

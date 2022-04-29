@@ -4,7 +4,7 @@ import java.util.List;
 
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public final class Document extends AbstractContainerNode {
+public final class Document extends ContainerNode {
     public static final String NAME = "doc";
     public static final NodeHandler<Document> HANDLER = new Handler();
 

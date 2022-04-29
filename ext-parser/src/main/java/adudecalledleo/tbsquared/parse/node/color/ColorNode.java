@@ -7,7 +7,7 @@ import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.TextBuilder;
 
-public final class ColorNode extends AbstractContainerNode {
+public final class ColorNode extends ContainerNode {
     public static final String NAME = "color";
     public static final NodeHandler<ColorNode> HANDLER = new Handler();
 

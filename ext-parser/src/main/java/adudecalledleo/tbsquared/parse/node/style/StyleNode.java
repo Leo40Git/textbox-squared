@@ -9,7 +9,7 @@ import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import org.jetbrains.annotations.Nullable;
 
-public final class StyleNode extends AbstractContainerNode {
+public final class StyleNode extends ContainerNode {
     public static final String NAME = "style";
     public static final NodeHandler<StyleNode> HANDLER = new Handler();
 
