@@ -32,9 +32,13 @@ import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
 import adudecalledleo.tbsquared.parse.node.style.StyleNode;
 import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.util.render.Colors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class TextboxEditorPane extends JEditorPane
         implements SceneRendererUpdatedListener, DOMParser.SpanTracker, ActionListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger("textbox-squared/TextboxEditorPane");
+
     private static final ZigZagHighlighter HLP_ERROR = new ZigZagHighlighter(Color.RED);
     private static final Map<Color, UnderlineHighlighter> HLP_ESCAPED_COLORS = new HashMap<>();
 
@@ -288,35 +292,49 @@ public final class TextboxEditorPane extends JEditorPane
                                         endRect.getX() - startRect.getX(), Math.max(startRect.getHeight(), endRect.getHeight())),
                                 error.message());
                     } catch (BadLocationException e) {
-                        //Logger.error("Failed to generate tooltip bounds for error!", e);
+                        LOGGER.error("Failed to generate tooltip bounds for error", e);
                     }
 
                     try {
                         getHighlighter().addHighlight(error.start(), error.end(), HLP_ERROR);
                         doc.setCharacterAttributes(error.start(), error.length(), styleNormal, true);
                     } catch (BadLocationException e) {
-                        //Logger.error("Failed to properly highlight error!", e);
+                        LOGGER.info("Failed to properly highlight error", e);
                     }
                 }
             } else {
                 highlight0(doc, result.document().getChildren(), style, styleEscaped);
+                highlightEscapesUncolored(doc);
             }
         }
     }
 
     @Override
     public void markEscaped(int start, int end) {
+        LOGGER.info("adding escaped span - {}, {}", start, end);
         this.escapedSpans.add(new Span(start, end - start));
     }
 
     private void highlightEscapesUncolored(StyledDocument doc) {
+        var hl = getEscapedColorHighlightPainter(StyleConstants.getForeground(styleNormal));
         for (var span : escapedSpans) {
             doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
+            try {
+                getHighlighter().addHighlight(span.start(), span.end(), hl);
+            } catch (BadLocationException e) {
+                LOGGER.info("Failed to add highlighter for escaped color", e);
+            }
         }
+        escapedSpans.clear();
     }
 
     private void highlight0(StyledDocument doc, List<Node> nodes, MutableAttributeSet style, MutableAttributeSet styleEscaped) {
+        var oldStyle = style;
+        var oldStyleEscaped = styleEscaped;
         for (var node : nodes) {
+            style = oldStyle;
+            styleEscaped = oldStyleEscaped;
+
             var opening = node.getOpeningSpan();
             var closing = node.getClosingSpan();
             if (!opening.isValid() || !closing.isValid()) {
@@ -330,7 +348,7 @@ public final class TextboxEditorPane extends JEditorPane
                 var attr = nColor.getAttributes().get("value");
                 if (attr != null) {
                     var attrStyle = new SimpleAttributeSet(styleMod);
-                    StyleConstants.setForeground(style, color);
+                    StyleConstants.setForeground(attrStyle, color);
                     doc.setCharacterAttributes(attr.valueSpan().start(), attr.valueSpan().length(),
                             attrStyle, true);
                 }
@@ -347,7 +365,7 @@ public final class TextboxEditorPane extends JEditorPane
                     var colorAttr = nStyle.getAttributes().get("color");
                     if (colorAttr != null) {
                         var attrStyle = new SimpleAttributeSet(styleMod);
-                        StyleConstants.setForeground(style, color);
+                        StyleConstants.setForeground(attrStyle, color);
                         doc.setCharacterAttributes(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(),
                                 attrStyle, true);
                     }
@@ -387,7 +405,7 @@ public final class TextboxEditorPane extends JEditorPane
                     try {
                         getHighlighter().addHighlight(escapedSpan.start(), escapedSpan.end(), getEscapedColorHighlightPainter(contentColor));
                     } catch (BadLocationException e) {
-                        // TODO log
+                        LOGGER.info("Failed to add highlighter for escaped color", e);
                     }
                 }
             }

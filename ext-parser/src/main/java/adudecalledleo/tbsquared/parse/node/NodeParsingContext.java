@@ -57,7 +57,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     }
 
                     openEnd = offset + scanner.tell();
-                    openStart = offset + openEnd - name.length();
+                    openStart = offset + openEnd - name.length() - 2;
 
                     Map<String, Attribute> attrs = new LinkedHashMap<>();
                     int eqIndex = name.indexOf('=');
@@ -67,16 +67,16 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
-                        attrs = parseAttributes(errors, spanTracker, offset + scanner.tell(), name, sb, attrString);
+                        attrs = parseAttributes(errors, spanTracker, offset + openStart + spIndex + 2, name, sb, attrString);
                     } else if (eqIndex >= 0) {
                         // compact [<tag>=<value>] (equal to [<tag> value="<value>"])
                         String value = name.substring(eqIndex + 1);
                         name = name.substring(0, eqIndex);
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
                         attrs.put("value", new Attribute("value", Span.INVALID,
-                                value, new Span(offset + eqIndex + 1, value.length())));
+                                value, new Span(offset + openStart + eqIndex + 2, value.length())));
                         spanTracker.markNodeDeclAttribute(name, "value", -1, -1, value,
-                                offset + eqIndex + 1, offset + eqIndex + 1 + value.length());
+                                offset + openStart + eqIndex + 2, offset + openStart + eqIndex + 2 + value.length());
                     } else {
                         // no attrs
                         spanTracker.markNodeDeclOpening(name, openStart, openEnd);
@@ -100,7 +100,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     final String nameF = name;
                     String myContents = scanner.until("[/%s]".formatted(name))
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + scanner.remaining(),
+                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + scanner.remaining() - 1,
                                         "missing closing tag for \"" + nameF + "\""));
                                 return null;
                             });
@@ -108,11 +108,11 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     if (handler != null && myContents != null) {
                         nodes.add(handler.parse(this, offset + contentStart, errors,
                                 new Span(openStart, openEnd - openStart),
-                                new Span(offset + scanner.tell() - name.length(), name.length()),
+                                new Span(offset + scanner.tell() - name.length() - 3, name.length() + 3),
                                 attrs, myContents));
                     }
 
-                    spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length(), offset + scanner.tell());
+                    spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length() - 3, offset + scanner.tell() + 3);
                 }
                 default -> {
                     sb.append(c);
@@ -288,7 +288,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                                            DOMParser.SpanTracker spanTracker, int offset,
                                            StringScanner scanner, StringBuilder sb) {
         String charIdStr = scanner.read(4).orElseGet(() -> {
-            errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + 2,
+            errors.add(new DOMParser.Error(offset + scanner.tell() - 2, offset + scanner.tell(),
                     "unicode escape has <4 digits"));
             sb.append("\\u");
             return "";

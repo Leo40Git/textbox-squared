@@ -53,7 +53,7 @@ public final class StringScanner {
         if (length <= 0) {
             throw new IllegalArgumentException("length <= 0");
         }
-        if (pos + length >= chars.length) {
+        if (pos + length > chars.length) {
             return Optional.empty();
         }
         var s = new String(chars, pos, length);

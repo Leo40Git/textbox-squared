@@ -14,7 +14,7 @@ public abstract class Node {
         this.name = name;
         this.openingSpan = openingSpan;
         this.closingSpan = closingSpan;
-        this.contentSpan = new Span(openingSpan.start() + openingSpan.length(), closingSpan.start() - openingSpan.start());
+        this.contentSpan = new Span(openingSpan.end(), closingSpan.start() - openingSpan.end());
         this.attributes = attributes;
     }
 
