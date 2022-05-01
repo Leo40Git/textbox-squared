@@ -55,6 +55,7 @@ public final class TextboxEditorPane extends JEditorPane
     private final MutableDataTracker ctx;
     private BackgroundRenderer backgroundRenderer;
     private FontProvider fonts;
+    private boolean renderTextWithAntialiasing;
     private Palette palette;
     private boolean forceCaretRendering;
     private final List<Span> escapedSpans;
@@ -134,6 +135,7 @@ public final class TextboxEditorPane extends JEditorPane
         });
 
         this.ctx = new DefaultMutableDataTracker();
+        this.renderTextWithAntialiasing = true;
         this.forceCaretRendering = false;
         this.escapedSpans = new LinkedList<>();
 
@@ -205,7 +207,11 @@ public final class TextboxEditorPane extends JEditorPane
             getCaret().setVisible(true);
         }
 
-        super.paintComponent(g);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                renderTextWithAntialiasing
+                        ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+                        : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        super.paintComponent(g2d);
     }
 
     @Override
@@ -253,6 +259,7 @@ public final class TextboxEditorPane extends JEditorPane
         StyleConstants.setFontSize(styleNormal, defaultFont.getSize());
         StyleConstants.setFontFamily(styleMod, defaultFont.getFamily());
         StyleConstants.setFontSize(styleMod, defaultFont.getSize());
+        renderTextWithAntialiasing = fonts.getDefaultFontMetadata().shouldRenderWithAntialiasing();
 
         flushChanges(true);
     }

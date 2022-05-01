@@ -3,6 +3,10 @@ package adudecalledleo.tbsquared.face;
 import java.util.Collection;
 
 public interface FacePool {
+    static FacePool empty() {
+        return EmptyFacePool.INSTANCE;
+    }
+
     Collection<FaceCategory> getCategories();
 
     default FaceCategory getCategory(String name) {
