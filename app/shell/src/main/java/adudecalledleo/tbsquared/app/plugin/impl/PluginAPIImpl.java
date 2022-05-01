@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import adudecalledleo.tbsquared.app.Main;
+import adudecalledleo.tbsquared.app.Versions;
 import adudecalledleo.tbsquared.app.plugin.api.PluginAPI;
 import adudecalledleo.tbsquared.app.plugin.api.PostLoadListener;
 import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
@@ -28,7 +29,7 @@ public final class PluginAPIImpl implements PluginAPI {
 
     @Override
     public Version getVersion() {
-        return Main.PLUGIN_API_VERSION;
+        return Versions.PLUGIN_API;
     }
 
     @Override
