@@ -1,6 +1,5 @@
 package adudecalledleo.tbsquared.parse;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,16 +12,12 @@ public final class DOMParser {
 
     public static Result parse(NodeRegistry registry, SpanTracker spanTracker, String contents) {
         if (contents.isEmpty()) {
-            return Result.success(new Document());
+            return new Result(new Document(), List.of());
         }
         var ctx = new NodeParsingContext(registry, spanTracker);
         var errors = new LinkedList<DOMParser.Error>();
         var result = ctx.parse(DOMInputSanitizer.apply(contents), 0, errors);
-        if (errors.isEmpty()) {
-            return Result.success(new Document(result));
-        } else {
-            return Result.failure(errors);
-        }
+        return new Result(new Document(result), errors);
     }
 
     public static Result parse(NodeRegistry registry, String contents) {
@@ -39,23 +34,12 @@ public final class DOMParser {
         private final Document document;
         private final List<Error> errors;
 
-        private Result(Document document, List<Error> errors) {
+        public Result(Document document, List<Error> errors) {
             this.document = document;
             this.errors = errors;
         }
 
-        public static Result success(Document document) {
-            return new Result(document, List.of());
-        }
-
-        public static Result failure(Collection<Error> errors) {
-            return new Result(null, List.copyOf(errors));
-        }
-
         public Document document() {
-            if (document == null) {
-                throw new IllegalStateException("Result is a failure!");
-            }
             return document;
         }
 
