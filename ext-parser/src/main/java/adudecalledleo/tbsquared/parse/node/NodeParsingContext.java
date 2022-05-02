@@ -63,7 +63,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     Map<String, Attribute> attrs = new LinkedHashMap<>();
                     int eqIndex = name.indexOf('=');
                     int spIndex = name.indexOf(' ');
-                    if (spIndex > 0 && eqIndex > 0 && spIndex < eqIndex) {
+                    if (spIndex > 0) {
                         // standard attrs
                         String attrString = name.substring(spIndex + 1);
                         name = name.substring(0, spIndex);

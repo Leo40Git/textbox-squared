@@ -52,25 +52,18 @@ public final class StyleNode extends ContainerNode {
 
             var fontAttr = attributes.get("font");
             if (fontAttr != null) {
-                String fontStr = fontAttr.value().trim();
-                if (fontStr.isEmpty()) {
-                    errors.add(new DOMParser.Error(fontAttr.keySpan().start(),
-                            fontAttr.valueSpan().start() - fontAttr.keySpan().start(),
-                            "font cannot be blank"));
+                if (isAttributeBlank(fontAttr, errors)) {
                     return null;
                 }
-                fontKey = fontStr;
+                fontKey = fontAttr.value().trim();
             }
 
             var sizeAttr = attributes.get("size");
             if (sizeAttr != null) {
-                String sizeStr = sizeAttr.value().trim();
-                if (sizeStr.isEmpty()) {
-                    errors.add(new DOMParser.Error(sizeAttr.keySpan().start(),
-                            sizeAttr.valueSpan().start() - sizeAttr.keySpan().start(),
-                            "size cannot be blank"));
+                if (isAttributeBlank(sizeAttr, errors)) {
                     return null;
                 }
+                String sizeStr = sizeAttr.value().trim();
                 char firstChar = sizeStr.charAt(0);
                 if (firstChar != '-' && firstChar != '+') {
                     errors.add(new DOMParser.Error(sizeAttr.valueSpan().start(), sizeAttr.valueSpan().length(),
@@ -88,15 +81,11 @@ public final class StyleNode extends ContainerNode {
 
             var colorAttr = attributes.get("color");
             if (colorAttr != null) {
-                String colorStr = colorAttr.value().trim();
-                if (colorStr.isEmpty()) {
-                    errors.add(new DOMParser.Error(colorAttr.keySpan().start(),
-                            colorAttr.valueSpan().start() - colorAttr.keySpan().start(),
-                            "color cannot be blank"));
+                if (isAttributeBlank(colorAttr, errors)) {
                     return null;
                 }
                 try {
-                    color = ColorSelector.parse(colorStr);
+                    color = ColorSelector.parse(colorAttr.value().trim());
                 } catch (IllegalArgumentException e) {
                     errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                     return null;

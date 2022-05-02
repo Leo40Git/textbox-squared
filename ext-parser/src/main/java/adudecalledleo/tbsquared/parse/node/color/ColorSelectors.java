@@ -67,7 +67,7 @@ final class ColorSelectors {
                 }
             }
         }
-        throw new IllegalArgumentException("unknown selector \"%s\"".formatted(value));
+        throw new IllegalArgumentException("unknown color selector \"%s\"".formatted(value));
     }
 
     private static int parseRGBComponent(String str, String name) {

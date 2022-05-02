@@ -38,15 +38,19 @@ public final class ColorNode extends ContainerNode {
                 return null;
             }
 
-            ColorSelector colorSelector;
+            if (isAttributeBlank(colorAttr, errors)) {
+                return null;
+            }
+
+            ColorSelector color;
             try {
-                colorSelector = ColorSelector.parse(colorAttr.value());
+                color = ColorSelector.parse(colorAttr.value().trim());
             } catch (IllegalArgumentException e) {
                 errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                 return null;
             }
 
-            return new ColorNode(colorSelector, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
+            return new ColorNode(color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override
