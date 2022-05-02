@@ -61,6 +61,7 @@ public final class TextboxEditorPane extends JEditorPane
     private FontProvider fonts;
     private boolean renderTextWithAntialiasing;
     private Palette palette;
+    private Color defaultTextColor;
     private boolean forceCaretRendering;
     private final List<Span> escapedSpans;
 
@@ -254,9 +255,9 @@ public final class TextboxEditorPane extends JEditorPane
 
         ctx.set(ColorSelector.PALETTE, palette);
 
-        Color defaultColor = newProvider.getTextboxTextColor();
-        setCaretColor(defaultColor);
-        StyleConstants.setForeground(styleNormal, defaultColor);
+        defaultTextColor = newProvider.getTextboxTextColor();
+        setCaretColor(defaultTextColor);
+        StyleConstants.setForeground(styleNormal, defaultTextColor);
 
         var defaultFont = fonts.getDefaultBaseFont();
         StyleConstants.setFontFamily(styleNormal, defaultFont.getFamily());
@@ -279,8 +280,10 @@ public final class TextboxEditorPane extends JEditorPane
 
             var result = DOMParser.parse(NodeRegistry.getDefault(), this, getText());
 
+            highlight0(doc, result.document().getChildren(), style, styleEscaped);
+            highlightRemainingEscaped(doc);
+
             if (result.hasErrors()) {
-                highlightEscapesUncolored(doc);
                 for (var error : result.errors()) {
                     try {
                         Rectangle2D startRect, endRect;
@@ -292,7 +295,7 @@ public final class TextboxEditorPane extends JEditorPane
                                         endRect.getX() - startRect.getX(), Math.max(startRect.getHeight(), endRect.getHeight())),
                                 error.message());
                     } catch (BadLocationException e) {
-                        LOGGER.error("Failed to generate tooltip bounds for error", e);
+                        LOGGER.info("Failed to generate tooltip bounds for error", e);
                     }
 
                     try {
@@ -302,9 +305,6 @@ public final class TextboxEditorPane extends JEditorPane
                         LOGGER.info("Failed to properly highlight error", e);
                     }
                 }
-            } else {
-                highlight0(doc, result.document().getChildren(), style, styleEscaped);
-                highlightEscapesUncolored(doc);
             }
         }
     }
@@ -313,19 +313,6 @@ public final class TextboxEditorPane extends JEditorPane
     public void markEscaped(int start, int end) {
         LOGGER.info("adding escaped span - {}, {}", start, end);
         this.escapedSpans.add(new Span(start, end - start));
-    }
-
-    private void highlightEscapesUncolored(StyledDocument doc) {
-        var hl = getEscapedColorHighlightPainter(StyleConstants.getForeground(styleNormal));
-        for (var span : escapedSpans) {
-            doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
-            try {
-                getHighlighter().addHighlight(span.start(), span.end(), hl);
-            } catch (BadLocationException e) {
-                LOGGER.info("Failed to add highlighter for escaped color", e);
-            }
-        }
-        escapedSpans.clear();
     }
 
     private void highlight0(StyledDocument doc, List<Node> nodes, MutableAttributeSet style, MutableAttributeSet styleEscaped) {
@@ -414,6 +401,19 @@ public final class TextboxEditorPane extends JEditorPane
                 highlight0(doc, container.getChildren(), style, styleEscaped);
             }
         }
+    }
+
+    private void highlightRemainingEscaped(StyledDocument doc) {
+        var hl = getEscapedColorHighlightPainter(defaultTextColor);
+        for (var span : escapedSpans) {
+            doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
+            try {
+                getHighlighter().addHighlight(span.start(), span.end(), hl);
+            } catch (BadLocationException e) {
+                LOGGER.info("Failed to add highlighter for escaped color", e);
+            }
+        }
+        escapedSpans.clear();
     }
 
     private static final class StyledDocumentImpl extends DefaultStyledDocument {

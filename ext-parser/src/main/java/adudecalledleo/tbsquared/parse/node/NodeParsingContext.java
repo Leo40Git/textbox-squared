@@ -45,7 +45,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     scanner.next();
                     String name = scanner.until(']')
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.end(),
+                                errors.add(new DOMParser.Error(offset + scanner.tell(), scanner.remaining() + 1,
                                         "malformed opening tag"));
                                 return "";
                             })
@@ -58,6 +58,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
 
                     openEnd = offset + scanner.tell();
                     openStart = offset + openEnd - name.length() - 2;
+                    final String openingTagContents = name;
 
                     Map<String, Attribute> attrs = new LinkedHashMap<>();
                     int eqIndex = name.indexOf('=');
@@ -85,22 +86,22 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     var handler = registry.getHandler(name);
                     if (handler == null) {
                         int nameStart = openStart + 1;
-                        int nameEnd = nameStart;
+                        int nameLength = 0;
                         if (spIndex > 0) {
-                            nameEnd += spIndex - 1;
+                            nameLength = spIndex;
                         } else if (eqIndex > 0) {
-                            nameEnd += eqIndex - 1;
+                            nameLength = eqIndex;
                         } else {
-                            nameEnd += name.length();
+                            nameLength = name.length();
                         }
-                        errors.add(new DOMParser.Error(nameStart, nameEnd,
+                        errors.add(new DOMParser.Error(nameStart, nameLength,
                                 "unknown tag \"" + name + "\""));
                     }
                     final int contentStart = scanner.tell();
                     final String nameF = name;
                     String myContents = scanner.until("[/%s]".formatted(name))
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(offset + scanner.tell(), offset + scanner.tell() + scanner.remaining() - 1,
+                                errors.add(new DOMParser.Error(offset + scanner.tell(), scanner.remaining() + 1,
                                         "missing closing tag for \"" + nameF + "\""));
                                 return null;
                             });
@@ -110,6 +111,10 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                                 new Span(openStart, openEnd - openStart),
                                 new Span(offset + scanner.tell() - name.length() - 3, name.length() + 3),
                                 attrs, myContents));
+                    } else  {
+                        sb.append('[').append(openingTagContents).append(']');
+                        if (myContents != null)
+                            sb.append(myContents).append("[/").append(name).append(']');
                     }
 
                     spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length() - 3, offset + scanner.tell() + 3);
@@ -218,7 +223,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
             try {
                 key = toAttributeKey(contents.substring(0, eqIndex));
             } catch (IllegalArgumentException ignored) {
-                errors.add(new DOMParser.Error(offset + entry.start(), offset + entry.start() + eqIndex - 1,
+                errors.add(new DOMParser.Error(offset + entry.start(), 1,
                         "got '=' without key"));
                 continue;
             }
@@ -288,7 +293,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                                            DOMParser.SpanTracker spanTracker, int offset,
                                            StringScanner scanner, StringBuilder sb) {
         String charIdStr = scanner.read(4).orElseGet(() -> {
-            errors.add(new DOMParser.Error(offset + scanner.tell() - 2, offset + scanner.tell(),
+            errors.add(new DOMParser.Error(offset + scanner.tell() - 2, 2,
                     "unicode escape has <4 digits"));
             sb.append("\\u");
             return "";
@@ -301,7 +306,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
         try {
             charId = Integer.parseUnsignedInt(charIdStr, 16);
         } catch (NumberFormatException ignored) {
-            errors.add(new DOMParser.Error(offset + scanner.tell() - 6, offset + scanner.tell(),
+            errors.add(new DOMParser.Error(offset + scanner.tell() - 6, 6,
                     "unicode escape is not valid hex number"));
             sb.append("\\u").append(charIdStr);
             return;

@@ -22,8 +22,7 @@ public final class ZigZagHighlighter extends DefaultHighlighter.DefaultHighlight
 
         if (color == null) {
             g.setColor(c.getSelectionColor());
-        }
-        else {
+        } else {
             g.setColor(color);
         }
 
@@ -44,14 +43,14 @@ public final class ZigZagHighlighter extends DefaultHighlighter.DefaultHighlight
         int x1 = rect.x;
         int x2 = x1 + rect.width - 1;
         int y = rect.y + rect.height - 1;
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(STROKE_1);
-        g2.drawLine(x1, y, x2, y);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(STROKE_1);
+        g2d.drawLine(x1, y, x2, y);
         y--;
-        g2.setStroke(STROKE_2);
-        g2.drawLine(x1, y, x2, y);
+        g2d.setStroke(STROKE_2);
+        g2d.drawLine(x1, y, x2, y);
         y--;
-        g2.setStroke(STROKE_3);
-        g2.drawLine(x1, y, x2, y);
+        g2d.setStroke(STROKE_3);
+        g2d.drawLine(x1, y, x2, y);
     }
 }

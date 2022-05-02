@@ -24,9 +24,9 @@ public final class DOMParser {
         return parse(registry, SpanTracker.NO_OP, contents);
     }
 
-    public record Error(int start, int end, String message) {
-        public int length() {
-            return end - start;
+    public record Error(int start, int length, String message) {
+        public int end() {
+            return start + length;
         }
     }
 
