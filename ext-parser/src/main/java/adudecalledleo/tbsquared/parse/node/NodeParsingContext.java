@@ -123,7 +123,8 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                             sb.append(myContents).append("[/").append(name).append(']');
                     }
 
-                    spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length() - 3, offset + scanner.tell() + 3);
+                    if (myContents != null)
+                        spanTracker.markNodeDeclClosing(name, offset + scanner.tell() - name.length() - 3, offset + scanner.tell());
                 }
                 default -> {
                     sb.append(c);

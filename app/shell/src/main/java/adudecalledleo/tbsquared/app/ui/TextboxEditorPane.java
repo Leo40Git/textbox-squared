@@ -3,11 +3,10 @@ package adudecalledleo.tbsquared.app.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.swing.Timer;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -64,6 +63,7 @@ public final class TextboxEditorPane extends JEditorPane
     private Color defaultTextColor;
     private boolean forceCaretRendering;
     private final List<Span> escapedSpans;
+    private final Set<Span> nodeDeclSpans;
 
     public TextboxEditorPane(TextUpdatedListener textUpdatedListener) {
         this.textUpdatedListener = textUpdatedListener;
@@ -143,6 +143,7 @@ public final class TextboxEditorPane extends JEditorPane
         this.renderTextWithAntialiasing = true;
         this.forceCaretRendering = false;
         this.escapedSpans = new LinkedList<>();
+        this.nodeDeclSpans = new HashSet<>();
 
         highlight();
     }
@@ -281,7 +282,7 @@ public final class TextboxEditorPane extends JEditorPane
             var result = DOMParser.parse(NodeRegistry.getDefault(), this, getText());
 
             highlight0(doc, result.document().getChildren(), style, styleEscaped);
-            highlightRemainingEscaped(doc);
+            highlightTrackedSpans(doc);
 
             if (result.hasErrors()) {
                 for (var error : result.errors()) {
@@ -300,7 +301,6 @@ public final class TextboxEditorPane extends JEditorPane
 
                     try {
                         getHighlighter().addHighlight(error.start(), error.end(), HLP_ERROR);
-                        doc.setCharacterAttributes(error.start(), error.length(), styleNormal, true);
                     } catch (BadLocationException e) {
                         LOGGER.info("Failed to properly highlight error", e);
                     }
@@ -315,6 +315,11 @@ public final class TextboxEditorPane extends JEditorPane
         this.escapedSpans.add(new Span(start, end - start));
     }
 
+    @Override
+    public void markNodeDecl(String node, int start, int end) {
+        this.nodeDeclSpans.add(new Span(start, end - start));
+    }
+
     private void highlight0(StyledDocument doc, List<Node> nodes, MutableAttributeSet style, MutableAttributeSet styleEscaped) {
         var oldStyle = style;
         var oldStyleEscaped = styleEscaped;
@@ -327,6 +332,8 @@ public final class TextboxEditorPane extends JEditorPane
             if (!opening.isValid() || !closing.isValid()) {
                 continue;
             }
+            nodeDeclSpans.remove(opening);
+            nodeDeclSpans.remove(closing);
             doc.setCharacterAttributes(opening.start(), opening.length(), styleMod, true);
             doc.setCharacterAttributes(closing.start(), closing.length(), styleMod, true);
             if (node instanceof ColorNode nColor) {
@@ -403,7 +410,7 @@ public final class TextboxEditorPane extends JEditorPane
         }
     }
 
-    private void highlightRemainingEscaped(StyledDocument doc) {
+    private void highlightTrackedSpans(StyledDocument doc) {
         var hl = getEscapedColorHighlightPainter(defaultTextColor);
         for (var span : escapedSpans) {
             doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
@@ -414,6 +421,11 @@ public final class TextboxEditorPane extends JEditorPane
             }
         }
         escapedSpans.clear();
+
+        for (var span : nodeDeclSpans) {
+            doc.setCharacterAttributes(span.start(), span.length(), styleMod, true);
+        }
+        nodeDeclSpans.clear();
     }
 
     private static final class StyledDocumentImpl extends DefaultStyledDocument {
