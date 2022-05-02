@@ -16,7 +16,6 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
         final var scanner = new StringScanner(contents);
         final var sb = new StringBuilder();
         boolean escaped = false;
-        int openStart, openEnd;
         char c;
         while ((c = scanner.peek()) != StringScanner.EOF) {
             if (escaped) {
@@ -56,8 +55,8 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                         continue;
                     }
 
-                    openEnd = offset + scanner.tell();
-                    openStart = offset + openEnd - name.length() - 2;
+                    final int openEnd = offset + scanner.tell();
+                    final int openStart = offset + openEnd - name.length() - 2;
                     final String openingTagContents = name;
 
                     Map<String, Attribute> attrs = new LinkedHashMap<>();
@@ -101,7 +100,7 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                     final String nameF = name;
                     String myContents = scanner.until("[/%s]".formatted(name))
                             .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(offset + scanner.tell(), scanner.remaining() + 1,
+                                errors.add(new DOMParser.Error(openStart, openEnd - openStart + scanner.remaining() + 1,
                                         "missing closing tag for \"" + nameF + "\""));
                                 return null;
                             });

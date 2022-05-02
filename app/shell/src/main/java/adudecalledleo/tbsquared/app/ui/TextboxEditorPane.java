@@ -17,6 +17,7 @@ import adudecalledleo.tbsquared.app.ui.listener.SceneRendererUpdatedListener;
 import adudecalledleo.tbsquared.app.ui.listener.TextUpdatedListener;
 import adudecalledleo.tbsquared.app.ui.text.UnderlineHighlighter;
 import adudecalledleo.tbsquared.app.ui.text.ZigZagHighlighter;
+import adudecalledleo.tbsquared.app.ui.util.ErrorMessageBuilder;
 import adudecalledleo.tbsquared.app.ui.util.UnmodifiableAttributeSetView;
 import adudecalledleo.tbsquared.color.Palette;
 import adudecalledleo.tbsquared.data.DefaultMutableDataTracker;
@@ -222,13 +223,22 @@ public final class TextboxEditorPane extends JEditorPane
 
     @Override
     public String getToolTipText(MouseEvent event) {
+        ErrorMessageBuilder emb = null;
         var point = event.getPoint();
         for (var entry : errors.entrySet()) {
             if (entry.getKey().contains(point.x, point.y)) {
-                return entry.getValue();
+                if (emb == null) {
+                    emb = new ErrorMessageBuilder(entry.getValue());
+                } else {
+                    emb.add(entry.getValue());
+                }
             }
         }
-        return null;
+        if (emb == null) {
+            return null;
+        } else {
+            return emb.toString();
+        }
     }
 
     public void flushChanges(boolean highlight) {
@@ -292,9 +302,9 @@ public final class TextboxEditorPane extends JEditorPane
                         startRect = modelToView2D(error.start());
                         endRect = modelToView2D(error.end());
 
-                        errors.put(new Rectangle2D.Double(startRect.getX(), startRect.getY(),
-                                        endRect.getX() - startRect.getX(), Math.max(startRect.getHeight(), endRect.getHeight())),
-                                error.message());
+                        var errorRect = new Rectangle2D.Double(startRect.getX(), startRect.getY(),
+                                endRect.getX() - startRect.getX(), Math.max(startRect.getHeight(), endRect.getHeight()));
+                        errors.put(errorRect, error.message() + " (" + (error.start() + 1) + "-" + (error.end() + 1) + ")");
                     } catch (BadLocationException e) {
                         LOGGER.info("Failed to generate tooltip bounds for error", e);
                     }
