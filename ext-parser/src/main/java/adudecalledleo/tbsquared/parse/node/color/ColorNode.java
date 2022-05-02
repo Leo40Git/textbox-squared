@@ -7,6 +7,7 @@ import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.text.TextBuilder;
+import org.jetbrains.annotations.Nullable;
 
 public final class ColorNode extends ContainerNode {
     public static final String NAME = "color";
@@ -29,13 +30,23 @@ public final class ColorNode extends ContainerNode {
 
     private static final class Handler implements NodeHandler<ColorNode> {
         @Override
-        public ColorNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors,
-                               Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
+        public @Nullable ColorNode parse(NodeParsingContext ctx, int offset, List<DOMParser.Error> errors,
+                                         Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
             var colorAttr = attributes.get("value");
             if (colorAttr == null) {
-                throw new IllegalArgumentException("Missing required attribute \"value\"");
+                errors.add(new DOMParser.Error(openingSpan.start(), openingSpan.length(), "Missing required attribute \"value\""));
+                return null;
             }
-            return new ColorNode(ColorSelector.parse(colorAttr.value()), openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
+
+            ColorSelector colorSelector;
+            try {
+                colorSelector = ColorSelector.parse(colorAttr.value());
+            } catch (IllegalArgumentException e) {
+                errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
+                return null;
+            }
+
+            return new ColorNode(colorSelector, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override

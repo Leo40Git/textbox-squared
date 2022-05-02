@@ -106,12 +106,18 @@ public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker sp
                                 return null;
                             });
 
+                    boolean success = false;
                     if (handler != null && myContents != null) {
-                        nodes.add(handler.parse(this, offset + contentStart, errors,
+                        var node = handler.parse(this, offset + contentStart, errors,
                                 new Span(openStart, openEnd - openStart),
                                 new Span(offset + scanner.tell() - name.length() - 3, name.length() + 3),
-                                attrs, myContents));
-                    } else  {
+                                attrs, myContents);
+                        if (node != null) {
+                            success = true;
+                            nodes.add(node);
+                        }
+                    }
+                    if (!success) {
                         sb.append('[').append(openingTagContents).append(']');
                         if (myContents != null)
                             sb.append(myContents).append("[/").append(name).append(']');

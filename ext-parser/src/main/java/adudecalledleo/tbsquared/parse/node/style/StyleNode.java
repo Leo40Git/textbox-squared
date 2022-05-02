@@ -54,7 +54,10 @@ public final class StyleNode extends ContainerNode {
             if (fontAttr != null) {
                 String fontStr = fontAttr.value().trim();
                 if (fontStr.isEmpty()) {
-                    throw new IllegalArgumentException("font cannot be blank");
+                    errors.add(new DOMParser.Error(fontAttr.keySpan().start(),
+                            fontAttr.valueSpan().start() - fontAttr.keySpan().start(),
+                            "font cannot be blank"));
+                    return null;
                 }
                 fontKey = fontStr;
             }
@@ -63,22 +66,41 @@ public final class StyleNode extends ContainerNode {
             if (sizeAttr != null) {
                 String sizeStr = sizeAttr.value().trim();
                 if (sizeStr.isEmpty()) {
-                    throw new IllegalArgumentException("size cannot be blank");
+                    errors.add(new DOMParser.Error(sizeAttr.keySpan().start(),
+                            sizeAttr.valueSpan().start() - sizeAttr.keySpan().start(),
+                            "size cannot be blank"));
+                    return null;
                 }
                 char firstChar = sizeStr.charAt(0);
                 if (firstChar != '-' && firstChar != '+') {
-                    throw new IllegalArgumentException("size must start with + or -");
+                    errors.add(new DOMParser.Error(sizeAttr.valueSpan().start(), sizeAttr.valueSpan().length(),
+                            "size must start with + or -"));
+                    return null;
                 }
                 try {
                     size = Integer.parseInt(sizeStr);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("size must be a valid integer", e);
+                    errors.add(new DOMParser.Error(sizeAttr.valueSpan().start(), sizeAttr.valueSpan().length(),
+                            "size must be a valid integer"));
+                    return null;
                 }
             }
 
             var colorAttr = attributes.get("color");
             if (colorAttr != null) {
-                color = ColorSelector.parse(colorAttr.value());
+                String colorStr = colorAttr.value().trim();
+                if (colorStr.isEmpty()) {
+                    errors.add(new DOMParser.Error(colorAttr.keySpan().start(),
+                            colorAttr.valueSpan().start() - colorAttr.keySpan().start(),
+                            "color cannot be blank"));
+                    return null;
+                }
+                try {
+                    color = ColorSelector.parse(colorStr);
+                } catch (IllegalArgumentException e) {
+                    errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
+                    return null;
+                }
             }
 
             return new StyleNode(fontKey, size, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
