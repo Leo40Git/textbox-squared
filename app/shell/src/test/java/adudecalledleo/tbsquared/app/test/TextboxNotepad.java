@@ -10,6 +10,7 @@ import adudecalledleo.tbsquared.app.ui.TextboxEditorPane;
 public final class TextboxNotepad {
     public static void main(String[] args) {
         Bootstrap.initPlugins();
+        Bootstrap.setSystemLookAndFeel();
 
         TextboxEditorPane notepad = new TextboxEditorPane(newText -> { });
         notepad.onSceneRendererUpdated(TestSceneRendererProvider.INSTANCE);
@@ -22,5 +23,6 @@ public final class TextboxNotepad {
         frame.setContentPane(panel);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        frame.requestFocus();
     }
 }

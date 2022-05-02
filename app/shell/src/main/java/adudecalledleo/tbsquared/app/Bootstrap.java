@@ -2,6 +2,8 @@ package adudecalledleo.tbsquared.app;
 
 import java.nio.file.Paths;
 
+import javax.swing.*;
+
 import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
 import adudecalledleo.tbsquared.app.plugin.impl.PluginAPIImpl;
 import adudecalledleo.tbsquared.app.plugin.impl.renderer.SceneRendererProviderRegistry;
@@ -30,5 +32,18 @@ public final class Bootstrap {
             SceneRendererProviderRegistry.register(provider);
         }
         PluginAPIImpl.INSTANCE.executePostLoadListeners(pluginManager);
+    }
+
+    public static void setSystemLookAndFeel() {
+        if (Boolean.getBoolean("textbox-squared.useDefaultL&F")) {
+            return;
+        }
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException e) {
+            LOGGER.error("Failed to set system Look & Feel!", e);
+        }
     }
 }
