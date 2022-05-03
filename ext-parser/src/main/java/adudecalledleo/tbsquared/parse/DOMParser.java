@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.parse;
 import java.util.LinkedList;
 import java.util.List;
 
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.parse.node.Document;
 import adudecalledleo.tbsquared.parse.node.NodeParsingContext;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
@@ -10,18 +11,18 @@ import adudecalledleo.tbsquared.parse.node.NodeRegistry;
 public final class DOMParser {
     private DOMParser() { }
 
-    public static Result parse(NodeRegistry registry, SpanTracker spanTracker, String contents) {
+    public static Result parse(NodeRegistry registry, String contents, DataTracker metadata, SpanTracker spanTracker) {
         if (contents.isEmpty()) {
             return new Result(new Document(), List.of());
         }
-        var ctx = new NodeParsingContext(registry, spanTracker);
+        var ctx = new NodeParsingContext(registry, metadata, spanTracker);
         var errors = new LinkedList<DOMParser.Error>();
         var result = ctx.parse(DOMInputSanitizer.apply(contents), 0, errors);
         return new Result(new Document(result), errors);
     }
 
-    public static Result parse(NodeRegistry registry, String contents) {
-        return parse(registry, SpanTracker.NO_OP, contents);
+    public static Result parse(NodeRegistry registry, String contents, DataTracker metadata) {
+        return parse(registry, contents, metadata, SpanTracker.NO_OP);
     }
 
     public record Error(int start, int length, String message) {
@@ -30,25 +31,9 @@ public final class DOMParser {
         }
     }
 
-    public static final class Result {
-        private final Document document;
-        private final List<Error> errors;
-
-        public Result(Document document, List<Error> errors) {
-            this.document = document;
-            this.errors = errors;
-        }
-
-        public Document document() {
-            return document;
-        }
-
+    public record Result(Document document, List<Error> errors) {
         public boolean hasErrors() {
             return !errors.isEmpty();
-        }
-
-        public List<Error> errors() {
-            return errors;
         }
     }
 

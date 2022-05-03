@@ -2,11 +2,12 @@ package adudecalledleo.tbsquared.parse.node;
 
 import java.util.*;
 
+import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.util.StringScanner;
 import adudecalledleo.tbsquared.text.Span;
 
-public record NodeParsingContext(NodeRegistry registry, DOMParser.SpanTracker spanTracker) {
+public record NodeParsingContext(NodeRegistry registry, DataTracker metadata, DOMParser.SpanTracker spanTracker) {
     public List<Node> parse(String contents, int offset, List<DOMParser.Error> errors) {
         if (contents.isEmpty()) {
             return List.of();

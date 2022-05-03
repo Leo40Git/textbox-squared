@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 public interface ColorSelector {
     DataKey<Palette> PALETTE = new DataKey<>(Palette.class, "palette");
 
-    static ColorSelector parse(String value) {
-        return ColorSelectors.parse(value);
+    static ColorSelector parse(DataTracker ctx, String value) {
+        return ColorSelectors.parse(ctx, value);
     }
 
     @Nullable Color getColor(DataTracker ctx);

@@ -3,6 +3,8 @@ package adudecalledleo.tbsquared.parse.node.style;
 import java.util.List;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.data.DataKey;
+import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
 import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
@@ -11,6 +13,8 @@ import adudecalledleo.tbsquared.text.TextBuilder;
 import org.jetbrains.annotations.Nullable;
 
 public final class StyleNode extends ContainerNode {
+    public static final DataKey<FontProvider> FONTS = new DataKey<>(FontProvider.class, "fonts");
+
     public static final String NAME = "style";
     public static final NodeHandler<StyleNode> HANDLER = new Handler();
 
@@ -55,7 +59,18 @@ public final class StyleNode extends ContainerNode {
                 if (isAttributeBlank(fontAttr, errors)) {
                     return null;
                 }
-                fontKey = fontAttr.value().trim();
+
+                final var fontStr = fontAttr.value().trim();
+
+                var fonts = ctx.metadata().get(FONTS).orElse(null);
+                if (fonts != null) {
+                    if (!fonts.hasFontKey(fontStr)) {
+                        errors.add(new DOMParser.Error(fontAttr.valueSpan().start(), fontAttr.valueSpan().length(),
+                                "unknown font \"" + fontStr + "\""));
+                    }
+                }
+
+                fontKey = fontStr;
             }
 
             var sizeAttr = attributes.get("size");
@@ -85,7 +100,7 @@ public final class StyleNode extends ContainerNode {
                     return null;
                 }
                 try {
-                    color = ColorSelector.parse(colorAttr.value().trim());
+                    color = ColorSelector.parse(ctx.metadata(), colorAttr.value().trim());
                 } catch (IllegalArgumentException e) {
                     errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                     return null;

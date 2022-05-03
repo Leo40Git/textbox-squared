@@ -80,7 +80,12 @@ public final class RPGMakerExtensionTest {
         var pal = winSkin.getPalette();
 
         var result = DOMParser.parse(NodeRegistry.getDefault(),
-                new DOMParser.SpanTracker() {
+                """
+                Mercia:
+                [color=palette(25)]Hold on.
+                [i]What?[/i][/color] \\u0123
+                [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
+                """, DataTracker.empty(), new DOMParser.SpanTracker() {
                     @Override
                     public void markEscaped(int start, int end) {
                         System.out.format("ESCAPE - %d to %d%n", start, end);
@@ -101,13 +106,8 @@ public final class RPGMakerExtensionTest {
                         System.out.format("NODE ATTR - node %s, %s (%d to %d) = %s (%d to %d)%n",
                                 node, key, keyStart, keyEnd, value, valueStart, valueEnd);
                     }
-                },
-                        """
-                        Mercia:
-                        [color=palette(25)]Hold on.
-                        [i]What?[/i][/color] \\u0123
-                        [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
-                        """);
+                }
+        );
 
         if (result.hasErrors()) {
             System.out.format("%d error(s) while parsing:%n", result.errors().size());

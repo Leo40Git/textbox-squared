@@ -44,7 +44,7 @@ public final class ColorNode extends ContainerNode {
 
             ColorSelector color;
             try {
-                color = ColorSelector.parse(colorAttr.value().trim());
+                color = ColorSelector.parse(ctx.metadata(), colorAttr.value().trim());
             } catch (IllegalArgumentException e) {
                 errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                 return null;

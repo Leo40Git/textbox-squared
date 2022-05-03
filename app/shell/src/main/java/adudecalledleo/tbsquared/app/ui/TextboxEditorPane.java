@@ -56,7 +56,7 @@ public final class TextboxEditorPane extends JEditorPane
     private final SimpleAttributeSet styleNormal, styleMod;
     private final JPopupMenu popupMenu;
 
-    private final MutableDataTracker ctx;
+    private final MutableDataTracker domMeta;
     private BackgroundRenderer backgroundRenderer;
     private FontProvider fonts;
     private boolean renderTextWithAntialiasing;
@@ -140,7 +140,7 @@ public final class TextboxEditorPane extends JEditorPane
             }
         });
 
-        this.ctx = new DefaultMutableDataTracker();
+        this.domMeta = new DefaultMutableDataTracker();
         this.renderTextWithAntialiasing = true;
         this.forceCaretRendering = false;
         this.escapedSpans = new LinkedList<>();
@@ -264,7 +264,9 @@ public final class TextboxEditorPane extends JEditorPane
         fonts = newProvider.getTextboxFonts();
         palette = newProvider.getTextboxPalette().orElse(null);
 
-        ctx.set(ColorSelector.PALETTE, palette);
+        domMeta
+                .set(ColorSelector.PALETTE, palette)
+                .set(StyleNode.FONTS, fonts);
 
         defaultTextColor = newProvider.getTextboxTextColor();
         setCaretColor(defaultTextColor);
@@ -289,7 +291,7 @@ public final class TextboxEditorPane extends JEditorPane
             doc.setCharacterAttributes(0, doc.getLength(), style, true);
             getHighlighter().removeAllHighlights();
 
-            var result = DOMParser.parse(NodeRegistry.getDefault(), this, getText());
+            var result = DOMParser.parse(NodeRegistry.getDefault(), getText(), domMeta, this);
 
             highlight0(doc, result.document().getChildren(), style, styleEscaped);
             highlightTrackedSpans(doc);
@@ -347,7 +349,7 @@ public final class TextboxEditorPane extends JEditorPane
             doc.setCharacterAttributes(opening.start(), opening.length(), styleMod, true);
             doc.setCharacterAttributes(closing.start(), closing.length(), styleMod, true);
             if (node instanceof ColorNode nColor) {
-                var color = nColor.getSelector().getColor(this.ctx);
+                var color = nColor.getSelector().getColor(this.domMeta);
 
                 var attr = nColor.getAttributes().get("value");
                 if (attr != null) {
@@ -364,7 +366,7 @@ public final class TextboxEditorPane extends JEditorPane
                 Integer size = nStyle.getSize();
                 Color color = null;
                 if (nStyle.getColorSelector() != null) {
-                    color = nStyle.getColorSelector().getColor(this.ctx);
+                    color = nStyle.getColorSelector().getColor(this.domMeta);
 
                     var colorAttr = nStyle.getAttributes().get("color");
                     if (colorAttr != null) {

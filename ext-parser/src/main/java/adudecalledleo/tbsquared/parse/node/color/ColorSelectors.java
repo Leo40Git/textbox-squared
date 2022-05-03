@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 final class ColorSelectors {
     private ColorSelectors() { }
 
-    public static ColorSelector parse(String value) {
+    public static ColorSelector parse(DataTracker ctx, String value) {
         if (value.startsWith("#")) {
             value = value.substring(1);
             int hexLen = value.length();
@@ -48,11 +48,19 @@ final class ColorSelectors {
                 value = value.substring(0, obIdx).trim();
                 /// function-like - value is function name
                 if (PalIdxSelector.NAME.equals(value)) {
+                    if (!ctx.containsKey(ColorSelector.PALETTE)) {
+                        throw new IllegalArgumentException("no palette exists");
+                    }
+                    @SuppressWarnings("OptionalGetWithoutIsPresent") // checked above
+                    var pal = ctx.get(ColorSelector.PALETTE).get();
                     int palIdx;
                     try {
                         palIdx = Integer.parseUnsignedInt(argsStr);
                     } catch (NumberFormatException e) {
                         throw new IllegalArgumentException("failed to parse palette index", e);
+                    }
+                    if (palIdx >= pal.getSize()) {
+                        throw new IllegalArgumentException("palette index is out of bounds (must be below " + pal.getSize() + ")");
                     }
                     return new PalIdxSelector(palIdx);
                 } else if ("rgb".equals(value)) {
@@ -128,9 +136,9 @@ final class ColorSelectors {
         @Override
         public Color getColor(DataTracker ctx) {
             var pal = ctx.get(PALETTE)
-                    .orElseThrow(() -> new IllegalArgumentException("palette reference is unsupported"));
+                    .orElseThrow(() -> new IllegalArgumentException("no palette exists"));
             if (palIdx >= pal.getSize()) {
-                throw new IllegalArgumentException("palette index is too high");
+                throw new IllegalArgumentException("palette index is out of bounds");
             }
             return pal.getColor(palIdx);
         }
