@@ -1,5 +1,6 @@
 package adudecalledleo.tbsquared.parse.node.style;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -7,7 +8,7 @@ import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.*;
-import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.parse.node.color.ColorParser;
 import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.text.TextBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -24,14 +25,17 @@ public final class StyleNode extends ContainerNode {
 
     private final @Nullable String fontKey;
     private final @Nullable Integer size;
-    private final @Nullable ColorSelector colorSelector;
+    private final boolean colorSet;
+    private final @Nullable Color color;
 
-    public StyleNode(@Nullable String fontKey, @Nullable Integer size, @Nullable ColorSelector colorSelector,
+    public StyleNode(@Nullable String fontKey, @Nullable Integer size,
+                     boolean colorSet, @Nullable Color color,
                      Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
         super(NAME, openingSpan, closingSpan, attributes, children);
         this.fontKey = fontKey;
         this.size = size;
-        this.colorSelector = colorSelector;
+        this.colorSet = colorSet;
+        this.color = color;
     }
 
     public @Nullable String getFontKey() {
@@ -42,8 +46,12 @@ public final class StyleNode extends ContainerNode {
         return size;
     }
 
-    public @Nullable ColorSelector getColorSelector() {
-        return colorSelector;
+    public boolean isColorSet() {
+        return colorSet;
+    }
+
+    public @Nullable Color getColor() {
+        return color;
     }
 
     private static final class Handler implements NodeHandler<StyleNode> {
@@ -52,7 +60,8 @@ public final class StyleNode extends ContainerNode {
                                Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, String contents) {
             @Nullable String fontKey = null;
             @Nullable Integer size = null;
-            @Nullable ColorSelector color = null;
+            boolean colorSet = false;
+            @Nullable Color color = null;
 
             var fontAttr = attributes.get("font");
             if (fontAttr != null) {
@@ -100,25 +109,25 @@ public final class StyleNode extends ContainerNode {
                     return null;
                 }
                 try {
-                    color = ColorSelector.parse(ctx.metadata(), colorAttr.value().trim());
+                    color = ColorParser.parseColor(ctx.metadata(), colorAttr.value().trim());
                 } catch (IllegalArgumentException e) {
                     errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                     return null;
                 }
+                colorSet = true;
             }
 
-            return new StyleNode(fontKey, size, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
+            return new StyleNode(fontKey, size, colorSet, color, openingSpan, closingSpan, attributes, ctx.parse(contents, offset, errors));
         }
 
         @Override
         public void convert(NodeConversionContext ctx, StyleNode node, TextBuilder tb) {
             tb.pushStyle(style -> {
-                if (node.getColorSelector() != null) {
-                    var color = node.getColorSelector().getColor(ctx.metadata());
-                    if (color == null) {
+                if (node.isColorSet()) {
+                    if (node.getColor() == null) {
                         return style.withDefaultColor();
                     } else {
-                        return style.withColor(color);
+                        return style.withColor(node.getColor());
                     }
                 }
                 if (node.getFontKey() != null) {

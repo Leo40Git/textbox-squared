@@ -28,7 +28,7 @@ import adudecalledleo.tbsquared.parse.node.ContainerNode;
 import adudecalledleo.tbsquared.parse.node.Node;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
 import adudecalledleo.tbsquared.parse.node.color.ColorNode;
-import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.parse.node.color.ColorParser;
 import adudecalledleo.tbsquared.parse.node.style.StyleNode;
 import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.util.render.Colors;
@@ -265,7 +265,7 @@ public final class TextboxEditorPane extends JEditorPane
         palette = newProvider.getTextboxPalette().orElse(null);
 
         domMeta
-                .set(ColorSelector.PALETTE, palette)
+                .set(ColorParser.PALETTE, palette)
                 .set(StyleNode.FONTS, fonts);
 
         defaultTextColor = newProvider.getTextboxTextColor();
@@ -349,7 +349,10 @@ public final class TextboxEditorPane extends JEditorPane
             doc.setCharacterAttributes(opening.start(), opening.length(), styleMod, true);
             doc.setCharacterAttributes(closing.start(), closing.length(), styleMod, true);
             if (node instanceof ColorNode nColor) {
-                var color = nColor.getSelector().getColor(this.domMeta);
+                var color = nColor.getColor();
+                if (color == null) {
+                    color = defaultTextColor;
+                }
 
                 var attr = nColor.getAttributes().get("value");
                 if (attr != null) {
@@ -365,8 +368,11 @@ public final class TextboxEditorPane extends JEditorPane
                 String fontKey = nStyle.getFontKey();
                 Integer size = nStyle.getSize();
                 Color color = null;
-                if (nStyle.getColorSelector() != null) {
-                    color = nStyle.getColorSelector().getColor(this.domMeta);
+                if (nStyle.isColorSet()) {
+                    color = nStyle.getColor();
+                    if (color == null) {
+                        color = defaultTextColor;
+                    }
 
                     var colorAttr = nStyle.getAttributes().get("color");
                     if (colorAttr != null) {

@@ -1,5 +1,6 @@
 package adudecalledleo.tbsquared.parse.node.color;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -17,15 +18,15 @@ public final class ColorNode extends ContainerNode {
         registry.register(NAME, HANDLER);
     }
 
-    private final ColorSelector selector;
+    private final @Nullable Color color;
 
-    public ColorNode(ColorSelector selector, Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
+    public ColorNode(@Nullable Color color, Span openingSpan, Span closingSpan, Map<String, Attribute> attributes, List<Node> children) {
         super(NAME, openingSpan, closingSpan, attributes, children);
-        this.selector = selector;
+        this.color = color;
     }
 
-    public ColorSelector getSelector() {
-        return selector;
+    public @Nullable Color getColor() {
+        return color;
     }
 
     private static final class Handler implements NodeHandler<ColorNode> {
@@ -42,9 +43,9 @@ public final class ColorNode extends ContainerNode {
                 return null;
             }
 
-            ColorSelector color;
+            Color color;
             try {
-                color = ColorSelector.parse(ctx.metadata(), colorAttr.value().trim());
+                color = ColorParser.parseColor(ctx.metadata(), colorAttr.value().trim());
             } catch (IllegalArgumentException e) {
                 errors.add(new DOMParser.Error(colorAttr.valueSpan().start(), colorAttr.valueSpan().length(), e.getMessage()));
                 return null;
@@ -56,11 +57,10 @@ public final class ColorNode extends ContainerNode {
         @Override
         public void convert(NodeConversionContext ctx, ColorNode node, TextBuilder tb) {
             tb.pushStyle(style -> {
-                var color = node.getSelector().getColor(ctx.metadata());
-                if (color == null) {
+                if (node.getColor() == null) {
                     return style.withDefaultColor();
                 } else {
-                    return style.withColor(color);
+                    return style.withColor(node.getColor());
                 }
             });
             ctx.convert(node.getChildren(), tb);

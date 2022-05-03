@@ -2,14 +2,17 @@ package adudecalledleo.tbsquared.parse.node.color;
 
 import java.awt.*;
 
+import adudecalledleo.tbsquared.color.Palette;
+import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("ClassCanBeRecord")
-final class ColorSelectors {
-    private ColorSelectors() { }
+public final class ColorParser {
+    public static final DataKey<Palette> PALETTE = new DataKey<>(Palette.class, "palette");
 
-    public static ColorSelector parse(DataTracker ctx, String value) {
+    private ColorParser() { }
+
+    public static @Nullable Color parseColor(DataTracker ctx, String value) {
         if (value.startsWith("#")) {
             value = value.substring(1);
             int hexLen = value.length();
@@ -37,22 +40,22 @@ final class ColorSelectors {
                 g = (rgb >> 8) & 0xFF;
                 b = (rgb >> 16) & 0xFF;
             }
-            return new ConstSelector(new Color(r | g << 8 | b << 16, false));
+            return new Color(r | g << 8 | b << 16, false);
         } else {
             value = value.trim();
-            if (NullSelector.NAME.equals(value)) {
-                return NullSelector.INSTANCE;
+            if ("default".equals(value)) {
+                return null;
             } else if (value.contains("(") && value.contains(")")) {
                 int obIdx = value.indexOf('(');
                 String argsStr = value.substring(obIdx + 1, value.indexOf(')')).trim();
                 value = value.substring(0, obIdx).trim();
                 /// function-like - value is function name
-                if (PalIdxSelector.NAME.equals(value)) {
-                    if (!ctx.containsKey(ColorSelector.PALETTE)) {
+                if ("palette".equals(value)) {
+                    if (!ctx.containsKey(PALETTE)) {
                         throw new IllegalArgumentException("no palette exists");
                     }
                     @SuppressWarnings("OptionalGetWithoutIsPresent") // checked above
-                    var pal = ctx.get(ColorSelector.PALETTE).get();
+                    var pal = ctx.get(PALETTE).get();
                     int palIdx;
                     try {
                         palIdx = Integer.parseUnsignedInt(argsStr);
@@ -62,7 +65,7 @@ final class ColorSelectors {
                     if (palIdx >= pal.getSize()) {
                         throw new IllegalArgumentException("palette index is out of bounds (must be below " + pal.getSize() + ")");
                     }
-                    return new PalIdxSelector(palIdx);
+                    return pal.getColor(palIdx);
                 } else if ("rgb".equals(value)) {
                     String[] compsStr = argsStr.split(",");
                     if (compsStr.length != 3) {
@@ -71,11 +74,11 @@ final class ColorSelectors {
                     int r = parseRGBComponent(compsStr[0], "red");
                     int g = parseRGBComponent(compsStr[1], "green");
                     int b = parseRGBComponent(compsStr[2], "blue");
-                    return new ConstSelector(new Color(r, g, b, 255));
+                    return new Color(r, g, b, 255);
                 }
             }
         }
-        throw new IllegalArgumentException("unknown color selector \"%s\"".formatted(value));
+        throw new IllegalArgumentException("could not parse \"" + value + "\" as color");
     }
 
     private static int parseRGBComponent(String str, String name) {
@@ -89,63 +92,5 @@ final class ColorSelectors {
             throw new IllegalArgumentException(name + " component must be between 0 and 255");
         }
         return i;
-    }
-
-    public static final class NullSelector implements ColorSelector {
-        public static final String NAME = "default";
-        public static final ColorSelector INSTANCE = new NullSelector();
-
-        @Override
-        public @Nullable Color getColor(DataTracker ctx) {
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return NAME;
-        }
-    }
-
-    public static final class ConstSelector implements ColorSelector {
-        private final Color color;
-
-        public ConstSelector(Color color) {
-            this.color = color;
-        }
-
-        @Override
-        public Color getColor(DataTracker ctx) {
-            return color;
-        }
-
-        @Override
-        public String toString() {
-            return "#%06X".formatted(color.getRGB());
-        }
-    }
-
-    public static final class PalIdxSelector implements ColorSelector {
-        public static final String NAME = "palette";
-
-        private final int palIdx;
-
-        public PalIdxSelector(int palIdx) {
-            this.palIdx = palIdx;
-        }
-
-        @Override
-        public Color getColor(DataTracker ctx) {
-            var pal = ctx.get(PALETTE)
-                    .orElseThrow(() -> new IllegalArgumentException("no palette exists"));
-            if (palIdx >= pal.getSize()) {
-                throw new IllegalArgumentException("palette index is out of bounds");
-            }
-            return pal.getColor(palIdx);
-        }
-
-        @Override
-        public String toString() {
-            return NAME + "(" + palIdx + ")";
-        }
     }
 }

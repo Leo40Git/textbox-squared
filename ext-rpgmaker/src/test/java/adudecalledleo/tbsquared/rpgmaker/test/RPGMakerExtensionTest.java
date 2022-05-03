@@ -20,7 +20,7 @@ import adudecalledleo.tbsquared.font.SingleFontProvider;
 import adudecalledleo.tbsquared.parse.DOMConverter;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
-import adudecalledleo.tbsquared.parse.node.color.ColorSelector;
+import adudecalledleo.tbsquared.parse.node.color.ColorParser;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
@@ -119,7 +119,7 @@ public final class RPGMakerExtensionTest {
         var doc = result.document();
 
         Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(),
-                DataTracker.of(ColorSelector.PALETTE, pal));
+                DataTracker.of(ColorParser.PALETTE, pal));
 
         var image = sceneRenderer.renderScene(text,
                 Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
