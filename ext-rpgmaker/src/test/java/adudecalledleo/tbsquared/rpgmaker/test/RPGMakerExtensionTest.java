@@ -75,7 +75,7 @@ public final class RPGMakerExtensionTest {
         Face merciaFace = new Face(Definition.builtin(), "Mercia", merciaImage, (name, image) -> new ImageIcon());
 
         var icons = IconPool.builder(32)
-                .addIcon("test", new Icon(Definition.builtin(), iconImage))
+                .addIcon(new Icon(Definition.builtin(), "test", iconImage))
                 .build();
 
         RPGWindowSkin winSkin = new RPGWindowSkin(RPGWindowSkin.Version.MV, windowImage,

@@ -18,12 +18,12 @@ public final class IconPool {
             this.icons = new LinkedHashMap<>();
         }
 
-        public Builder addIcon(String name, Icon icon) {
+        public Builder addIcon(Icon icon) {
             if (icon.image().getWidth() != iconSize || icon.image().getHeight() != iconSize) {
                 throw new IllegalArgumentException("Icon has invalid size! Should be %d x %d, but is %d x %d!"
                         .formatted(iconSize, iconSize, icon.image().getWidth(), icon.image().getHeight()));
             }
-            this.icons.put(name, icon);
+            this.icons.put(icon.name(), icon);
             return this;
         }
 

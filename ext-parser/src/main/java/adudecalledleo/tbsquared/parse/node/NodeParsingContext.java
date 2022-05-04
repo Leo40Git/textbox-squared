@@ -60,6 +60,15 @@ public record NodeParsingContext(NodeRegistry registry, DataTracker metadata, DO
                     final int openStart = offset + openEnd - name.length() - 2;
                     final String openingTagContents = name;
 
+                    boolean autoCloseTag = false;
+                    if (name.endsWith("/")) {
+                        name = name.substring(0, name.length() - 2);
+                        autoCloseTag = true;
+                    } else if (name.endsWith(" /")) {
+                        name = name.substring(0, name.length() - 3);
+                        autoCloseTag = true;
+                    }
+
                     Map<String, Attribute> attrs = new LinkedHashMap<>();
                     int eqIndex = name.indexOf('=');
                     int spIndex = name.indexOf(' ');
@@ -99,18 +108,29 @@ public record NodeParsingContext(NodeRegistry registry, DataTracker metadata, DO
                     }
                     final int contentStart = scanner.tell();
                     final String nameF = name;
-                    String myContents = scanner.until("[/%s]".formatted(name))
-                            .orElseGet(() -> {
-                                errors.add(new DOMParser.Error(openStart, openEnd - openStart + scanner.remaining() + 1,
-                                        "missing closing tag for \"" + nameF + "\""));
-                                return null;
-                            });
+                    String myContents;
+                    if (autoCloseTag) {
+                        myContents = "";
+                    } else {
+                        myContents = scanner.until("[/%s]".formatted(name))
+                                .orElseGet(() -> {
+                                    errors.add(new DOMParser.Error(openStart, openEnd - openStart + scanner.remaining() + 1,
+                                            "missing closing tag for \"" + nameF + "\""));
+                                    return null;
+                                });
+                    }
 
                     boolean success = false;
                     if (handler != null && myContents != null) {
+                        Span openingSpan = new Span(openStart, openEnd - openStart);
+                        Span closingSpan;
+                        if (autoCloseTag) {
+                            closingSpan = openingSpan;
+                        } else {
+                            closingSpan = new Span(offset + scanner.tell() - name.length() - 3, name.length() + 3);
+                        }
                         var node = handler.parse(this, offset + contentStart, errors,
-                                new Span(openStart, openEnd - openStart),
-                                new Span(offset + scanner.tell() - name.length() - 3, name.length() + 3),
+                                openingSpan, closingSpan,
                                 attrs, myContents);
                         if (node != null) {
                             success = true;
@@ -119,7 +139,7 @@ public record NodeParsingContext(NodeRegistry registry, DataTracker metadata, DO
                     }
                     if (!success) {
                         sb.append('[').append(openingTagContents).append(']');
-                        if (myContents != null)
+                        if (!autoCloseTag && myContents != null)
                             sb.append(myContents).append("[/").append(name).append(']');
                     }
 

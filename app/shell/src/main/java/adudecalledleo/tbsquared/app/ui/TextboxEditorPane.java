@@ -19,16 +19,18 @@ import adudecalledleo.tbsquared.app.ui.text.UnderlineHighlighter;
 import adudecalledleo.tbsquared.app.ui.text.ZigZagHighlighter;
 import adudecalledleo.tbsquared.app.ui.util.ErrorMessageBuilder;
 import adudecalledleo.tbsquared.app.ui.util.UnmodifiableAttributeSetView;
-import adudecalledleo.tbsquared.color.Palette;
 import adudecalledleo.tbsquared.data.DefaultMutableDataTracker;
 import adudecalledleo.tbsquared.data.MutableDataTracker;
 import adudecalledleo.tbsquared.font.FontProvider;
+import adudecalledleo.tbsquared.icon.Icon;
+import adudecalledleo.tbsquared.icon.IconPool;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.ContainerNode;
 import adudecalledleo.tbsquared.parse.node.Node;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
 import adudecalledleo.tbsquared.parse.node.color.ColorNode;
 import adudecalledleo.tbsquared.parse.node.color.ColorParser;
+import adudecalledleo.tbsquared.parse.node.style.IconNode;
 import adudecalledleo.tbsquared.parse.node.style.StyleNode;
 import adudecalledleo.tbsquared.text.Span;
 import adudecalledleo.tbsquared.util.render.Colors;
@@ -40,10 +42,16 @@ public final class TextboxEditorPane extends JEditorPane
     private static final Logger LOGGER = LoggerFactory.getLogger("textbox-squared/TextboxEditorPane");
 
     private static final ZigZagHighlighter HLP_ERROR = new ZigZagHighlighter(Color.RED);
-    private static final Map<Color, UnderlineHighlighter> HLP_ESCAPED_COLORS = new HashMap<>();
+    private final Map<Color, UnderlineHighlighter> hlpEscapedColors = new HashMap<>();
 
-    private static Highlighter.HighlightPainter getEscapedColorHighlightPainter(Color color) {
-        return HLP_ESCAPED_COLORS.computeIfAbsent(color, UnderlineHighlighter::new);
+    private Highlighter.HighlightPainter getEscapedColorHighlightPainter(Color color) {
+        return hlpEscapedColors.computeIfAbsent(color, UnderlineHighlighter::new);
+    }
+
+    private final Map<Icon, ImageIcon> iconCache = new HashMap<>();
+
+    private ImageIcon createImageIconForIcon(Icon icon) {
+        return iconCache.computeIfAbsent(icon, icon1 -> new ImageIcon(icon1.image(), icon1.name()));
     }
 
     private static final String AC_ADD_MOD_COLOR = "add_mod.color";
@@ -60,8 +68,8 @@ public final class TextboxEditorPane extends JEditorPane
     private BackgroundRenderer backgroundRenderer;
     private FontProvider fonts;
     private boolean renderTextWithAntialiasing;
-    private Palette palette;
     private Color defaultTextColor;
+    private IconPool icons;
     private boolean forceCaretRendering;
     private final List<Span> escapedSpans;
     private final Set<Span> nodeDeclSpans;
@@ -260,13 +268,25 @@ public final class TextboxEditorPane extends JEditorPane
 
     @Override
     public void onSceneRendererUpdated(SceneRendererProvider newProvider) {
+        hlpEscapedColors.clear();
+        iconCache.clear();
+
         backgroundRenderer = newProvider.getTextboxBackgroundRenderer();
         fonts = newProvider.getTextboxFonts();
-        palette = newProvider.getTextboxPalette().orElse(null);
+        var palette = newProvider.getTextboxPalette().orElse(null);
+        icons = newProvider.getIcons().orElse(null);
 
-        domMeta
-                .set(ColorParser.PALETTE, palette)
-                .set(StyleNode.FONTS, fonts);
+        domMeta.set(StyleNode.FONTS, fonts);
+        if (palette == null) {
+            domMeta.remove(ColorParser.PALETTE);
+        } else {
+            domMeta.set(ColorParser.PALETTE, palette);
+        }
+        if (icons == null) {
+            domMeta.remove(IconPool.ICONS);
+        } else {
+            domMeta.set(IconPool.ICONS, icons);
+        }
 
         defaultTextColor = newProvider.getTextboxTextColor();
         setCaretColor(defaultTextColor);
@@ -402,6 +422,12 @@ public final class TextboxEditorPane extends JEditorPane
 
                 if (color != null) {
                     StyleConstants.setForeground(style, color);
+                }
+            } else if (node instanceof IconNode nIcon) {
+                if (icons != null) {
+                    var icon = createImageIconForIcon(icons.getIcon(nIcon.getIconName()));
+                    StyleConstants.setIcon(style, icon);
+                    StyleConstants.setIcon(styleEscaped, icon);
                 }
             }
 
