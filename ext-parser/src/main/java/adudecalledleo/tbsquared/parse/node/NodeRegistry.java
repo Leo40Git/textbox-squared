@@ -5,6 +5,7 @@ import java.util.Map;
 
 import adudecalledleo.tbsquared.parse.node.color.ColorNode;
 import adudecalledleo.tbsquared.parse.node.style.BasicStyleNodes;
+import adudecalledleo.tbsquared.parse.node.style.IconNode;
 import adudecalledleo.tbsquared.parse.node.style.StyleNode;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,24 +23,27 @@ public final class NodeRegistry {
     }
 
     private Map<String, NodeHandler<?>> handlers;
-
-    private NodeRegistry(Map<String, NodeHandler<?>> handlers) {
-        this.handlers = handlers;
-        register(Document.NAME, Document.HANDLER);
-        register(TextNode.NAME, TextNode.HANDLER);
-    }
+    private boolean frozen;
 
     public NodeRegistry() {
-        this(new HashMap<>());
+        this.handlers = new HashMap<>();
+        this.frozen = false;
+        register(Document.NAME, Document.HANDLER);
+        register(TextNode.NAME, TextNode.HANDLER);
     }
 
     public void registerDefaults() {
         BasicStyleNodes.register(this);
         ColorNode.register(this);
         StyleNode.register(this);
+        IconNode.register(this);
     }
 
     public void register(String name, NodeHandler<?> handler) {
+        if (frozen) {
+            throw new IllegalStateException("This registry is frozen!");
+        }
+
         if (handlers.containsKey(name)) {
             throw new IllegalArgumentException("Node \"" + name + "\" is already registered");
         }
@@ -52,5 +56,6 @@ public final class NodeRegistry {
 
     public void freeze() {
         handlers = Map.copyOf(handlers);
+        frozen = true;
     }
 }

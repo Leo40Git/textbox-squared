@@ -3,6 +3,7 @@ package adudecalledleo.tbsquared.rpgmaker;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
+import java.awt.image.*;
 
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.font.FontMetadata;
@@ -106,6 +107,19 @@ final class RPGTextRenderer extends AbstractTextRenderer {
         g.setColor(c);
 
         return (int) layout.getAdvance();
+    }
+
+    // standard RPG Maker doesn't support icons, but w/e
+    @Override
+    protected int renderIconImpl(Graphics2D g, GraphicsState oldState, int iconSize, BufferedImage icon, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+        // fudge Y a bit
+        y += 3;
+        // make the text vertically centered
+        y += defaultMaxAscent / 2 - iconSize / 2;
+
+        g.drawImage(icon, x, y, null);
+
+        return iconSize + 2;
     }
 
     @Override

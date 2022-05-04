@@ -1,22 +1,26 @@
 package adudecalledleo.tbsquared.scene.composite;
 
 import java.awt.*;
+import java.awt.image.*;
 import java.util.Optional;
 
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.FontProvider;
 import adudecalledleo.tbsquared.font.FontStyle;
+import adudecalledleo.tbsquared.icon.IconPool;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.text.TextStyle;
 import adudecalledleo.tbsquared.text.TextVisitor;
 import adudecalledleo.tbsquared.util.Unit;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<AbstractTextRenderer.RendererState, Unit> {
     protected static final class RendererState {
         public final Graphics2D graphics;
         public final DataTracker sceneMeta;
+        public final @Nullable IconPool icons;
         public final FontProvider fonts;
         public final GraphicsState oldState;
         public final int defaultMaxAscent;
@@ -33,6 +37,7 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
                              int defaultMaxAscent, String defaultFontKey, int startX, int startY) {
             this.graphics = graphics;
             this.sceneMeta = sceneMeta;
+            this.icons = sceneMeta.get(IconPool.ICONS).orElse(null);
             this.fonts = fonts;
             this.oldState = oldState;
             this.defaultMaxAscent = defaultMaxAscent;
@@ -106,6 +111,14 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
                 sb.append(c);
             }
         }
+        if (state.icons != null) {
+            var prefixIcon = style.extras().get(IconPool.PREFIX_ICON).orElse(null);
+            if (prefixIcon != null && state.icons.hasIcon(prefixIcon)) {
+                state.x += renderIconImpl(g, oldState, state.icons.getIconSize(),
+                        state.icons.getIcon(prefixIcon).image(),
+                        sceneMeta, defaultMaxAscent, state.x, state.y);
+            }
+        }
         if (!sb.isEmpty()) {
             state.x += renderTextImpl(g, oldState, sb.toString(), sceneMeta, defaultMaxAscent, state.x, state.y);
             sb.setLength(0);
@@ -125,6 +138,13 @@ public abstract class AbstractTextRenderer implements TextRenderer, TextVisitor<
      * @return string advance
      */
     protected abstract int renderTextImpl(Graphics2D g, GraphicsState oldState, String string, DataTracker sceneMeta, int defaultMaxAscent, int x, int y);
+
+    /**
+     * @return string advance
+     */
+    protected int renderIconImpl(Graphics2D g, GraphicsState oldState, int iconSize, BufferedImage icon, DataTracker sceneMeta, int defaultMaxAscent, int x, int y) {
+        return 0;
+    }
 
     protected int calculateLineAdvance(int maxAscent) {
         return maxAscent;

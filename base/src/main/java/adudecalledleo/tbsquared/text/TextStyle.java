@@ -3,8 +3,10 @@ package adudecalledleo.tbsquared.text;
 import java.awt.*;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.UnaryOperator;
 
 import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.data.MutableDataTracker;
 import adudecalledleo.tbsquared.font.FontStyle;
 import adudecalledleo.tbsquared.util.TriState;
 import org.jetbrains.annotations.NotNull;
@@ -66,5 +68,10 @@ public record TextStyle(Optional<Color> color, Optional<String> font,
 
     public TextStyle withExtras(DataTracker extras) {
         return new TextStyle(color, font, bold, italic, underline, strikethrough, superscript, sizeAdjust, DataTracker.copyOf(extras));
+    }
+
+    public TextStyle withExtras(UnaryOperator<MutableDataTracker> extrasModifier) {
+        return new TextStyle(color, font, bold, italic, underline, strikethrough, superscript, sizeAdjust,
+                DataTracker.copyOf(extrasModifier.apply(MutableDataTracker.copyOf(extras))));
     }
 }

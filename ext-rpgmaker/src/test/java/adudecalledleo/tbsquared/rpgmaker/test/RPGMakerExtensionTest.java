@@ -17,6 +17,8 @@ import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
+import adudecalledleo.tbsquared.icon.Icon;
+import adudecalledleo.tbsquared.icon.IconPool;
 import adudecalledleo.tbsquared.parse.DOMConverter;
 import adudecalledleo.tbsquared.parse.DOMParser;
 import adudecalledleo.tbsquared.parse.node.NodeRegistry;
@@ -24,7 +26,6 @@ import adudecalledleo.tbsquared.parse.node.color.ColorParser;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowSkin;
 import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
-import adudecalledleo.tbsquared.scene.SceneRenderer;
 import adudecalledleo.tbsquared.scene.composite.SolidColorImageFactory;
 import adudecalledleo.tbsquared.text.Text;
 import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
@@ -35,23 +36,29 @@ public final class RPGMakerExtensionTest {
     public static void main(String[] args) {
         final String windowImagePath = "/window.png";
         final String merciaImagePath = "/mercia.png";
+        final String iconImagePath = "/icon.png";
         final String fontPath = "/font/VL-Gothic-Regular.ttf";
         final Path outputPath = Paths.get(".", "output.png").toAbsolutePath();
 
-        BufferedImage windowImage, merciaImage;
+        BufferedImage windowImage, merciaImage, iconImage;
         Font font;
 
         var resources = new AWTResourceLoader(RPGMakerExtensionTest.class);
 
         try {
             windowImage = resources.loadImage(windowImagePath);
-        } catch (IOException e2) {
-            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(windowImagePath), e2);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(windowImagePath), e);
         }
         try {
             merciaImage = resources.loadImage(merciaImagePath);
-        } catch (IOException e1) {
-            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(merciaImagePath), e1);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(merciaImagePath), e);
+        }
+        try {
+            iconImage = resources.loadImage(iconImagePath);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(iconImagePath), e);
         }
 
         try {
@@ -62,15 +69,20 @@ public final class RPGMakerExtensionTest {
             throw new RuntimeException("Failed to load font from \"%s\"".formatted(fontPath), e);
         }
 
+        GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
         font = font.deriveFont(Font.PLAIN, 28);
 
         Face merciaFace = new Face(Definition.builtin(), "Mercia", merciaImage, (name, image) -> new ImageIcon());
+
+        var icons = IconPool.builder(32)
+                .addIcon("test", new Icon(Definition.builtin(), iconImage))
+                .build();
 
         RPGWindowSkin winSkin = new RPGWindowSkin(RPGWindowSkin.Version.MV, windowImage,
                 new RPGWindowTint(-17, -255, -255),
                 0);
 
-        SceneRenderer sceneRenderer = winSkin.sceneRendererBuilder()
+        var sceneRenderer = winSkin.sceneRendererBuilder()
                 .sceneSize(816, 180)
                 .textboxRect(0, 0, 816, 180)
                 .imageFactory(new SolidColorImageFactory(Color.BLACK))
@@ -79,13 +91,19 @@ public final class RPGMakerExtensionTest {
 
         var pal = winSkin.getPalette();
 
+        var ctx = DataTracker.builder()
+                .set(ColorParser.PALETTE, pal)
+                .set(IconPool.ICONS, icons)
+                .set(SceneMetadata.ARROW_FRAME, 1)
+                .build();
+
         var result = DOMParser.parse(NodeRegistry.getDefault(),
                 """
                 Mercia:
                 [color=palette(25)]Hold on.
-                [i]What?[/i][/color] \\u0123
+                [i]What?[/i][/color] [icon=test]\\u0123[/icon]
                 [style size=-4 color=palette(1)]a[/style]a[style size=+4]a[/style] [sup]b[/sup]b[sub]b[/sub]
-                """, DataTracker.empty(), new DOMParser.SpanTracker() {
+                """, ctx, new DOMParser.SpanTracker() {
                     @Override
                     public void markEscaped(int start, int end) {
                         System.out.format("ESCAPE - %d to %d%n", start, end);
@@ -119,11 +137,11 @@ public final class RPGMakerExtensionTest {
         var doc = result.document();
 
         Text text = DOMConverter.toText(doc, NodeRegistry.getDefault(),
-                DataTracker.of(ColorParser.PALETTE, pal));
+                ctx);
 
         var image = sceneRenderer.renderScene(text,
                 Map.of(sceneRenderer.getDefaultFacePosition(), merciaFace),
-                DataTracker.of(SceneMetadata.ARROW_FRAME, 1));
+                ctx);
 
         try (var out = Files.newOutputStream(outputPath)) {
             ImageIO.write(image, "PNG", out);

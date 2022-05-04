@@ -9,6 +9,7 @@ import adudecalledleo.tbsquared.data.DataKey;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.face.FacePool;
 import adudecalledleo.tbsquared.font.FontProvider;
+import adudecalledleo.tbsquared.icon.IconPool;
 import adudecalledleo.tbsquared.scene.SceneRenderer;
 import org.pf4j.ExtensionPoint;
 
@@ -24,6 +25,7 @@ public interface SceneRendererProvider extends ExtensionPoint {
     DataKey<FontProvider> FONTS = new DataKey<>(FontProvider.class, "fonts");
     DataKey<Color> TEXT_COLOR = new DataKey<>(Color.class, "text_color");
     DataKey<Palette> PALETTE = new DataKey<>(Palette.class, "palette");
+    DataKey<IconPool> ICONS = new DataKey<>(IconPool.class, "icons");
 
     default FacePool getFaces() {
         return getMetadata().get(FACES).orElseThrow(() ->
@@ -43,5 +45,9 @@ public interface SceneRendererProvider extends ExtensionPoint {
     }
     default Optional<Palette> getTextboxPalette() {
         return getMetadata().get(PALETTE);
+    }
+
+    default Optional<IconPool> getIcons() {
+        return getMetadata().get(ICONS);
     }
 }
