@@ -3,14 +3,12 @@ package adudecalledleo.tbsquared.app.test;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
-import java.util.Optional;
 
 import adudecalledleo.tbsquared.app.plugin.api.config.ConfigSpec;
-import adudecalledleo.tbsquared.app.plugin.api.renderer.BackgroundRenderer;
 import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
 import adudecalledleo.tbsquared.app.plugin.api.renderer.SolidColorBackgroundRenderer;
-import adudecalledleo.tbsquared.color.Palette;
 import adudecalledleo.tbsquared.data.DataTracker;
+import adudecalledleo.tbsquared.data.DataTrackerBuilder;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.face.FacePool;
@@ -82,7 +80,7 @@ public class TestSceneRendererProvider implements SceneRendererProvider {
         }
     }
 
-    private static final BackgroundRenderer BG_RENDERER = new SolidColorBackgroundRenderer(Color.BLACK);
+    //private static final BackgroundRenderer BG_RENDERER = new SolidColorBackgroundRenderer(Color.BLACK);
     private static final Font FONT = new Font("Courier New", Font.PLAIN, 20);
     private static final FontProvider FONT_PROVIDER = SingleFontProvider.of(FONT,
             FontMetadata.builder(Definition.builtin())
@@ -98,6 +96,13 @@ public class TestSceneRendererProvider implements SceneRendererProvider {
             .textboxRenderer(new TextboxRendererImpl())
             .textRenderer(new TextRendererImpl())
             .faceRenderer(new FaceRendererImpl())
+            .build();
+
+    private static final DataTracker METADATA = new DataTrackerBuilder()
+            .set(FACES, FacePool.empty())
+            .set(BACKGROUND_RENDERER, new SolidColorBackgroundRenderer(Color.BLACK))
+            .set(FONTS, FONT_PROVIDER)
+            .set(TEXT_COLOR, Color.WHITE)
             .build();
 
     public static final SceneRendererProvider INSTANCE = new TestSceneRendererProvider();
@@ -118,27 +123,7 @@ public class TestSceneRendererProvider implements SceneRendererProvider {
     }
 
     @Override
-    public FacePool getFaces() {
-        return FacePool.empty();
-    }
-
-    @Override
-    public BackgroundRenderer getTextboxBackgroundRenderer() {
-        return BG_RENDERER;
-    }
-
-    @Override
-    public FontProvider getTextboxFonts() {
-        return FONT_PROVIDER;
-    }
-
-    @Override
-    public Color getTextboxTextColor() {
-        return Color.WHITE;
-    }
-
-    @Override
-    public Optional<Palette> getTextboxPalette() {
-        return Optional.empty();
+    public DataTracker getMetadata() {
+        return METADATA;
     }
 }
