@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.app;
 
-import adudecalledleo.tbsquared.app.serialize.module.JSemVerModule;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.module.FaceRecipeModule;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.module.JSemVerModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,6 +15,7 @@ public final class Main {
                     new ParameterNamesModule(),
                     new Jdk8Module(),
                     new JavaTimeModule(),
+                    new FaceRecipeModule(),
                     new JSemVerModule());
 
     public static void main(String[] args) {

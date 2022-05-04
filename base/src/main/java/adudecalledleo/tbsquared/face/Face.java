@@ -6,11 +6,12 @@ import javax.swing.*;
 
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.definition.FromDefinition;
+import adudecalledleo.tbsquared.face.icon.FaceIconProvider;
 import org.jetbrains.annotations.Nullable;
 
 public final class Face implements FromDefinition {
     public static final Face BLANK = new Face(Definition.builtin(), "None",
-            new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), FaceIconProvider.NONE);
+            new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), FaceIconProvider.getNone());
 
     private final Definition sourceDefinition;
     private final String name;

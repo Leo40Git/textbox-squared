@@ -1,4 +1,4 @@
-package adudecalledleo.tbsquared.app.serialize.module;
+package adudecalledleo.tbsquared.app.plugin.api.serialize.module;
 
 import java.io.IOException;
 
@@ -13,7 +13,6 @@ import com.github.zafarkhaja.semver.Version;
 
 public final class JSemVerModule extends SimpleModule {
     public JSemVerModule() {
-        super(com.fasterxml.jackson.core.Version.unknownVersion());
         addDeserializer(Version.class, VersionDeserializer.INSTANCE);
         addSerializer(Version.class, VersionSerializer.INSTANCE);
     }

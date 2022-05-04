@@ -6,7 +6,6 @@ import java.util.Map;
 
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.FaceCategory;
-import adudecalledleo.tbsquared.face.FaceIconProvider;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "icon", "faces" })
@@ -29,11 +28,11 @@ public final class FaceCategoryRecipe {
         return this;
     }
 
-    public FaceCategory make(String name, Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
+    public FaceCategory make(String name, Definition sourceDefinition, Path basePath)
             throws FaceRecipeException {
         var builder = FaceCategory.builder(name).iconFace(this.icon);
         for (var entry : this.faces.entrySet()) {
-            builder.addFace(entry.getValue().make(entry.getKey(), sourceDefinition, basePath, iconProvider));
+            builder.addFace(entry.getValue().make(entry.getKey(), sourceDefinition, basePath));
         }
         return builder.build();
     }

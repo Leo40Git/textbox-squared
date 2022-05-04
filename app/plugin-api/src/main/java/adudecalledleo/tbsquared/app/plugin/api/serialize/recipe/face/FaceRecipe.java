@@ -7,22 +7,16 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
-import adudecalledleo.tbsquared.app.plugin.impl.recipe.face.FaceRecipeDeserializer;
-import adudecalledleo.tbsquared.app.plugin.impl.recipe.face.FaceRecipeSerializer;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
-import adudecalledleo.tbsquared.face.FaceIconProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import adudecalledleo.tbsquared.face.icon.FaceIconProvider;
 
-@JsonSerialize(using = FaceRecipeSerializer.class)
-@JsonDeserialize(using = FaceRecipeDeserializer.class)
-public record FaceRecipe(String path, String comment) {
-    public FaceRecipe(String path) {
-        this(path, "");
+public record FaceRecipe(String path, FaceIconProvider iconProvider, String comment) {
+    public FaceRecipe(String path, FaceIconProvider iconProvider) {
+        this(path, iconProvider, "");
     }
 
-    public Face make(String name, Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
+    public Face make(String name, Definition sourceDefinition, Path basePath)
             throws FaceRecipeException {
         Path fullPath = basePath.resolve(this.path);
         BufferedImage image;
@@ -31,6 +25,6 @@ public record FaceRecipe(String path, String comment) {
         } catch (IOException e) {
             throw new FaceRecipeException("Failed to load image file for face \"%s\" from \"%s\"".formatted(name, fullPath), e);
         }
-        return new Face(sourceDefinition, name, image, iconProvider, this.comment);
+        return new Face(sourceDefinition, name, image, this.iconProvider, this.comment);
     }
 }

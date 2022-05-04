@@ -1,7 +1,10 @@
 package adudecalledleo.tbsquared.app.plugin.test;
 
 import adudecalledleo.tbsquared.app.plugin.api.PluginAPI;
+import adudecalledleo.tbsquared.app.plugin.api.PostLoadListener;
 import adudecalledleo.tbsquared.app.plugin.api.renderer.SceneRendererProvider;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.module.FaceRecipeModule;
+import adudecalledleo.tbsquared.app.plugin.api.serialize.module.JSemVerModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,7 +17,9 @@ public final class TestPluginAPI implements PluginAPI {
             .registerModules(
                     new ParameterNamesModule(),
                     new Jdk8Module(),
-                    new JavaTimeModule());
+                    new JavaTimeModule(),
+                    new FaceRecipeModule(),
+                    new JSemVerModule());
 
     @Override
     public Version getVersion() {
@@ -23,6 +28,11 @@ public final class TestPluginAPI implements PluginAPI {
 
     @Override
     public void registerSceneRendererProvider(SceneRendererProvider provider) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void addPostLoadListener(PostLoadListener listener) {
         throw new UnsupportedOperationException();
     }
 

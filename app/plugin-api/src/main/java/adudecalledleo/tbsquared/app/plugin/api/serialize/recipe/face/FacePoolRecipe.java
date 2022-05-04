@@ -9,7 +9,6 @@ import java.util.Map;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.DefaultFacePool;
 import adudecalledleo.tbsquared.face.FaceCategory;
-import adudecalledleo.tbsquared.face.FaceIconProvider;
 import adudecalledleo.tbsquared.face.FacePool;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -28,13 +27,12 @@ public final class FacePoolRecipe {
         return this;
     }
 
-    public FacePool make(Definition sourceDefinition, Path basePath, FaceIconProvider iconProvider)
-            throws FaceRecipeException {
+    public FacePool make(Definition sourceDefinition, Path basePath) throws FaceRecipeException {
         List<FaceCategory> builtCats = new LinkedList<>();
         for (var entry : this.categories.entrySet()) {
             var name = entry.getKey();
             try {
-                builtCats.add(entry.getValue().make(name, sourceDefinition, basePath, iconProvider));
+                builtCats.add(entry.getValue().make(name, sourceDefinition, basePath));
             } catch (FaceRecipeException e) {
                 throw new FaceRecipeException("Failed to build category \"%s\"".formatted(name), e);
             }
