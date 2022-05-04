@@ -76,6 +76,7 @@ public final class StyleNode extends ContainerNode {
                     if (!fonts.hasFontKey(fontStr)) {
                         errors.add(new DOMParser.Error(fontAttr.valueSpan().start(), fontAttr.valueSpan().length(),
                                 "unknown font \"" + fontStr + "\""));
+                        return null;
                     }
                 }
 
