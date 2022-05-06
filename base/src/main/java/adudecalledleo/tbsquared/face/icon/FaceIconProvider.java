@@ -13,7 +13,7 @@ public interface FaceIconProvider {
     }
 
     static FaceIconProvider getDefault() {
-        return DefaultFaceIconProvider.INSTANCE;
+        return ResizingFaceIconProvider.DEFAULT;
     }
 
     @Nullable ImageIcon createIcon(String name, BufferedImage image);

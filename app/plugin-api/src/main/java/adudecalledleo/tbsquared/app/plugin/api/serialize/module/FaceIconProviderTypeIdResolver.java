@@ -1,7 +1,5 @@
 package adudecalledleo.tbsquared.app.plugin.api.serialize.module;
 
-import java.io.IOException;
-
 import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FaceIconProviders;
 import adudecalledleo.tbsquared.face.icon.FaceIconProvider;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -33,7 +31,7 @@ public final class FaceIconProviderTypeIdResolver extends TypeIdResolverBase {
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+    public JavaType typeFromId(DatabindContext context, String id) {
         var type = FaceIconProviders.getType(id);
         if (type == null) {
             throw new IllegalArgumentException("Unknown icon provider type \"" + id + "\"!");

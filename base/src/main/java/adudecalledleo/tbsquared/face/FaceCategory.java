@@ -53,6 +53,8 @@ public final class FaceCategory {
         return new Builder(name);
     }
 
+    public static final FaceCategory NONE = new FaceCategory("(none)", List.of(Face.BLANK), Face.BLANK.getName());
+
     private final String name;
     private final Map<String, Face> faces;
     private final Face iconFace;

@@ -7,11 +7,12 @@ import java.util.Map;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.FaceCategory;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.jetbrains.annotations.Nullable;
 
 @JsonPropertyOrder({ "icon", "faces" })
 public final class FaceCategoryRecipe {
     public final Map<String, FaceRecipe> faces;
-    public String icon;
+    public @Nullable String icon;
 
     public FaceCategoryRecipe() {
         this.faces = new LinkedHashMap<>();
