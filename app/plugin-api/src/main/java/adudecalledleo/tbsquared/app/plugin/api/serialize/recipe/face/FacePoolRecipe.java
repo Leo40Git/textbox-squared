@@ -1,11 +1,11 @@
 package adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face;
 
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.app.plugin.api.util.ImageLoader;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.DefaultFacePool;
 import adudecalledleo.tbsquared.face.FaceCategory;
@@ -27,12 +27,12 @@ public final class FacePoolRecipe {
         return this;
     }
 
-    public FacePool make(Definition sourceDefinition, Path basePath) throws FaceRecipeException {
+    public FacePool make(Definition sourceDefinition, ImageLoader imgLoader) throws FaceRecipeException {
         List<FaceCategory> builtCats = new LinkedList<>();
         for (var entry : this.categories.entrySet()) {
             var name = entry.getKey();
             try {
-                builtCats.add(entry.getValue().make(name, sourceDefinition, basePath));
+                builtCats.add(entry.getValue().make(name, sourceDefinition, imgLoader));
             } catch (FaceRecipeException e) {
                 throw new FaceRecipeException("Failed to build category \"%s\"".formatted(name), e);
             }

@@ -1,9 +1,9 @@
 package adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face;
 
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import adudecalledleo.tbsquared.app.plugin.api.util.ImageLoader;
 import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.FaceCategory;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,11 +29,11 @@ public final class FaceCategoryRecipe {
         return this;
     }
 
-    public FaceCategory make(String name, Definition sourceDefinition, Path basePath)
+    public FaceCategory make(String name, Definition sourceDefinition, ImageLoader imgLoader)
             throws FaceRecipeException {
         var builder = FaceCategory.builder(name).iconFace(this.icon);
         for (var entry : this.faces.entrySet()) {
-            builder.addFace(entry.getValue().make(entry.getKey(), sourceDefinition, basePath));
+            builder.addFace(entry.getValue().make(entry.getKey(), sourceDefinition, imgLoader));
         }
         return builder.build();
     }

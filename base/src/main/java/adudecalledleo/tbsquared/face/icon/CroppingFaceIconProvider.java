@@ -16,6 +16,6 @@ public record CroppingFaceIconProvider(int x, int y, int width, int height) impl
         g.clearRect(0, 0, width, height);
         g.drawImage(image, 0, 0, width, height, x, y, width, height, null);
         g.dispose();
-        return new ImageIcon(image, name);
+        return new ImageIcon(croppedImage, name);
     }
 }
