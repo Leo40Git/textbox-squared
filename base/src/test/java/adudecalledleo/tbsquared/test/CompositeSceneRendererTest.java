@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.image.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -26,7 +27,6 @@ import adudecalledleo.tbsquared.text.TextBuilder;
 import adudecalledleo.tbsquared.text.TextStyle;
 import adudecalledleo.tbsquared.util.render.Colors;
 import adudecalledleo.tbsquared.util.render.GraphicsState;
-import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 import adudecalledleo.tbsquared.util.shape.Dim;
 import adudecalledleo.tbsquared.util.shape.Rect;
 
@@ -90,11 +90,9 @@ public final class CompositeSceneRendererTest {
 
         Font font = new Font("Arial", Font.PLAIN, 21);
 
-        var resources = new AWTResourceLoader(CompositeSceneRendererTest.class);
-
         BufferedImage tbSourceImage;
         try {
-            tbSourceImage = resources.loadImage(tbSourcePath);
+            tbSourceImage = loadImage(tbSourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read textbox source image from \"%s\"".formatted(tbSourcePath),
                     e);
@@ -102,7 +100,7 @@ public final class CompositeSceneRendererTest {
 
         BufferedImage faceImage;
         try {
-            faceImage = resources.loadImage(faceSourcePath);
+            faceImage = loadImage(faceSourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read face image from \"%s\"".formatted(faceSourcePath),
                     e);
@@ -145,6 +143,16 @@ public final class CompositeSceneRendererTest {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to write output image to \"%s\"".formatted(outputPath),
                     e);
+        }
+    }
+
+    private static BufferedImage loadImage(String path) throws IOException {
+        var in = CompositeSceneRendererTest.class.getResourceAsStream(path);
+        if (in == null) {
+            throw new FileNotFoundException(path);
+        }
+        try (in) {
+            return ImageIO.read(in);
         }
     }
 }

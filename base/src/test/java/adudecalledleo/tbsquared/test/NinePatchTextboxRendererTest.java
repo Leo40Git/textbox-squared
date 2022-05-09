@@ -1,6 +1,7 @@
 package adudecalledleo.tbsquared.test;
 
 import java.awt.image.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -12,7 +13,6 @@ import javax.imageio.ImageIO;
 import adudecalledleo.tbsquared.data.DataTracker;
 import adudecalledleo.tbsquared.scene.composite.NinePatchTextboxRenderer;
 import adudecalledleo.tbsquared.util.render.Colors;
-import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
 public final class NinePatchTextboxRendererTest {
     private NinePatchTextboxRendererTest() { }
@@ -21,11 +21,9 @@ public final class NinePatchTextboxRendererTest {
         String sourcePath = "/ninepatch.png";
         Path outputPath = Paths.get(".", "output.png").toAbsolutePath();
 
-        var resources = new AWTResourceLoader(NinePatchTextboxRendererTest.class);
-
         BufferedImage sourceImage;
         try {
-            sourceImage = resources.loadImage(sourcePath);
+            sourceImage = loadImage(sourcePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read source image from \"%s\"".formatted(sourcePath),
                     e);
@@ -46,6 +44,16 @@ public final class NinePatchTextboxRendererTest {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to write output image to \"%s\"".formatted(outputPath),
                     e);
+        }
+    }
+
+    private static BufferedImage loadImage(String path) throws IOException {
+        var in = NinePatchTextboxRendererTest.class.getResourceAsStream(path);
+        if (in == null) {
+            throw new FileNotFoundException(path);
+        }
+        try (in) {
+            return ImageIO.read(in);
         }
     }
 }

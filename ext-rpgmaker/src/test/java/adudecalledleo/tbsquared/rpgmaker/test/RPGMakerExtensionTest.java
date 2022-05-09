@@ -2,7 +2,9 @@ package adudecalledleo.tbsquared.rpgmaker.test;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +30,6 @@ import adudecalledleo.tbsquared.rpgmaker.RPGWindowTint;
 import adudecalledleo.tbsquared.scene.SceneMetadata;
 import adudecalledleo.tbsquared.scene.composite.SolidColorImageFactory;
 import adudecalledleo.tbsquared.text.Text;
-import adudecalledleo.tbsquared.util.resource.AWTResourceLoader;
 
 public final class RPGMakerExtensionTest {
     private RPGMakerExtensionTest() { }
@@ -43,26 +44,24 @@ public final class RPGMakerExtensionTest {
         BufferedImage windowImage, merciaImage, iconImage;
         Font font;
 
-        var resources = new AWTResourceLoader(RPGMakerExtensionTest.class);
-
         try {
-            windowImage = resources.loadImage(windowImagePath);
+            windowImage = loadImage(windowImagePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(windowImagePath), e);
         }
         try {
-            merciaImage = resources.loadImage(merciaImagePath);
+            merciaImage = loadImage(merciaImagePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(merciaImagePath), e);
         }
         try {
-            iconImage = resources.loadImage(iconImagePath);
+            iconImage = loadImage(iconImagePath);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load image from \"%s\"".formatted(iconImagePath), e);
         }
 
-        try {
-            font = resources.loadFont(Font.TRUETYPE_FONT, fontPath);
+        try (var in = openResourceAsStream(fontPath)) {
+            font = Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load font from \"%s\"".formatted(fontPath), e);
         } catch (FontFormatException e) {
@@ -148,6 +147,20 @@ public final class RPGMakerExtensionTest {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to write output image to \"%s\"".formatted(outputPath),
                     e);
+        }
+    }
+
+    private static InputStream openResourceAsStream(String path) throws IOException {
+        var in = RPGMakerExtensionTest.class.getResourceAsStream(path);
+        if (in == null) {
+            throw new FileNotFoundException(path);
+        }
+        return in;
+    }
+
+    private static BufferedImage loadImage(String path) throws IOException {
+        try (var in = openResourceAsStream(path)) {
+            return ImageIO.read(in);
         }
     }
 }
