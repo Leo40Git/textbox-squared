@@ -19,6 +19,7 @@ import adudecalledleo.tbsquared.definition.Definition;
 import adudecalledleo.tbsquared.face.Face;
 import adudecalledleo.tbsquared.font.FontMetadata;
 import adudecalledleo.tbsquared.font.SingleFontProvider;
+import adudecalledleo.tbsquared.icon.DefaultIconPool;
 import adudecalledleo.tbsquared.icon.Icon;
 import adudecalledleo.tbsquared.icon.IconPool;
 import adudecalledleo.tbsquared.parse.DOMConverter;
@@ -73,7 +74,7 @@ public final class RPGMakerExtensionTest {
 
         Face merciaFace = new Face(Definition.builtin(), "Mercia", merciaImage, (name, image) -> new ImageIcon());
 
-        var icons = IconPool.builder(32)
+        var icons = DefaultIconPool.builder(32)
                 .addIcon(new Icon(Definition.builtin(), "test", iconImage))
                 .build();
 
