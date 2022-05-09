@@ -3,8 +3,8 @@ package adudecalledleo.tbsquared.app.plugin.test;
 import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FaceCategoryRecipe;
 import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FacePoolRecipe;
 import adudecalledleo.tbsquared.app.plugin.api.serialize.recipe.face.FaceRecipe;
+import adudecalledleo.tbsquared.face.icon.CroppingFaceIconProvider;
 import adudecalledleo.tbsquared.face.icon.FaceIconProvider;
-import adudecalledleo.tbsquared.face.icon.ScalingFaceIconProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public final class FaceRecipeTest {
@@ -23,11 +23,7 @@ public final class FaceRecipeTest {
                             "comment": "Made by ADudeCalledLeo"
                           },
                           "TEST": {
-                            "path": "test/test.png",
-                            "icon": {
-                               "type": "scale",
-                               "factor": 0.5
-                            }
+                            "path": "test/test.png"
                           },
                           "TEST2": {
                             "path": "test/test2.png",
@@ -53,7 +49,7 @@ public final class FaceRecipeTest {
                 .addCategory("Mercia", new FaceCategoryRecipe().setIcon("Neutral")
                         .addFace("Neutral", new FaceRecipe("mercia/neutral.png", FaceIconProvider.getDefault()))
                         .addFace("Blep", new FaceRecipe("mercia/blep.png", FaceIconProvider.getDefault(), "Made by ADudeCalledLeo"))
-                        .addFace("TEST", new FaceRecipe("test/test.png", new ScalingFaceIconProvider(0.5), "abcd")));
+                        .addFace("TEST", new FaceRecipe("test/test.png", new CroppingFaceIconProvider(0, 0, 16, 16), "abcd")));
         try {
             System.out.println(TestPluginAPI.JACKSON.writeValueAsString(recipe2));
         } catch (JsonProcessingException e) {

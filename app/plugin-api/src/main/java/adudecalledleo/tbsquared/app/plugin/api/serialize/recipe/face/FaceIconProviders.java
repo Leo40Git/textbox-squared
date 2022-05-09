@@ -6,7 +6,6 @@ import java.util.Map;
 import adudecalledleo.tbsquared.face.icon.CroppingFaceIconProvider;
 import adudecalledleo.tbsquared.face.icon.FaceIconProvider;
 import adudecalledleo.tbsquared.face.icon.ResizingFaceIconProvider;
-import adudecalledleo.tbsquared.face.icon.ScalingFaceIconProvider;
 import org.jetbrains.annotations.Nullable;
 
 public final class FaceIconProviders {
@@ -36,7 +35,6 @@ public final class FaceIconProviders {
 
     static {
         register("crop", CroppingFaceIconProvider.class);
-        register("scale", ScalingFaceIconProvider.class);
         register("resize", ResizingFaceIconProvider.class);
     }
 }
